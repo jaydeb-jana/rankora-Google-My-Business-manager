@@ -202,6 +202,72 @@ export default function ProfileClient({ initialUser }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Permanent Public Review Link Card (Auto-Generated, Read-Only) */}
+        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+                <Globe className="w-5 h-5" />
+              </span>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-sm font-semibold text-[#202124]">
+                    Your Permanent Review Link
+                  </h3>
+                  <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-[#188038] bg-[#e6f4ea] px-2 py-0.5 rounded-full">
+                    <Lock className="w-3 h-3" />
+                    <span>Auto-Generated from Business Name</span>
+                  </span>
+                </div>
+                <p className="text-xs text-[#5f6368]">
+                  This is the link your customers visit or scan to create their 5-star review draft.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+            <div className="flex-1 flex items-center px-3.5 py-2.5 bg-[#f8f9fa] border border-[#dadce0] rounded-xl text-sm font-mono text-[#202124] select-all overflow-x-auto">
+              <span className="text-[#5f6368] shrink-0">{currentOrigin || ''}/r/</span>
+              <span className="font-bold text-[#1a73e8]">{user?.slug || formData.slug || 'generating...'}</span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleCopyReviewLink}
+                className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
+              >
+                {copiedReviewUrl ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-[#188038]" />
+                    <span className="text-[#188038]">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Link</span>
+                  </>
+                )}
+              </button>
+
+              <a
+                href={`/r/${user?.slug || formData.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
+              >
+                <span>Visit Page</span>
+                <ExternalLink className="w-3.5 h-3.5 text-[#5f6368]" />
+              </a>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-[#70757a] bg-[#f8f9fa] p-2.5 rounded-lg border border-[#e8eaed]">
+            ℹ️ <strong>Notice:</strong> This URL is locked and automatically generated from your <strong>Business Name</strong> (all letters converted to lowercase, special symbols removed). When you change your Business Name below, your review link will automatically update.
+          </p>
+        </div>
+
         {/* Google Review URL Card */}
         <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
           <div className="flex items-center justify-between">

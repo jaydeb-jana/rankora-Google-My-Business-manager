@@ -508,37 +508,6 @@ export default function PublicReviewPageClient({ business }) {
                 </button>
               </div>
 
-              {/* Language Switcher (if business configured multiple languages) */}
-              {configuredLanguages.length > 1 && (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between gap-1">
-                  <div className="flex items-center space-x-1 text-xs font-bold text-slate-700 pl-1">
-                    <Languages className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Language:</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {configuredLanguages.map((l) => {
-                      const isActive = activeLang === l.code;
-                      const meta = SUPPORTED_LANGUAGES.find((item) => item.code === l.code);
-                      return (
-                        <button
-                          key={l.code}
-                          type="button"
-                          onClick={() => handleRegenerateInLanguage(l.code)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center space-x-1 ${
-                            isActive
-                              ? 'bg-blue-600 text-white shadow-2xs'
-                              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-                          }`}
-                        >
-                          <span>{meta?.flag || '🌐'}</span>
-                          <span>{l.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Review Section */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
