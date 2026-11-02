@@ -87,9 +87,9 @@ export default function ServicesManagerClient({ initialServices }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-[#202124]">Services</h2>
+          <h2 className="text-xl font-bold text-[#202124]">AI Knowledge Base</h2>
           <p className="text-xs text-[#5f6368] mt-1">
-            Add the services customers can pick on your review page.
+            Manage the services, topics, and keywords AI uses to assist customer reviews.
           </p>
         </div>
 

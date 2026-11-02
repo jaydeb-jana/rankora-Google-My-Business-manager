@@ -15,6 +15,27 @@ const CustomQuestionSchema = new mongoose.Schema({
   required: { type: Boolean, default: false },
 });
 
+const AiLanguageSchema = new mongoose.Schema(
+  {
+    code: { type: String, required: true },
+    name: { type: String, required: true },
+    ratio: { type: Number, default: 100 },
+  },
+  { _id: false }
+);
+
+const AiKnowledgeSchema = new mongoose.Schema(
+  {
+    shopDetails: { type: String, default: '' },
+    reviewStyleRules: { type: String, default: '' },
+    languages: {
+      type: [AiLanguageSchema],
+      default: [{ code: 'en', name: 'English', ratio: 100 }],
+    },
+  },
+  { _id: false }
+);
+
 const UserSchema = new mongoose.Schema(
   {
     email: {
@@ -53,6 +74,10 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+    },
+    logoUrl: {
+      type: String,
+      default: '',
     },
     googleReviewUrl: {
       type: String,
@@ -94,6 +119,14 @@ const UserSchema = new mongoose.Schema(
     customQuestions: {
       type: [CustomQuestionSchema],
       default: [],
+    },
+    aiKnowledge: {
+      type: AiKnowledgeSchema,
+      default: () => ({
+        shopDetails: '',
+        reviewStyleRules: '',
+        languages: [{ code: 'en', name: 'English', ratio: 100 }],
+      }),
     },
     stats: {
       totalVisits: { type: Number, default: 0 },

@@ -70,6 +70,8 @@ export default async function PublicReviewPage({ params }) {
       'Select the services you received below. We will help draft an authentic review you can review and paste into Google.',
     services: user.services || [],
     googleReviewUrl: user.googleReviewUrl || '',
+    logoUrl: user.logoUrl || '',
+    aiKnowledge: user.aiKnowledge || null,
     hasGoogleUrl: Boolean(user.googleReviewUrl && user.googleReviewUrl.startsWith('http')),
   };
 

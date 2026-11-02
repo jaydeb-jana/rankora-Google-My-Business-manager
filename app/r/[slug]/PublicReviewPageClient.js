@@ -59,6 +59,7 @@ export default function PublicReviewPageClient({ business }) {
       selectedServices: chosenServices,
       sentiment,
       answers,
+      aiKnowledge: business.aiKnowledge,
     });
 
     setDrafts(generated);
@@ -157,9 +158,19 @@ export default function PublicReviewPageClient({ business }) {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#dadce0] google-card-shadow space-y-6">
           {/* Business Header Profile */}
           <div className="text-center pb-6 border-b border-[#f1f3f4]">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#4285f4] text-white flex items-center justify-center font-bold text-2xl mx-auto mb-3 shadow-xs">
-              {business.businessName.charAt(0)}
-            </div>
+            {business.logoUrl ? (
+              <div className="w-20 h-20 rounded-2xl border border-[#dadce0] overflow-hidden bg-white p-1 mx-auto mb-3 shadow-xs flex items-center justify-center">
+                <img
+                  src={business.logoUrl}
+                  alt={business.businessName}
+                  className="w-full h-full object-contain rounded-xl"
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#4285f4] text-white flex items-center justify-center font-bold text-2xl mx-auto mb-3 shadow-xs">
+                {business.businessName.charAt(0)}
+              </div>
+            )}
             <h1 className="text-xl sm:text-2xl font-bold text-[#202124]">
               {business.businessName}
             </h1>

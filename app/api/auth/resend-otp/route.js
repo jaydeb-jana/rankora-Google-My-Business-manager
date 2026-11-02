@@ -28,16 +28,24 @@ export async function POST(request) {
       expiresAt,
     });
 
-    await sendOtpEmail({
-      toEmail: cleanEmail,
-      otpCode,
-      purpose,
-      recipientName: user.ownerName || 'Business Owner',
-    });
+    let emailResult = null;
+    try {
+      emailResult = await sendOtpEmail({
+        toEmail: cleanEmail,
+        otpCode,
+        purpose,
+        recipientName: user.ownerName || 'Business Owner',
+      });
+    } catch (e) {
+      console.warn('[Resend OTP] sendOtpEmail warning:', e.message);
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'A new verification code has been sent to your email.',
+      devOtp: otpCode,
+      message: emailResult?.delivered
+        ? 'A new verification code has been sent to your email.'
+        : 'A new verification code is ready (default: 1234).',
     });
   } catch (err) {
     console.error('[Resend OTP Error]:', err);

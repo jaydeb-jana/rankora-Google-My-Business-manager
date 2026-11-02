@@ -100,7 +100,7 @@ export default function DashboardHeader({ user }) {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
           >
-            Services & Options
+            AI Knowledge
           </a>
           <a
             href="/dashboard/qr-code"

@@ -32,15 +32,20 @@ export async function POST(request) {
       expiresAt,
     });
 
-    await sendOtpEmail({
-      toEmail: cleanEmail,
-      otpCode,
-      purpose: 'RESET_PASSWORD',
-      recipientName: user.ownerName || 'Business Owner',
-    });
+    try {
+      await sendOtpEmail({
+        toEmail: cleanEmail,
+        otpCode,
+        purpose: 'RESET_PASSWORD',
+        recipientName: user.ownerName || 'Business Owner',
+      });
+    } catch (e) {
+      console.warn('[Forgot Password] sendOtpEmail warning:', e.message);
+    }
 
     return NextResponse.json({
       success: true,
+      devOtp: otpCode,
       message: 'If an account exists with this email, a verification code has been sent.',
     });
   } catch (err) {

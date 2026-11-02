@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useEffect } from 'react';
 
-export default function OtpInput({ length = 6, value = '', onChange, onComplete }) {
+export default function OtpInput({ length = 4, value = '', onChange, onComplete }) {
   const inputRefs = useRef([]);
 
   const digits = value.split('').slice(0, length);

@@ -39,6 +39,8 @@ export async function GET(request, { params }) {
         services: user.services || [],
         customQuestions: user.customQuestions || [],
         googleReviewUrl: user.googleReviewUrl || '',
+        logoUrl: user.logoUrl || '',
+        aiKnowledge: user.aiKnowledge || null,
         hasGoogleUrl: Boolean(user.googleReviewUrl && user.googleReviewUrl.startsWith('http')),
       },
     });

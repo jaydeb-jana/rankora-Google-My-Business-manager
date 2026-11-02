@@ -9,6 +9,9 @@ export default async function ServicesPage() {
   const freshUser = await userRepo.findById(user._id);
 
   return (
-    <ServicesManagerClient initialServices={freshUser?.services || []} />
+    <ServicesManagerClient
+      initialServices={freshUser?.services || []}
+      initialAiKnowledge={freshUser?.aiKnowledge || null}
+    />
   );
 }

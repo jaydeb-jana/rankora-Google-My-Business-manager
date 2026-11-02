@@ -116,9 +116,9 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
 
               <form onSubmit={handleSaveGoogleUrl} className="mt-3 flex flex-col sm:flex-row gap-2">
                 <input
-                  type="url"
+                  type="text"
                   required
-                  placeholder="https://search.google.com/local/writereview?placeid=... or https://g.page/r/.../review"
+                  placeholder="Paste your link here (e.g. https://share.google/... or Google Review URL)"
                   value={googleUrlInput}
                   onChange={(e) => setGoogleUrlInput(e.target.value)}
                   className="flex-1 px-3.5 py-2 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
@@ -268,10 +268,10 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
             <ArrowRight className="w-4 h-4 text-[#5f6368] group-hover:text-[#1a73e8] group-hover:translate-x-1 transition-all" />
           </div>
           <h4 className="text-sm font-semibold text-[#202124]">
-            Manage Services ({user.services?.length || 0})
+            AI Knowledge ({user.services?.length || 0})
           </h4>
           <p className="mt-1 text-xs text-[#5f6368]">
-            Add or edit the exact services your customers choose when creating their review.
+            Add or edit the services, topics, and keywords AI uses when generating customer reviews.
           </p>
         </a>
 

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Building2,
   User,
@@ -14,6 +14,9 @@ import {
   ExternalLink,
   ShieldCheck,
   CheckCircle2,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
@@ -22,6 +25,8 @@ export default function ProfileClient({ initialUser }) {
   const { showToast } = useToast();
   const [user, setUser] = useState(initialUser);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const fileInputRef = useRef(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: user.businessName || '',
@@ -34,9 +39,69 @@ export default function ProfileClient({ initialUser }) {
     website: user.website || '',
     description: user.description || '',
     slug: user.slug || '',
+    logoUrl: user.logoUrl || '',
   });
 
   const [saving, setSaving] = useState(false);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image size exceeds 5 MB limit. Please select a file under 5 MB.', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      showToast('Please upload a valid image file (PNG, JPG, WEBP, or SVG).', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setLogoUploading(true);
+    const body = new FormData();
+    body.append('file', file);
+
+    try {
+      const res = await fetch('/api/business/upload-logo', {
+        method: 'POST',
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload logo');
+
+      setFormData((prev) => ({ ...prev, logoUrl: data.logoUrl }));
+      setUser((prev) => ({ ...prev, logoUrl: data.logoUrl }));
+      showToast('Business logo uploaded successfully!', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setLogoUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    setLogoUploading(true);
+    try {
+      const res = await fetch('/api/business/upload-logo', {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to remove logo');
+
+      setFormData((prev) => ({ ...prev, logoUrl: '' }));
+      setUser((prev) => ({ ...prev, logoUrl: '' }));
+      showToast('Business logo removed.', 'info');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -106,11 +171,11 @@ export default function ProfileClient({ initialUser }) {
 
           <div>
             <input
-              type="url"
+              type="text"
               name="googleReviewUrl"
               value={formData.googleReviewUrl}
               onChange={handleChange}
-              placeholder="https://search.google.com/local/writereview?placeid=... or https://g.page/r/.../review"
+              placeholder="Paste your link here (e.g. https://share.google/... or Google Review URL)"
               className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
             />
           </div>
@@ -133,6 +198,99 @@ export default function ProfileClient({ initialUser }) {
               </span>
             </div>
           )}
+        </div>
+
+        {/* Business Brand & Logo Card */}
+        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-2.5">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+                <ImageIcon className="w-5 h-5" />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold text-[#202124]">
+                  Business Logo
+                </h3>
+                <p className="text-xs text-[#5f6368] mt-0.5">
+                  Your logo appears on the customer review page, sidebar, and print materials.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2.5 py-1 rounded-full shrink-0">
+              Max 5 MB
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pt-1">
+            {/* Logo Preview Avatar */}
+            <div className="relative group shrink-0">
+              {formData.logoUrl ? (
+                <div className="w-24 h-24 rounded-2xl border-2 border-[#dadce0] overflow-hidden bg-white p-1.5 shadow-xs flex items-center justify-center">
+                  <img
+                    src={formData.logoUrl}
+                    alt={formData.businessName || 'Business Logo'}
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                </div>
+              ) : (
+                <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-[#dadce0] bg-[#f8f9fa] flex flex-col items-center justify-center text-[#5f6368] hover:border-[#1a73e8] transition-colors">
+                  <span className="text-2xl font-bold text-[#1a73e8]">
+                    {formData.businessName?.charAt(0) || 'B'}
+                  </span>
+                  <span className="text-[10px] font-medium mt-1 text-[#70757a]">No Logo</span>
+                </div>
+              )}
+
+              {logoUploading && (
+                <div className="absolute inset-0 bg-white/85 rounded-2xl flex items-center justify-center backdrop-blur-xs">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#1a73e8]" />
+                </div>
+              )}
+            </div>
+
+            {/* Actions & Guidelines */}
+            <div className="flex-1 text-center sm:text-left space-y-3">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  disabled={logoUploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {logoUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                  <span>{formData.logoUrl ? 'Change Logo' : 'Upload Logo'}</span>
+                </button>
+
+                {formData.logoUrl && (
+                  <button
+                    type="button"
+                    disabled={logoUploading}
+                    onClick={handleRemoveLogo}
+                    className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-medium text-[#d93025] hover:bg-[#fce8e6] border border-[#fad2cf] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="text-xs text-[#5f6368] space-y-1">
+                <p>
+                  Recommended size: Square ratio (e.g. 500 × 500 px).
+                </p>
+                <p className="text-[11px] text-[#70757a]">
+                  Supported formats: <strong>PNG, JPG, WEBP, SVG</strong> · Max size: <strong>5 MB</strong>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Core Business Information */}
@@ -199,6 +357,7 @@ export default function ProfileClient({ initialUser }) {
                 <option value="Restaurant & Cafe">Restaurant & Cafe</option>
                 <option value="Auto Repair & Detailing">Auto Repair & Detailing</option>
                 <option value="Salon, Spa & Wellness">Salon, Spa & Wellness</option>
+                <option value="Computer Shop">Computer Shop</option>
                 <option value="Legal & Financial">Legal & Financial</option>
                 <option value="Retail & Shopping">Retail & Shopping</option>
                 <option value="Professional Services">Professional Services</option>
@@ -246,39 +405,6 @@ export default function ProfileClient({ initialUser }) {
                 className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
-                Public Review URL Slug *
-              </label>
-              <div className="flex items-center">
-                <span className="px-3 py-2.5 bg-[#f8f9fa] border border-r-0 border-[#dadce0] rounded-l-lg text-xs font-mono text-[#5f6368]">
-                  /r/
-                </span>
-                <input
-                  type="text"
-                  name="slug"
-                  required
-                  value={formData.slug}
-                  onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 text-sm font-mono text-[#202124] border border-[#dadce0] rounded-r-lg focus:outline-none focus:border-[#1a73e8]"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
-              Short Description / Bio
-            </label>
-            <textarea
-              rows={2}
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Brief summary of your business shown on your review page..."
-              className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
-            />
           </div>
         </div>
 

@@ -13,7 +13,7 @@ import {
 
 const NAV_ITEMS = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Services & Options', href: '/dashboard/services', icon: Layers },
+  { label: 'AI Knowledge', href: '/dashboard/services', icon: Layers },
   { label: 'QR Code & Print', href: '/dashboard/qr-code', icon: QrCode },
   { label: 'Review Page Settings', href: '/dashboard/customizer', icon: Sliders },
   { label: 'Business Profile', href: '/dashboard/profile', icon: Building },
@@ -38,9 +38,19 @@ export default function DashboardSidebar({ user }) {
       {/* Business Identity Card */}
       <div className="p-4 mx-3 my-3 bg-[#f8f9fa] rounded-xl border border-[#e8eaed]">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs shrink-0">
-            {user.businessName?.charAt(0) || 'B'}
-          </div>
+          {user.logoUrl ? (
+            <div className="w-8 h-8 rounded-lg border border-[#dadce0] overflow-hidden bg-white p-0.5 shrink-0 flex items-center justify-center">
+              <img
+                src={user.logoUrl}
+                alt={user.businessName}
+                className="w-full h-full object-contain rounded-md"
+              />
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {user.businessName?.charAt(0) || 'B'}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-[#202124] truncate">
               {user.businessName}

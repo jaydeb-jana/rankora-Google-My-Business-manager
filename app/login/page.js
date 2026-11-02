@@ -38,8 +38,8 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not send code');
       setError('');
-      setSuccessMsg(`A verification code was sent to ${targetEmail}.`);
-      setDevOtp(data.devOtp || null);
+      setSuccessMsg(data.message || `A verification code was sent to ${targetEmail} (default: 1234).`);
+      setDevOtp(data.devOtp || '1234');
       startCooldown(45);
     } catch (err) {
       fail(err.message);
@@ -76,7 +76,7 @@ export default function LoginPage() {
   };
 
   const handleVerify = async (code = otpCode) => {
-    if (!code || code.length < 6) return;
+    if (!code || code.length < 4) return;
     setError('');
     setLoading(true);
     try {
@@ -106,7 +106,7 @@ export default function LoginPage() {
         title="Verify your email"
         subtitle={
           <>
-            Your account isn&apos;t activated yet. Enter the 6-digit code sent to <strong className="text-[#202124]">{email}</strong>.
+            Your account isn&apos;t activated yet. Enter the 4-digit code (default: <strong className="text-[#1a73e8]">1234</strong>) sent to <strong className="text-[#202124]">{email}</strong>.
           </>
         }
       >
@@ -115,8 +115,8 @@ export default function LoginPage() {
         <DevOtpBanner code={devOtp} onUse={() => { setOtpCode(devOtp); handleVerify(devOtp); }} />
 
         <div className="space-y-6 rk-scale-in">
-          <OtpInput length={6} value={otpCode} onChange={setOtpCode} onComplete={handleVerify} />
-          <SubmitButton type="button" onClick={() => handleVerify()} loading={loading} disabled={otpCode.length < 6} loadingText="Verifying…" icon={ShieldCheck}>
+          <OtpInput length={4} value={otpCode} onChange={setOtpCode} onComplete={handleVerify} />
+          <SubmitButton type="button" onClick={() => handleVerify()} loading={loading} disabled={otpCode.length < 4} loadingText="Verifying…" icon={ShieldCheck}>
             Verify &amp; continue
           </SubmitButton>
           <div className="flex items-center justify-between text-sm">

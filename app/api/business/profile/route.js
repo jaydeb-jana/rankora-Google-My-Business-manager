@@ -36,6 +36,7 @@ export async function PATCH(request) {
       'slug',
       'welcomeHeadline',
       'instructions',
+      'logoUrl',
     ];
 
     const updates = {};
@@ -45,29 +46,25 @@ export async function PATCH(request) {
       }
     }
 
-    // Google review URL validation: must be a real Google link (not the Rankaro page itself)
-    if (updates.googleReviewUrl) {
-      let parsed;
-      try {
-        parsed = new URL(updates.googleReviewUrl);
-      } catch {
-        return NextResponse.json({ error: 'Please enter a valid URL starting with https://' }, { status: 400 });
-      }
-      const host = parsed.hostname.toLowerCase();
-      const isGoogle =
-        /(^|\.)google\.[a-z.]+$/.test(host) ||
-        host === 'g.page' ||
-        host === 'goo.gl' ||
-        host.endsWith('.goo.gl') ||
-        host === 'g.co';
-      if (!['http:', 'https:'].includes(parsed.protocol) || !isGoogle) {
-        return NextResponse.json(
-          {
-            error:
-              'This must be your Google review link (e.g. https://g.page/r/.../review or https://search.google.com/local/writereview?placeid=...). Your Rankaro page link cannot be used here.',
-          },
-          { status: 400 }
-        );
+    // Google review / business URL validation: allow any valid web link
+    if (updates.googleReviewUrl !== undefined) {
+      if (typeof updates.googleReviewUrl === 'string' && updates.googleReviewUrl.trim()) {
+        let urlStr = updates.googleReviewUrl.trim();
+        // If protocol is missing, default to https://
+        if (!/^https?:\/\//i.test(urlStr)) {
+          urlStr = 'https://' + urlStr;
+        }
+        try {
+          const parsed = new URL(urlStr);
+          if (!['http:', 'https:'].includes(parsed.protocol)) {
+            return NextResponse.json({ error: 'Please enter a valid web link (http:// or https://)' }, { status: 400 });
+          }
+          updates.googleReviewUrl = parsed.toString();
+        } catch {
+          return NextResponse.json({ error: 'Please enter a valid URL link' }, { status: 400 });
+        }
+      } else {
+        updates.googleReviewUrl = '';
       }
     }
 
