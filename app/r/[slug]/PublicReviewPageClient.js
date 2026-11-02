@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   ArrowRight,
   MessageSquare,
-  Languages,
   Edit3,
   MapPin,
   RefreshCw,
