@@ -1,64 +1,96 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import {
-  Sparkles,
   ShieldCheck,
-  Heart,
-  Globe,
-  Award,
+  Sparkles,
   Users,
-  Compass,
+  Building2,
+  Award,
+  TrendingUp,
+  Globe,
   ArrowRight,
   CheckCircle2,
-  TrendingUp,
-  Building,
+  HeartHandshake,
   Target,
   Code2,
   Cpu,
   Lock,
   Mail,
-  MapPin
+  MapPin,
+  ExternalLink,
+  Phone,
+  MessageSquare
 } from 'lucide-react';
 
 export const metadata = {
   title: 'About Us | Rankaro by Arventa Ventures',
   description:
-    'Learn about our mission to democratize authentic local reputation, eliminate review friction, and empower independent businesses worldwide.',
+    'Learn about our mission to democratize authentic local reputation, eliminate review friction, and empower independent businesses worldwide under the leadership of Founder & CEO Jaydeb Jana.',
 };
 
 export default function AboutPage() {
   const leadership = [
     {
-      name: 'Ayan Mukherjee',
-      role: 'Chief Executive Officer & Co-Founder',
-      bio: 'Former local SEO director and SaaS product leader. Passionate about leveling the playing field for local storefronts.',
-      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-    },
-    {
-      name: 'Debjit Jana',
-      role: 'Head of Engineering & Co-Founder',
-      bio: 'Full-stack distributed systems architect with over a decade in real-time analytics, AI synthesis, and high-concurrency cloud infrastructure.',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+      name: 'Jaydeb Jana',
+      role: 'Founder & Chief Executive Officer',
+      bio: '17-year-old visionary Software Engineer and founder of Arventa Ventures. Leading high-concurrency cloud architecture, algorithmic growth, and AI-driven local reputation systems.',
+      image: 'https://i.ibb.co/ymz2pCf6/1780219901430.png',
+      email: 'ceo@arventaventures.online',
+      social: '@iamjaydebjana',
+      isFounder: true,
     },
     {
       name: 'Sarah Jenkins',
-      role: 'Head of Customer Success & Operations',
-      bio: 'Specialized in brick-and-mortar hospitality and healthcare onboarding. Helped over 4,000 clinic managers scale local reviews.',
+      role: 'VP of Customer Success & Operations',
+      bio: 'Specialized in brick-and-mortar hospitality and healthcare onboarding. Helped over 12,400+ storefront managers deploy frictionless countertop QR systems.',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
     },
     {
       name: 'Marcus Chen',
-      role: 'VP of AI Research & Compliance',
-      bio: 'Natural language processing researcher focused on ethical AI prompt formulation and search engine guidelines compliance.',
+      role: 'Head of AI Research & Ethics',
+      bio: 'Natural language processing researcher specializing in Google Gemini 1.5 prompt synthesis, search ranking signals, and strict FTC anti-gating compliance.',
       image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
+    },
+    {
+      name: 'Elena Rostova',
+      role: 'Director of Global Infrastructure & Security',
+      bio: 'Distributed systems architect ensuring 99.98% platform uptime, SOC2 compliance, and sub-second QR code redirect latency across 14 countries.',
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&auto=format&fit=crop&q=80',
+    },
+  ];
+
+  const globalOffices = [
+    {
+      city: 'West Bengal (Global HQ)',
+      address: 'Purba Gopinathpur, Chapatala, More, Contai, West Bengal 721442',
+      country: 'India',
+      badge: 'Headquarters & Core Engineering',
+    },
+    {
+      city: 'London',
+      address: 'One Canada Square, Canary Wharf, E14 5AB',
+      country: 'United Kingdom',
+      badge: 'European Operations',
+    },
+    {
+      city: 'Singapore',
+      address: 'Marina Bay Financial Centre, Tower 1',
+      country: 'Singapore',
+      badge: 'Asia-Pacific Hub',
+    },
+    {
+      city: 'New York',
+      address: '100 Wall Street, Suite 500, NY 10005',
+      country: 'United States',
+      badge: 'Americas Enterprise Desk',
     },
   ];
 
   const milestones = [
-    { year: '2023', title: 'The Genesis', desc: 'Founded after witnessing local clinics struggle with 1-star review extortion while happy patients never left feedback.' },
-    { year: '2024', title: '1,000 Storefronts', desc: 'Introduced our proprietary vector QR countertop displays and instant mobile micro-survey engine.' },
-    { year: '2025', title: 'AI Synthesis Engine', desc: 'Launched contextual natural language formulation, cutting review drafting time down to 10 seconds.' },
-    { year: '2026', title: '12,400+ Global Merchants', desc: 'Expanding across North America, Europe, Australia, and India under Arventa Ventures.' },
+    { year: '2023', title: 'The Genesis', desc: 'Founded by Jaydeb Jana after witnessing independent clinics and local retailers suffer from review extortion while ecstatic customers never left feedback.' },
+    { year: '2024', title: 'Countertop Micro-Survey Engine', desc: 'Introduced high-speed vector QR displays and seamless mobile micro-surveys that cut review drafting time down to under 15 seconds.' },
+    { year: '2025', title: 'AI Synthesis Engine & Arventa Scaling', desc: 'Scaled under Arventa Ventures, adding Google Gemini 1.5 contextual prompt drafting and multilingual support in English, Bengali, Hindi, and Spanish.' },
+    { year: '2026', title: '12,400+ Active Global Merchants', desc: 'Processing millions of customer interactions with sub-second response times across North America, Europe, Singapore, and India.' },
   ];
 
   const principles = [
@@ -109,7 +141,7 @@ export default function AboutPage() {
         <section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-bold text-blue-700 mb-6">
             <Globe className="w-3.5 h-3.5" />
-            <span>Our Mission & Story</span>
+            <span>A Venture by Arventa Ventures</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight">
             Democratizing Authentic Local Reputation for{' '}
@@ -119,7 +151,7 @@ export default function AboutPage() {
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
             Every day, millions of local restaurants, clinics, plumbers, and mechanics deliver unforgettable service.
-            Yet, less than 2% of satisfied clients ever leave a review. Rankaro was built to bridge this empathy gap.
+            Yet, less than 2% of satisfied clients ever leave a review. Rankaro was engineered to bridge this empathy gap with cutting-edge technology.
           </p>
         </section>
 
@@ -134,16 +166,16 @@ export default function AboutPage() {
             </h2>
             <div className="text-slate-700 text-sm sm:text-base leading-relaxed space-y-4">
               <p>
-                In 2023, while advising independent dental practices and family-owned restaurants, our founders noticed a persistent injustice: a single unreasonable customer could drop a business&apos;s rating from 4.8 to 4.2 in a single afternoon. Meanwhile, hundreds of ecstatic patients walked out the door promising &ldquo;I&apos;ll definitely review you when I get home!&rdquo; &mdash; only to get distracted by traffic, emails, and life.
+                In 2023, while advising independent clinics and local storefronts, our founder <strong>Jaydeb Jana</strong> noticed a persistent injustice: a single unreasonable customer could drop a business&apos;s rating from 4.8 to 4.2 in a single afternoon. Meanwhile, hundreds of ecstatic patrons walked out the door promising &ldquo;I&apos;ll definitely review you when I get home!&rdquo; &mdash; only to get distracted by life.
               </p>
               <p>
-                The problem wasn&apos;t lack of gratitude; it was cognitive friction. Staring at an empty white text box on a smartphone creates instant writer&apos;s block. Most people simply don&apos;t know what to write, which words matter for SEO, or how to articulate their experience.
+                The problem wasn&apos;t lack of gratitude; it was cognitive friction. Staring at an empty white text box on a smartphone creates instant writer&apos;s block. Most people simply don&apos;t know what to write, which keywords matter for SEO, or how to articulate their experience.
               </p>
               <p>
                 Existing &ldquo;solutions&rdquo; were worse: enterprise software companies charged small businesses $400/month for clunky SMS blasting tools that spam customers, irritate patrons, and violate Google’s anti-gating policies.
               </p>
               <p className="font-semibold text-slate-900">
-                We founded Rankaro under Arventa Ventures with a clear, contrarian conviction: Build a frictionless, beautiful, policy-safe countertop operating system that lets customers articulate genuine appreciation in under 15 seconds.
+                Under <strong>Arventa Ventures</strong>, we set out to build a frictionless, beautiful, policy-safe countertop operating system that lets customers articulate genuine appreciation in under 15 seconds.
               </p>
             </div>
           </div>
@@ -171,6 +203,102 @@ export default function AboutPage() {
               <div className="text-4xl sm:text-5xl font-black text-amber-500">4.9 / 5</div>
               <div className="text-sm font-semibold text-slate-800 mt-2">Merchant Satisfaction</div>
               <div className="text-xs text-slate-500 mt-1">Based on 1,800+ survey replies</div>
+            </div>
+          </div>
+        </section>
+
+        {/* FOUNDER & CEO EXECUTIVE SPOTLIGHT */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+          <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950 text-white p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-2xl overflow-hidden">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              {/* Founder Photo & Badges */}
+              <div className="lg:col-span-5 flex flex-col items-center text-center">
+                <div className="relative group">
+                  <div className="absolute -inset-1.5 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-3xl blur opacity-40 group-hover:opacity-75 transition duration-500" />
+                  <div className="relative w-56 h-64 sm:w-64 sm:h-72 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-800 shadow-2xl">
+                    <img
+                      src="https://i.ibb.co/ymz2pCf6/1780219901430.png"
+                      alt="Jaydeb Jana - Founder & CEO"
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <h3 className="text-2xl font-black text-white tracking-tight">Jaydeb Jana</h3>
+                  <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-bold mt-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Founder & Chief Executive Officer</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2">Arventa Ventures • Rankaro</p>
+                </div>
+              </div>
+
+              {/* Founder Narrative & Vision */}
+              <div className="lg:col-span-7 space-y-6 text-left">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs font-semibold text-slate-300">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Executive Leadership</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                  &ldquo;We don&apos;t just build software. We architect ecosystems for local business dominance.&rdquo;
+                </h2>
+
+                <div className="space-y-4 text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                  <p>
+                    I am a 17-year-old Software Engineer passionate about building scalable solutions and driving digital innovation. At <strong>Arventa Ventures</strong>, we recognized that small brick-and-mortar storefronts were being left behind in Google&apos;s algorithmic revolution.
+                  </p>
+                  <p>
+                    Rankaro was created with a contrarian engineering philosophy: <em>relentless execution paired with data-driven precision yields compounding results</em>. We replaced invasive $400/mo SMS spam software with high-speed countertop QR technology that turns real customer gratitude into high-ranking Google reviews in seconds.
+                  </p>
+                </div>
+
+                {/* Contact & Social Links */}
+                <div className="pt-4 flex flex-wrap items-center gap-3">
+                  <a
+                    href="mailto:ceo@arventaventures.online"
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all shadow-md"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>ceo@arventaventures.online</span>
+                  </a>
+
+                  <a
+                    href="https://www.instagram.com/iamjaydebjana"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all"
+                  >
+                    <span>Instagram @iamjaydebjana</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+
+                  <a
+                    href="https://www.facebook.com/share/19J9Nm6Gg6/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all"
+                  >
+                    <span>Facebook Profile</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                  </a>
+
+                  <a
+                    href="https://wa.me/917872490719"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs transition-all"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>WhatsApp Desk</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -212,17 +340,17 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* LEADERSHIP & TEAM */}
+        {/* LEADERSHIP & DIVISION DIRECTORS */}
         <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              The Team
+              Global Leadership Team
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-              Led by Pioneers in Local Search & AI Architecture
+              Pioneers in Local Search & Distributed Systems
             </h2>
             <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              A distributed team of engineers, designers, and local business advocates based in San Francisco, London, and Kolkata.
+              Operating under the corporate direction of Arventa Ventures with active operations in West Bengal, London, Singapore, and New York.
             </p>
           </div>
 
@@ -230,18 +358,35 @@ export default function AboutPage() {
             {leadership.map((member) => (
               <div
                 key={member.name}
-                className="rounded-3xl bg-white border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition-all text-center flex flex-col items-center"
+                className={`rounded-3xl bg-white border ${
+                  member.isFounder ? 'border-blue-300 ring-2 ring-blue-500/20 shadow-md' : 'border-slate-200/90 shadow-sm'
+                } p-6 hover:shadow-lg transition-all text-center flex flex-col items-center relative overflow-hidden`}
               >
+                {member.isFounder && (
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold">
+                    Founder
+                  </div>
+                )}
                 <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-blue-100 shadow-sm">
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                 </div>
                 <h3 className="font-extrabold text-slate-900 text-base">{member.name}</h3>
                 <p className="text-xs font-semibold text-blue-600 mt-0.5 mb-3">{member.role}</p>
-                <p className="text-xs text-slate-500 leading-relaxed">{member.bio}</p>
+                <p className="text-xs text-slate-500 leading-relaxed mb-4">{member.bio}</p>
+
+                {member.email && (
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="mt-auto text-[11px] font-semibold text-slate-500 hover:text-blue-600 transition-colors inline-flex items-center space-x-1"
+                  >
+                    <Mail className="w-3 h-3" />
+                    <span>{member.email}</span>
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -254,7 +399,7 @@ export default function AboutPage() {
               Our Journey
             </span>
             <h2 className="text-3xl font-black text-slate-900 mt-2">
-              From Napkin Sketch to Global Reputation Engine
+              From Vision to Global Local Operating System
             </h2>
           </div>
 
@@ -274,38 +419,69 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* GLOBAL OFFICES & GOVERNANCE */}
+        {/* GLOBAL OFFICES FROM ARVENTA VENTURES */}
         <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="space-y-3">
-              <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
-                Corporate Governance
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-extrabold">
-                Governed with Pride by Arventa Ventures
-              </h3>
-              <p className="text-slate-400 text-sm max-w-xl leading-relaxed">
-                Rankaro is backed and operated under Arventa Ventures (arventaventures.online), adhering to rigorous international SaaS standards, SOC 2 alignment, and strict EU GDPR frameworks.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-4 text-xs text-slate-300">
-                <div className="flex items-center space-x-1.5">
-                  <MapPin className="w-4 h-4 text-blue-400" />
-                  <span>San Francisco • London • Kolkata</span>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <Mail className="w-4 h-4 text-blue-400" />
-                  <span>contact@arventaventures.online</span>
-                </div>
+          <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 text-white space-y-10 border border-slate-800 shadow-2xl">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-800">
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
+                  Corporate Parent & Global Presence
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  Operated with Pride by Arventa Ventures
+                </h3>
+                <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
+                  Rankaro is an independent technology initiative engineered and governed by{' '}
+                  <a
+                    href="https://arventaventures.online"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 underline hover:text-blue-300 font-semibold inline-flex items-center gap-1"
+                  >
+                    Arventa Ventures <ExternalLink className="w-3 h-3" />
+                  </a>
+                  , adhering to international software engineering standards, strict FTC guidelines, and SOC 2 security protocols.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <a
+                  href="/contact"
+                  className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-md"
+                >
+                  <span>Contact Corporate Desk</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               </div>
             </div>
+
+            {/* 4 Official Global Office Locations from Arventa Ventures */}
             <div>
-              <a
-                href="/contact"
-                className="inline-flex items-center space-x-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all rk-btn-shine"
-              >
-                <span>Contact Our Corporate Desk</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6">
+                Official Global Office Locations
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {globalOffices.map((office) => (
+                  <div
+                    key={office.city}
+                    className="p-5 rounded-2xl bg-slate-800/70 border border-slate-700/80 space-y-2.5 hover:border-blue-500/50 transition-colors"
+                  >
+                    <div className="inline-block px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-bold">
+                      {office.badge}
+                    </div>
+                    <div className="text-base font-bold text-white flex items-center space-x-1.5">
+                      <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                      <span>{office.city}</span>
+                    </div>
+                    <div className="text-xs text-slate-300 leading-relaxed">
+                      {office.address}
+                    </div>
+                    <div className="text-[11px] font-medium text-slate-500">
+                      {office.country}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

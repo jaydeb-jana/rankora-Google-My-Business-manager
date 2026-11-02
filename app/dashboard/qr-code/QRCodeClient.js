@@ -7,144 +7,173 @@ import {
   Copy,
   Check,
   ExternalLink,
-  Star,
   Info,
   LayoutTemplate,
   X,
   Palette,
+  Smartphone,
+  Radio,
+  MapPin,
+  Scissors,
+  Sparkles,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
 const TEMPLATES = [
   {
-    id: 'classic',
-    name: 'Classic Rankaro',
-    tag: 'Clean Minimalist',
+    id: 'google-official',
+    name: 'Google Official Kit',
+    category: 'Official Google',
+    tag: 'Official Google Partner Kit',
     details:
-      'Clean white tabletop card with crisp Google Blue accents, five gold stars, and authentic review prompt. Specially tailored for checkout desks, reception counters, and standard acrylic stands.',
+      'Authentic Google Business Profile standee featuring the iconic Google 4-color top bar, official G emblem, Google wordmark, 5.0 Google rating badge, Google Maps verification pin, and contactless NFC tap guide. Sized perfectly for 4x6" and 5x7" acrylic counter stands.',
     colors: [
-      { name: 'Card White', hex: '#FFFFFF', border: true },
-      { name: 'Google Blue', hex: '#1A73E8' },
+      { name: 'Google Blue', hex: '#4285F4' },
+      { name: 'Google Red', hex: '#EA4335' },
+      { name: 'Google Yellow', hex: '#FBBC05' },
+      { name: 'Google Green', hex: '#34A853' },
+      { name: 'Card Canvas', hex: '#FFFFFF', border: true },
       { name: 'Charcoal Text', hex: '#202124' },
-      { name: 'Star Gold', hex: '#FBBC04' },
-      { name: 'Border Gray', hex: '#DADCE0' },
     ],
   },
   {
     id: 'google-five-star',
-    name: 'Google Five Star',
-    tag: 'Official Google Branding',
+    name: 'Google 5-Star Showcase',
+    category: 'Official Google',
+    tag: 'High Conversion',
     details:
-      'High-converting Google review display featuring the official 4-color top banner, vibrant G emblem, official Google wordmark, and bold FIVE STAR headline.',
+      'High-impact Google review campaign design with a prominent 4-color Google accent stripe, giant "FIVE STAR" headline, Google review rating stars, and high-visibility scanning target to maximize immediate customer response.',
     colors: [
       { name: 'Google Blue', hex: '#4285F4' },
       { name: 'Google Red', hex: '#EA4335' },
       { name: 'Google Yellow', hex: '#FBBC05' },
       { name: 'Google Green', hex: '#34A853' },
-      { name: 'Background White', hex: '#FFFFFF', border: true },
-      { name: 'Headline Charcoal', hex: '#202124' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Card White', hex: '#FFFFFF', border: true },
     ],
   },
   {
-    id: 'google-review',
-    name: 'Review on Google',
-    tag: 'Modern Google Look',
+    id: 'google-minimal',
+    name: 'Google Clean Studio',
+    category: 'Official Google',
+    tag: 'Minimalist Luxury',
     details:
-      'Balanced official Google branding with business name focus, five gold rating stars, and clear "Rate your visit" call-to-action for maximum customer trust.',
+      'Pure white canvas with Google Pixel studio aesthetics, delicate hairline border, centered Google G emblem, refined typography, and floating QR viewfinder. Recommended for modern boutiques, design studios, and upscale practices.',
     colors: [
-      { name: 'Google Blue', hex: '#4285F4' },
-      { name: 'Google Red', hex: '#EA4335' },
-      { name: 'Google Yellow', hex: '#FBBC05' },
-      { name: 'Google Green', hex: '#34A853' },
-      { name: 'Card White', hex: '#FFFFFF', border: true },
-      { name: 'Primary Text', hex: '#202124' },
-      { name: 'Muted Gray', hex: '#5F6368' },
+      { name: 'Pure White', hex: '#FFFFFF', border: true },
+      { name: 'Google Blue', hex: '#1A73E8' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Charcoal Text', hex: '#202124' },
+      { name: 'Hairline Border', hex: '#E8EAED' },
     ],
   },
   {
     id: 'navy-standee',
-    name: 'Navy Standee',
-    tag: 'Dark Executive',
+    name: 'Executive Midnight Navy',
+    category: 'Dark & Luxury',
+    tag: 'Corporate & Nightlife',
     details:
-      'High-contrast deep midnight navy background with crisp white business typography, vivid gold stars, and ice blue highlights. Ideal for executive offices, modern salons, dental clinics, and cocktail lounges.',
+      'Deep midnight navy background with electric sky blue accents, brilliant white headings, and glowing gold stars. QR code is mounted on a high-contrast white card for effortless camera scanning. Ideal for salons, clinics, lounges, and corporate desks.',
     colors: [
-      { name: 'Deep Navy', hex: '#0B1F3A' },
-      { name: 'Ice Sky Blue', hex: '#8AB4F8' },
-      { name: 'Crisp White', hex: '#FFFFFF', border: true },
+      { name: 'Midnight Navy', hex: '#0A1628' },
+      { name: 'Electric Sky', hex: '#38BDF8' },
       { name: 'Star Gold', hex: '#FBBC04' },
-      { name: 'Muted Silver', hex: '#9AA0A6' },
+      { name: 'Pure White', hex: '#FFFFFF', border: true },
+      { name: 'Slate Muted', hex: '#94A3B8' },
     ],
   },
   {
     id: 'gold-premium',
-    name: 'Gold Premium',
-    tag: 'Luxury Bronze & Gold',
+    name: 'Royal Obsidian & Gold',
+    category: 'Dark & Luxury',
+    tag: '5-Star Hospitality',
     details:
-      'Dark obsidian bronze background paired with antique gold trim, warm cream serif typography, and golden review stars. Tailored for fine dining, jewelry boutiques, luxury spas, and hotels.',
+      'Dark obsidian base paired with metallic dual gold borders, elegant serif typography, and warm champagne accents. Specifically engineered for fine dining restaurants, luxury jewelry stores, 5-star hotels, and prestige spas.',
     colors: [
-      { name: 'Dark Bronze', hex: '#1C1408' },
-      { name: 'Antique Gold', hex: '#C9A227' },
-      { name: 'Bright Gold', hex: '#E8C547' },
+      { name: 'Obsidian Base', hex: '#12100E' },
+      { name: 'Royal Gold', hex: '#D4AF37' },
+      { name: 'Amber Gold', hex: '#F59E0B' },
       { name: 'Warm Cream', hex: '#F8F1D8' },
-      { name: 'Champagne Gold', hex: '#D4B56A' },
+      { name: 'Champagne Gold', hex: '#E5D5A8' },
     ],
   },
   {
-    id: 'mint-modern',
-    name: 'Mint Modern',
-    tag: 'Fresh Pastel',
+    id: 'emerald-modern',
+    name: 'Emerald Botanica',
+    category: 'Retail & Hospitality',
+    tag: 'Fresh Organic',
     details:
-      'Inviting pastel mint green card with calming forest green headings and sage borders. Perfect for cafes, wellness studios, eco-friendly retail shops, and healthcare practices.',
+      'Lush forest emerald header with a gentle mint pastel card canvas, sage green accents, and warm gold review stars. Welcoming and approachable for specialty cafes, bakeries, dental wellness centers, and organic retail shops.',
     colors: [
-      { name: 'Soft Mint', hex: '#F1FBF4' },
-      { name: 'Forest Green', hex: '#137333' },
-      { name: 'Sage Border', hex: '#CEEAD6' },
-      { name: 'Charcoal Text', hex: '#202124' },
+      { name: 'Forest Emerald', hex: '#064E3B' },
+      { name: 'Pastel Mint', hex: '#F0FDF4' },
+      { name: 'Sage Accent', hex: '#10B981' },
+      { name: 'Charcoal Text', hex: '#1F2937' },
       { name: 'Star Gold', hex: '#FBBC04' },
     ],
   },
   {
     id: 'bold-counter',
-    name: 'Bold Counter',
-    tag: 'High Contrast POS',
+    name: 'High-Impact POS Standee',
+    category: 'Retail & Hospitality',
+    tag: 'Point of Sale',
     details:
-      'Vibrant Google Blue header bar combined with strong charcoal borders for high visibility from across the counter. Best suited for high-volume cash registers and billing desks.',
+      'High-contrast Google Blue top block and solid dark borders engineered for high visibility from 5-10 feet away. Commands immediate customer attention at busy checkout counters, billing POS registers, and order pickup areas.',
     colors: [
-      { name: 'Header Blue', hex: '#1A73E8' },
+      { name: 'Electric Blue', hex: '#1A73E8' },
+      { name: 'Jet Black', hex: '#111827' },
       { name: 'Card White', hex: '#FFFFFF', border: true },
-      { name: 'Solid Charcoal', hex: '#202124' },
       { name: 'Star Gold', hex: '#FBBC04' },
       { name: 'Border Gray', hex: '#DADCE0' },
     ],
   },
+  {
+    id: 'table-tent-fold',
+    name: 'Foldable A-Frame Tent',
+    category: 'Retail & Hospitality',
+    tag: 'Self-Standing Tent',
+    details:
+      'Two-sided printable table tent with an integrated central fold-line guide. Prints onto standard paper or cardstock and stands upright on dining tables and hotel rooms without requiring any acrylic plastic frame.',
+    colors: [
+      { name: 'Card White', hex: '#FFFFFF', border: true },
+      { name: 'Google Blue', hex: '#1A73E8' },
+      { name: 'Google Red', hex: '#EA4335' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Slate Charcoal', hex: '#202124' },
+    ],
+  },
 ];
 
-function GoogleG({ className = 'w-10 h-10' }) {
+function GoogleG({ className = 'w-8 h-8' }) {
   return (
     <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
       <path
-        fill="#FFC107"
-        d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
       />
       <path
-        fill="#FF3D00"
-        d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
       />
       <path
-        fill="#4CAF50"
-        d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
       />
       <path
-        fill="#1976D2"
-        d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l.003.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
       />
+      <path fill="none" d="M0 0h48v48H0z" />
     </svg>
   );
 }
 
-function GoogleWordmark({ className = 'text-2xl' }) {
+function GoogleWordmark({ className = 'text-xl' }) {
   return (
-    <span className={`font-medium tracking-tight ${className}`} aria-label="Google">
+    <span
+      className={`font-semibold tracking-tight inline-flex items-center ${className}`}
+      aria-label="Google"
+    >
       <span className="text-[#4285F4]">G</span>
       <span className="text-[#EA4335]">o</span>
       <span className="text-[#FBBC05]">o</span>
@@ -155,227 +184,507 @@ function GoogleWordmark({ className = 'text-2xl' }) {
   );
 }
 
-function FiveStars({ size = 'w-6 h-6', className = '' }) {
+function GoogleStar({ className = 'w-4 h-4' }) {
   return (
-    <div className={`flex items-center justify-center gap-1 ${className}`}>
-      {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={`${size} fill-[#fbbc04] text-[#fbbc04]`} />
-      ))}
-    </div>
+    <svg className={className} viewBox="0 0 24 24" fill="#FBBC04" aria-hidden="true">
+      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+    </svg>
   );
 }
 
-function QrFrame({ dataUrl, size = 'w-48 h-48', frameClass = '' }) {
+function QrViewfinder({
+  dataUrl,
+  className = 'w-48 h-48',
+  cornerColor = '#4285F4',
+  scanLabel = 'SCAN TO REVIEW',
+}) {
   return (
-    <div className={`inline-block bg-white ${frameClass}`}>
+    <div className="relative inline-block p-2.5 bg-white rounded-2xl shadow-sm border border-slate-200/90">
+      {/* Corner Viewfinder brackets */}
+      <div
+        className="absolute top-1.5 left-1.5 w-3.5 h-3.5 border-t-2 border-l-2 rounded-tl"
+        style={{ borderColor: cornerColor }}
+      />
+      <div
+        className="absolute top-1.5 right-1.5 w-3.5 h-3.5 border-t-2 border-r-2 rounded-tr"
+        style={{ borderColor: cornerColor }}
+      />
+      <div
+        className="absolute bottom-1.5 left-1.5 w-3.5 h-3.5 border-b-2 border-l-2 rounded-bl"
+        style={{ borderColor: cornerColor }}
+      />
+      <div
+        className="absolute bottom-1.5 right-1.5 w-3.5 h-3.5 border-b-2 border-r-2 rounded-br"
+        style={{ borderColor: cornerColor }}
+      />
+
       {dataUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={dataUrl} alt="Scan to review" className={`${size} object-contain mx-auto`} />
+        <img
+          src={dataUrl}
+          alt="Scan QR code"
+          className={`${className} object-contain block mx-auto`}
+        />
       ) : (
-        <div className={`${size} flex items-center justify-center bg-[#f8f9fa] text-[10px] text-[#70757a]`}>
-          Generating...
+        <div
+          className={`${className} flex items-center justify-center text-xs text-slate-400 bg-slate-50`}
+        >
+          Generating QR...
+        </div>
+      )}
+
+      {scanLabel && (
+        <div className="mt-1 text-[9px] font-bold tracking-wider uppercase text-slate-500 text-center">
+          {scanLabel}
         </div>
       )}
     </div>
   );
 }
 
-function DisplayCard({ templateId, user, dataUrl }) {
-  if (templateId === 'google-five-star') {
+function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
+  const cardWidth =
+    cardSize === '5x7'
+      ? 'w-full max-w-[430px]'
+      : cardSize === 'fold'
+      ? 'w-full max-w-[390px]'
+      : 'w-full max-w-[370px]';
+
+  // 1. Google Official Partner Kit (The Flagship Masterpiece)
+  if (templateId === 'google-official' || templateId === 'google-review') {
     return (
-      <div className="bg-white rounded-2xl overflow-hidden max-w-md mx-auto text-center border border-[#dadce0] shadow-xs">
-        <div className="flex h-1.5">
+      <div
+        className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border border-[#dadce0] shadow-md relative`}
+      >
+        {/* Google 4-Color Stripe Header */}
+        <div className="flex h-2 w-full">
           <div className="flex-1 bg-[#4285F4]" />
           <div className="flex-1 bg-[#EA4335]" />
           <div className="flex-1 bg-[#FBBC05]" />
           <div className="flex-1 bg-[#34A853]" />
         </div>
-        <div className="px-8 py-8">
-          <div className="flex flex-col items-center mb-5">
-            <GoogleG className="w-12 h-12 mb-2" />
-            <GoogleWordmark className="text-[28px] leading-none" />
+
+        <div className="p-6 sm:p-7 flex flex-col items-center">
+          {/* Official Google Header */}
+          <div className="flex items-center justify-center space-x-2.5 mb-2">
+            <GoogleG className="w-8 h-8" />
+            <div className="flex flex-col items-start leading-tight">
+              <GoogleWordmark className="text-xl leading-none" />
+              <span className="text-[10px] font-semibold text-[#5f6368] tracking-wider uppercase">
+                Business Profile
+              </span>
+            </div>
           </div>
 
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#5f6368] mb-1">
-            Leave us a
-          </p>
-          <h2 className="text-[34px] leading-none font-black tracking-tight text-[#202124] mb-3">
-            FIVE STAR
-          </h2>
-          <FiveStars size="w-7 h-7" className="mb-2" />
-          <p className="text-xs text-[#5f6368] mb-5">
-            review on Google
-          </p>
+          {/* Official Review Badge */}
+          <div className="mt-2.5 inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#E8F0FE] border border-[#D2E3FC] text-[#1A73E8]">
+            <span className="text-xs font-bold tracking-tight">Review us on Google</span>
+            <span className="w-1 h-1 rounded-full bg-[#1A73E8]" />
+            <div className="flex items-center space-x-0.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <GoogleStar key={s} className="w-3.5 h-3.5" />
+              ))}
+              <span className="text-xs font-bold ml-1 text-[#202124]">5.0</span>
+            </div>
+          </div>
 
-          <QrFrame
-            dataUrl={dataUrl}
-            frameClass="p-3 rounded-xl border border-[#e8eaed] shadow-sm mb-5"
-          />
-
-          <p className="text-sm font-semibold text-[#202124] mb-1">
+          {/* Business Name */}
+          <h2 className="text-xl sm:text-2xl font-black text-[#202124] tracking-tight mt-3.5 mb-1 max-w-[90%] truncate">
             {user.businessName}
+          </h2>
+
+          <div className="flex items-center space-x-1.5 text-xs text-[#5F6368] mb-4">
+            <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
+            <span className="font-medium">Verified on Google Search &amp; Maps</span>
+          </div>
+
+          {/* QR Code Container with High-Tech Google Brackets */}
+          <div className="mb-3.5">
+            <QrViewfinder
+              dataUrl={dataUrl}
+              className="w-44 h-44 sm:w-48 sm:h-48"
+              cornerColor="#4285F4"
+              scanLabel="SCAN WITH CAMERA"
+            />
+          </div>
+
+          {/* Contactless / NFC & Speed Callout */}
+          <div className="flex items-center justify-center space-x-3 text-[11px] font-semibold text-[#3C4043] bg-[#F8F9FA] px-4 py-1.5 rounded-xl border border-[#E8EAED] w-full max-w-xs">
+            <div className="flex items-center space-x-1">
+              <Smartphone className="w-3.5 h-3.5 text-[#1A73E8]" />
+              <span>Camera Scan</span>
+            </div>
+            <span className="text-[#BDC1C6]">•</span>
+            <div className="flex items-center space-x-1">
+              <Radio className="w-3.5 h-3.5 text-[#34A853]" />
+              <span>NFC Tap</span>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-[#5F6368] mt-2.5">
+            Takes under 30 seconds • No app download needed
           </p>
-          <p className="text-[11px] text-[#5f6368]">
-            Point your phone camera at this QR code
-          </p>
+
+          <div className="mt-4 pt-2.5 border-t border-[#F1F3F4] w-full flex items-center justify-between text-[9px] text-[#9AA0A6] uppercase tracking-wider font-medium">
+            <span>Google Business Profile Kit</span>
+            <span>Verified Standee</span>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (templateId === 'google-review') {
+  // 2. Google 5-Star Showcase
+  if (templateId === 'google-five-star') {
     return (
-      <div className="bg-white rounded-2xl overflow-hidden max-w-md mx-auto text-center border border-[#dadce0] shadow-xs">
-        <div className="px-8 pt-8 pb-7">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <GoogleG className="w-8 h-8" />
+      <div
+        className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border border-[#DADCE0] shadow-md relative`}
+      >
+        <div className="bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#FBBC05] p-1" />
+        <div className="p-6 sm:p-7 flex flex-col items-center">
+          <div className="flex items-center space-x-2 mb-2.5">
+            <GoogleG className="w-7 h-7" />
             <GoogleWordmark className="text-xl" />
           </div>
-          <p className="text-xs font-medium text-[#5f6368] mb-1">Rate your visit</p>
-          <h2 className="text-xl font-bold text-[#202124] mb-3">{user.businessName}</h2>
-          <FiveStars className="mb-5" />
-          <QrFrame
-            dataUrl={dataUrl}
-            frameClass="p-4 rounded-2xl border-2 border-[#f1f3f4] mb-5"
-          />
-          <p className="text-xs font-semibold text-[#202124]">Scan to review on Google</p>
-          <p className="text-[11px] text-[#5f6368] mt-1">
-            Your five-star feedback takes less than a minute
+
+          <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#5F6368]">
+            Help Us Grow With A
+          </span>
+          <h2 className="text-3xl font-black tracking-tight text-[#202124] mt-0.5 mb-1">
+            FIVE STAR
+          </h2>
+          <div className="flex items-center justify-center space-x-1 mb-3.5">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <GoogleStar key={s} className="w-5 h-5" />
+            ))}
+          </div>
+
+          <h3 className="text-base sm:text-lg font-bold text-[#1A73E8] mb-3.5 max-w-[90%] truncate">
+            {user.businessName}
+          </h3>
+
+          <div className="mb-3.5">
+            <QrViewfinder
+              dataUrl={dataUrl}
+              className="w-44 h-44 sm:w-48 sm:h-48"
+              cornerColor="#EA4335"
+              scanLabel="POINT PHONE CAMERA"
+            />
+          </div>
+
+          <p className="text-xs font-semibold text-[#202124]">
+            Scan to leave your review on Google
           </p>
+          <p className="text-[11px] text-[#5F6368] mt-0.5">
+            Your 5-star feedback means the world to our team
+          </p>
+
+          <div className="mt-4 pt-2.5 border-t border-[#F1F3F4] w-full text-[10px] text-[#9AA0A6]">
+            Fast • 100% Anonymous Draft • Powered by Google
+          </div>
         </div>
       </div>
     );
   }
 
+  // 3. Google Clean Studio (Minimalist)
+  if (templateId === 'google-minimal' || templateId === 'classic') {
+    return (
+      <div
+        className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#E8EAED] shadow-sm relative p-6 sm:p-7 flex flex-col items-center`}
+      >
+        <div className="w-11 h-11 rounded-2xl bg-[#F8F9FA] border border-[#E8EAED] flex items-center justify-center mb-3">
+          <GoogleG className="w-6 h-6" />
+        </div>
+
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#1A73E8] mb-1">
+          Review us on Google
+        </p>
+        <h2 className="text-xl sm:text-2xl font-bold text-[#202124] tracking-tight mb-2 max-w-[90%] truncate">
+          {user.businessName}
+        </h2>
+
+        <div className="flex items-center justify-center space-x-1 mb-4">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <GoogleStar key={s} className="w-4 h-4" />
+          ))}
+        </div>
+
+        <div className="mb-3.5">
+          <QrViewfinder
+            dataUrl={dataUrl}
+            className="w-44 h-44 sm:w-48 sm:h-48"
+            cornerColor="#1A73E8"
+            scanLabel="CAMERA SCAN TARGET"
+          />
+        </div>
+
+        <p className="text-xs font-semibold text-[#202124]">Point your phone camera here</p>
+        <p className="text-[11px] text-[#5F6368] mt-0.5">
+          Select received services &amp; post in one tap
+        </p>
+
+        <div className="mt-5 pt-2.5 border-t border-[#F1F3F4] w-full flex items-center justify-between text-[9px] text-[#9AA0A6]">
+          <span>Google Business Profile</span>
+          <span>Verified Merchant</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Executive Midnight Navy
   if (templateId === 'navy-standee') {
     return (
-      <div className="bg-[#0b1f3a] rounded-2xl overflow-hidden max-w-md mx-auto text-center border border-[#0b1f3a] shadow-xs">
-        <div className="px-8 py-8">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#8ab4f8] mb-2">
-            We value your visit
-          </p>
-          <h2 className="text-2xl font-bold text-white mb-3">{user.businessName}</h2>
-          <FiveStars className="mb-5" />
-          <QrFrame
+      <div
+        className={`bg-gradient-to-b from-[#0A1628] to-[#0F2444] rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border border-[#1E293B] shadow-xl relative p-6 sm:p-7 flex flex-col items-center text-white`}
+      >
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#38BDF8] text-[10px] font-bold uppercase tracking-widest mb-3">
+          <Radio className="w-3 h-3 text-[#38BDF8]" />
+          <span>We Value Your Feedback</span>
+        </div>
+
+        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1 max-w-[90%] truncate">
+          {user.businessName}
+        </h2>
+        <p className="text-xs text-[#94A3B8] mb-3">Share your experience on Google</p>
+
+        <div className="flex items-center justify-center space-x-1 mb-4">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <GoogleStar key={s} className="w-4 h-4" />
+          ))}
+        </div>
+
+        <div className="mb-3.5">
+          <QrViewfinder
             dataUrl={dataUrl}
-            frameClass="p-3 rounded-2xl mb-5"
+            className="w-44 h-44 sm:w-48 sm:h-48"
+            cornerColor="#0A1628"
+            scanLabel="SCAN WITH CAMERA"
           />
-          <p className="text-sm font-semibold text-white">Scan &amp; share your review</p>
-          <p className="text-[11px] text-[#9aa0a6] mt-1">
-            Draft copies straight to Google in one tap
-          </p>
+        </div>
+
+        <p className="text-sm font-bold text-white">Point phone camera to review</p>
+        <p className="text-[11px] text-[#94A3B8] mt-0.5">One tap connects directly to Google</p>
+
+        <div className="mt-4 pt-2.5 border-t border-white/10 w-full flex items-center justify-between text-[9px] text-[#64748B] uppercase tracking-wider font-medium">
+          <span>Official Counter Stand</span>
+          <span>Google Verified</span>
         </div>
       </div>
     );
   }
 
+  // 5. Royal Obsidian & Gold
   if (templateId === 'gold-premium') {
     return (
-      <div className="bg-[#1c1408] rounded-2xl overflow-hidden max-w-md mx-auto text-center border border-[#c9a227] shadow-xs">
-        <div className="px-8 py-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#e8c547] mb-2">
-            A five star thank you
-          </p>
-          <h2 className="text-2xl font-serif font-bold text-[#f8f1d8] mb-3">{user.businessName}</h2>
-          <FiveStars className="mb-5" />
-          <QrFrame
+      <div
+        className={`bg-[#12100E] rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#D4AF37]/50 shadow-2xl relative p-6 sm:p-7 flex flex-col items-center`}
+      >
+        <div className="absolute inset-2 border border-[#D4AF37]/25 rounded-2xl pointer-events-none" />
+
+        <div className="inline-flex items-center space-x-1 text-[#E5D5A8] text-[10px] font-serif uppercase tracking-[0.3em] mb-2">
+          <span>• A Five Star Thank You •</span>
+        </div>
+
+        <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F8F1D8] tracking-wide mb-1 max-w-[90%] truncate">
+          {user.businessName}
+        </h2>
+        <p className="text-xs text-[#D4AF37] mb-3 font-serif italic">
+          Your kind words illuminate our journey
+        </p>
+
+        <div className="flex items-center justify-center space-x-1.5 mb-4">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <GoogleStar key={s} className="w-4 h-4" />
+          ))}
+        </div>
+
+        <div className="mb-3.5">
+          <QrViewfinder
             dataUrl={dataUrl}
-            frameClass="p-3 rounded-xl border border-[#c9a227] mb-5"
+            className="w-44 h-44 sm:w-48 sm:h-48"
+            cornerColor="#D4AF37"
+            scanLabel="SCAN WITH PHONE"
           />
-          <p className="text-sm font-medium text-[#f8f1d8]">Scan to leave a Google review</p>
-          <p className="text-[11px] text-[#d4b56a] mt-1">
-            Your kind words help others find us
-          </p>
+        </div>
+
+        <p className="text-xs font-serif font-bold text-[#F8F1D8]">
+          Scan to share your Google review
+        </p>
+        <p className="text-[11px] text-[#A89870] mt-0.5 font-serif">
+          Takes less than a minute of your time
+        </p>
+
+        <div className="mt-4 pt-2.5 border-t border-[#D4AF37]/20 w-full text-[9px] font-serif text-[#A89870] uppercase tracking-widest">
+          Prestige Hospitality Standee
         </div>
       </div>
     );
   }
 
-  if (templateId === 'mint-modern') {
+  // 6. Emerald Botanica
+  if (templateId === 'emerald-modern' || templateId === 'mint-modern') {
     return (
-      <div className="bg-[#f1fbf4] rounded-2xl overflow-hidden max-w-md mx-auto text-center border border-[#ceead6] shadow-xs">
-        <div className="px-8 py-8">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#137333] mb-2">
-            Thank you
+      <div
+        className={`bg-[#F0FDF4] rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#A7F3D0] shadow-md relative`}
+      >
+        <div className="bg-[#064E3B] px-6 py-3.5 text-white">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#6EE7B7]">
+            Thank You For Visiting
           </p>
-          <h2 className="text-2xl font-bold text-[#202124] mb-2">{user.businessName}</h2>
-          <p className="text-xs text-[#5f6368] mb-4">
-            If we earned it, a five-star review means the world.
+          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5 truncate">
+            {user.businessName}
+          </h2>
+        </div>
+
+        <div className="p-6 sm:p-7 flex flex-col items-center">
+          <p className="text-xs text-[#064E3B] font-medium mb-2 max-w-xs">
+            If we earned your smile today, a Google review means the world to our team!
           </p>
-          <FiveStars className="mb-5" />
-          <QrFrame
-            dataUrl={dataUrl}
-            frameClass="p-4 rounded-2xl border border-[#ceead6] shadow-sm mb-5"
-          />
-          <p className="text-xs font-semibold text-[#137333]">Point your camera here</p>
+
+          <div className="flex items-center justify-center space-x-1 mb-4">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <GoogleStar key={s} className="w-4 h-4" />
+            ))}
+          </div>
+
+          <div className="mb-3.5">
+            <QrViewfinder
+              dataUrl={dataUrl}
+              className="w-44 h-44 sm:w-48 sm:h-48"
+              cornerColor="#10B981"
+              scanLabel="POINT CAMERA HERE"
+            />
+          </div>
+
+          <p className="text-xs font-bold text-[#064E3B]">Point your camera to leave a review</p>
+          <p className="text-[11px] text-[#047857] mt-0.5">Quick, honest, and directly on Google</p>
+
+          <div className="mt-4 pt-2.5 border-t border-[#D1FAE5] w-full flex items-center justify-between text-[9px] text-[#059669] font-medium uppercase tracking-wider">
+            <span>Verified Green Business</span>
+            <span>Google Reviews</span>
+          </div>
         </div>
       </div>
     );
   }
 
+  // 7. High-Impact POS Standee
   if (templateId === 'bold-counter') {
     return (
-      <div className="bg-white rounded-2xl overflow-hidden max-w-md mx-auto text-center border-2 border-[#202124] shadow-xs">
-        <div className="bg-[#1a73e8] px-6 py-4">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/80">
-            Scan to review
+      <div
+        className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#111827] shadow-xl relative`}
+      >
+        <div className="bg-[#1A73E8] px-6 py-3.5 text-white">
+          <p className="text-[11px] font-black uppercase tracking-[0.25em] text-white/80">
+            RATE YOUR EXPERIENCE
           </p>
-          <h2 className="text-xl font-black text-white">{user.businessName}</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5 truncate">
+            {user.businessName}
+          </h2>
         </div>
-        <div className="px-8 py-6">
-          <p className="text-lg font-black tracking-tight text-[#202124] mb-2">FIVE STAR</p>
-          <FiveStars className="mb-5" />
-          <QrFrame
-            dataUrl={dataUrl}
-            frameClass="p-2 rounded-xl border border-[#dadce0] mb-4"
-          />
-          <p className="text-xs font-semibold text-[#202124]">Open your camera and scan</p>
+
+        <div className="p-6 sm:p-7 flex flex-col items-center">
+          <div className="inline-block bg-[#111827] text-white px-3.5 py-1 rounded-full text-xs font-black tracking-wider uppercase mb-2">
+            ★ ★ ★ ★ ★ 5 STARS
+          </div>
+
+          <p className="text-xs font-bold text-[#5F6368] mb-3.5">
+            Takes only 15 seconds at the counter
+          </p>
+
+          <div className="mb-3.5">
+            <QrViewfinder
+              dataUrl={dataUrl}
+              className="w-44 h-44 sm:w-48 sm:h-48"
+              cornerColor="#111827"
+              scanLabel="OPEN CAMERA TO SCAN"
+            />
+          </div>
+
+          <p className="text-sm font-black text-[#111827]">Scan to copy review straight to Google!</p>
+          <p className="text-[11px] text-[#5F6368] mt-0.5">
+            Thank you for supporting our local business!
+          </p>
+
+          <div className="mt-4 pt-2.5 border-t border-[#F1F3F4] w-full text-[10px] font-mono text-[#9AA0A6] uppercase">
+            Point of Sale Counter Stand
+          </div>
         </div>
       </div>
     );
   }
 
+  // 8. Foldable A-Frame Table Tent
+  if (templateId === 'table-tent-fold') {
+    return (
+      <div
+        className={`bg-white rounded-2xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#DADCE0] shadow-md relative`}
+      >
+        {/* Panel 1: Top Face (Side A) */}
+        <div className="p-5 bg-[#F8F9FA] flex flex-col items-center border-b border-[#E8EAED]">
+          <div className="flex items-center space-x-2 mb-1.5">
+            <GoogleG className="w-5 h-5" />
+            <GoogleWordmark className="text-base" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-[#202124] max-w-[90%] truncate">
+            {user.businessName}
+          </h3>
+          <p className="text-[11px] text-[#5F6368] mt-0.5">
+            Thank you for dining / visiting with us today!
+          </p>
+          <div className="flex items-center space-x-1 mt-1.5">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <GoogleStar key={s} className="w-3.5 h-3.5" />
+            ))}
+          </div>
+        </div>
+
+        {/* Center Fold Line with scissor / fold guide */}
+        <div className="py-2 px-3 bg-white border-y-2 border-dashed border-[#BDC1C6] flex items-center justify-between text-[9px] font-mono font-bold text-[#5F6368] uppercase tracking-wider">
+          <span>✂ FOLD HERE</span>
+          <span>A-FRAME TABLE TENT</span>
+          <span>FOLD HERE ✂</span>
+        </div>
+
+        {/* Panel 2: Bottom Face (Side B with QR code) */}
+        <div className="p-5 flex flex-col items-center">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#E8F0FE] text-[#1A73E8] text-xs font-bold mb-2.5">
+            <span>Rate Us On Google</span>
+          </div>
+
+          <div className="mb-2.5">
+            <QrViewfinder
+              dataUrl={dataUrl}
+              className="w-40 h-40"
+              cornerColor="#1A73E8"
+              scanLabel="SCAN TO LEAVE REVIEW"
+            />
+          </div>
+
+          <p className="text-xs font-bold text-[#202124]">Point phone camera at this QR code</p>
+          <p className="text-[10px] text-[#5F6368] mt-0.5">
+            Self-standing tent card • Place on dining tables
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback to Google Official
   return (
-    <div className="bg-white border-2 border-[#dadce0] rounded-2xl p-8 max-w-md mx-auto text-center shadow-xs">
-      <div className="flex items-center justify-center space-x-1.5 mb-2">
-        <span className="text-xs uppercase font-bold tracking-widest text-[#1a73e8]">
-          Share Your Thoughts
-        </span>
-      </div>
-
-      <h2 className="text-xl font-bold text-[#202124] mb-1">
-        {user.businessName}
-      </h2>
-
-      <p className="text-xs text-[#5f6368] max-w-xs mx-auto mb-4">
-        Thank you for visiting us! Your feedback helps us grow and assists others in finding honest service.
-      </p>
-
-      <FiveStars size="w-5 h-5" className="mb-4" />
-
-      <QrFrame
-        dataUrl={dataUrl}
-        frameClass="p-4 rounded-2xl border border-[#dadce0] shadow-sm mb-4"
-      />
-
-      <div className="space-y-1">
-        <p className="text-xs font-semibold text-[#202124]">
-          Point your phone camera here
-        </p>
-        <p className="text-[11px] text-[#5f6368]">
-          Select the services you received &amp; copy your draft directly to Google!
-        </p>
-      </div>
-
-      <div className="mt-6 pt-3 border-t border-[#f1f3f4] flex items-center justify-between text-[10px] text-[#9aa0a6]">
-        <span>Powered by Rankaro</span>
-        <span>Fast • Easy • Authentic</span>
-      </div>
-    </div>
+    <DisplayCard
+      templateId="google-official"
+      user={user}
+      dataUrl={dataUrl}
+      cardSize={cardSize}
+    />
   );
 }
 
 function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
@@ -391,18 +700,24 @@ function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
 
   if (!isOpen) return null;
 
+  const categories = ['All', 'Official Google', 'Dark & Luxury', 'Retail & Hospitality'];
+  const filteredTemplates =
+    selectedCategory === 'All'
+      ? TEMPLATES
+      : TEMPLATES.filter((t) => t.category === selectedCategory);
+
   const currentTemplate = TEMPLATES.find((t) => t.id === activeId) || TEMPLATES[0];
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="template-modal-title"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-[#dadce0] flex flex-col max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-[#dadce0] flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -412,11 +727,19 @@ function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
               <Palette className="w-5 h-5" />
             </div>
             <div>
-              <h3 id="template-modal-title" className="text-base sm:text-lg font-bold text-[#202124]">
-                Change Display Template
-              </h3>
+              <div className="flex items-center space-x-2">
+                <h3
+                  id="template-modal-title"
+                  className="text-base sm:text-lg font-bold text-[#202124]"
+                >
+                  Choose Display Template
+                </h3>
+                <span className="text-[11px] font-semibold text-[#1e8e3e] bg-[#e6f4ea] px-2 py-0.5 rounded-full">
+                  8 Styles
+                </span>
+              </div>
               <p className="text-xs text-[#5f6368]">
-                Select a template style for your printable counter card ({TEMPLATES.length} templates)
+                Select a physical standee style. Color palettes and detailed design specs below.
               </p>
             </div>
           </div>
@@ -431,9 +754,27 @@ function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
           </button>
         </div>
 
-        {/* Modal Body: Templates List without preview images, only Name, Details, and Colors */}
+        {/* Category Filter Pills */}
+        <div className="px-5 py-2.5 bg-[#f8f9fa] border-b border-[#f1f3f4] flex items-center space-x-1.5 overflow-x-auto shrink-0">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                selectedCategory === cat
+                  ? 'bg-[#1a73e8] text-white shadow-2xs'
+                  : 'bg-white text-[#5f6368] hover:text-[#202124] border border-[#dadce0]'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Modal Body: Templates List without images, purely typography, details, and color palettes */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-3">
-          {TEMPLATES.map((template) => {
+          {filteredTemplates.map((template) => {
             const isSelected = template.id === activeId;
             return (
               <div
@@ -519,7 +860,7 @@ function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
         {/* Modal Footer */}
         <div className="px-5 py-3.5 sm:px-6 sm:py-4 bg-[#f8f9fa] border-t border-[#dadce0] flex items-center justify-between shrink-0">
           <p className="text-xs text-[#5f6368]">
-            Current: <strong className="text-[#202124]">{currentTemplate.name}</strong>
+            Selected: <strong className="text-[#202124]">{currentTemplate.name}</strong>
           </p>
 
           <button
@@ -527,7 +868,7 @@ function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
             onClick={onClose}
             className="px-5 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl transition-colors shadow-2xs"
           >
-            Done
+            Apply &amp; Done
           </button>
         </div>
       </div>
@@ -540,7 +881,9 @@ export default function QRCodeClient({ user }) {
   const [dataUrl, setDataUrl] = useState('');
   const [svgString, setSvgString] = useState('');
   const [copied, setCopied] = useState(false);
-  const [templateId, setTemplateId] = useState('classic');
+  const [templateId, setTemplateId] = useState('google-official');
+  const [cardSize, setCardSize] = useState('4x6'); // '4x6' | '5x7' | 'fold'
+  const [showCropMarks, setShowCropMarks] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(`/r/${user.slug}`);
   const printCardRef = useRef(null);
@@ -551,6 +894,8 @@ export default function QRCodeClient({ user }) {
       const saved = window.localStorage.getItem('rankaro-qr-template');
       if (saved && TEMPLATES.some((t) => t.id === saved)) {
         setTemplateId(saved);
+      } else {
+        setTemplateId('google-official');
       }
     } catch {
       /* ignore */
@@ -559,8 +904,8 @@ export default function QRCodeClient({ user }) {
 
   useEffect(() => {
     QRCode.toDataURL(reviewUrl, {
-      width: 800,
-      margin: 2,
+      width: 1000,
+      margin: 1,
       errorCorrectionLevel: 'H',
       color: {
         dark: '#202124',
@@ -572,7 +917,7 @@ export default function QRCodeClient({ user }) {
 
     QRCode.toString(reviewUrl, {
       type: 'svg',
-      margin: 2,
+      margin: 1,
       errorCorrectionLevel: 'H',
       color: {
         dark: '#202124',
@@ -630,14 +975,15 @@ export default function QRCodeClient({ user }) {
     showToast(`${picked?.name || 'Template'} selected`, 'success');
   };
 
-  const activeTemplate = TEMPLATES.find((t) => t.id === templateId) || TEMPLATES[0];
+  const activeTemplate =
+    TEMPLATES.find((t) => t.id === templateId) || TEMPLATES[0];
 
   return (
     <div className="space-y-6">
       {/* Top Header */}
       <div>
         <h2 className="text-xl font-bold text-[#202124]">
-          Downloadable QR Code & Counter Displays
+          Downloadable QR Code &amp; Counter Displays
         </h2>
         <p className="text-xs text-[#5f6368] mt-1">
           Provide your customers with an instant scan target that launches your personalized Rankaro review assistant on any smartphone camera.
@@ -701,7 +1047,11 @@ export default function QRCodeClient({ user }) {
                 onClick={handleCopyLink}
                 className="inline-flex items-center space-x-1 text-xs text-[#1a73e8] hover:underline font-medium"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-[#1e8e3e]" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-[#1e8e3e]" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copied ? 'Link Copied!' : 'Copy Direct Link'}</span>
               </button>
 
@@ -734,94 +1084,225 @@ export default function QRCodeClient({ user }) {
         {/* Right Column: Printable Table Tent / Counter Display Stand */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <div>
+            {/* Header with Title and Description */}
+            <div className="mb-4">
+              <div className="flex items-center space-x-2">
                 <h3 className="text-sm font-bold text-[#202124]">
-                  Printable Table Tent / Counter Card
+                  Printable Table Tent / Counter Stand
                 </h3>
-                <p className="text-xs text-[#5f6368]">
-                  Print this clean display card to place right at your checkout desk or tables.
-                </p>
+                <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full">
+                  Standard Acrylic Stand Size
+                </span>
+              </div>
+              <p className="text-xs text-[#5f6368] mt-0.5">
+                Engineered for physical 4x6" and 5x7" tabletop acrylic holders. Fits retail checkout desks and dining tables.
+              </p>
+            </div>
+
+            {/* Print Sizing & Options Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#f8f9fa] p-2.5 rounded-xl border border-[#dadce0] mb-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-[11px] font-bold text-[#3c4043]">Size:</span>
+                <div className="inline-flex p-0.5 bg-white border border-[#dadce0] rounded-lg text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setCardSize('4x6')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                      cardSize === '4x6'
+                        ? 'bg-[#1a73e8] text-white shadow-2xs'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    4" × 6" Acrylic Stand
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardSize('5x7')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                      cardSize === '5x7'
+                        ? 'bg-[#1a73e8] text-white shadow-2xs'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    5" × 7" Counter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCardSize('fold')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                      cardSize === 'fold'
+                        ? 'bg-[#1a73e8] text-white shadow-2xs'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    Foldable Tent
+                  </button>
+                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-2xs transition-colors"
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCropMarks((prev) => !prev)}
+                  className={`text-[11px] px-2 py-1 rounded-lg border flex items-center space-x-1 font-medium transition-colors ${
+                    showCropMarks
+                      ? 'bg-[#e8f0fe] text-[#1a73e8] border-[#d2e3fc]'
+                      : 'bg-white text-[#5f6368] border-[#dadce0]'
+                  }`}
+                  title="Toggle scissor cut guides for physical cutting"
+                >
+                  <Scissors className="w-3 h-3" />
+                  <span>Cut Guides: {showCropMarks ? 'ON' : 'OFF'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-2xs transition-colors"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Card</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Mount Point */}
+            <div
+              id="print-mount-point"
+              className="relative flex flex-col items-center py-2"
+            >
+              {/* Print Cut Guide Header (only visible on print sheet) */}
+              <div className="hidden print:flex items-center justify-between w-full mb-3 text-[9px] font-mono text-slate-400 border-b border-dashed border-slate-300 pb-1">
+                <span>
+                  ✂ CUT ALONG GUIDE TO FIT{' '}
+                  {cardSize === '5x7'
+                    ? '5"×7"'
+                    : cardSize === 'fold'
+                    ? 'A-FRAME TENT'
+                    : '4"×6"'}{' '}
+                  ACRYLIC STAND
+                </span>
+                <span>300 DPI OPTIMAL PRINT • RANKARO DISPLAY KIT</span>
+              </div>
+
+              <div
+                ref={printCardRef}
+                id="printable-display-card"
+                className={`relative ${
+                  cardSize === '5x7'
+                    ? 'print-card-5x7'
+                    : cardSize === 'fold'
+                    ? 'print-card-fold'
+                    : 'print-card-4x6'
+                }`}
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Display Card</span>
-              </button>
+                {/* Physical Scissor Corner Markers (for printing) */}
+                {showCropMarks && (
+                  <>
+                    <div className="absolute -top-3 -left-3 w-3.5 h-3.5 border-t-2 border-l-2 border-slate-400 print:block hidden" />
+                    <div className="absolute -top-3 -right-3 w-3.5 h-3.5 border-t-2 border-r-2 border-slate-400 print:block hidden" />
+                    <div className="absolute -bottom-3 -left-3 w-3.5 h-3.5 border-b-2 border-l-2 border-slate-400 print:block hidden" />
+                    <div className="absolute -bottom-3 -right-3 w-3.5 h-3.5 border-b-2 border-r-2 border-slate-400 print:block hidden" />
+                  </>
+                )}
+
+                <DisplayCard
+                  templateId={templateId}
+                  user={user}
+                  dataUrl={dataUrl}
+                  cardSize={cardSize}
+                />
+              </div>
             </div>
 
-            <div ref={printCardRef} id="printable-display-card">
-              <DisplayCard templateId={templateId} user={user} dataUrl={dataUrl} />
-            </div>
-
-            <div className="mt-4 flex flex-col items-center">
+            {/* Change Template Action */}
+            <div className="mt-5 flex flex-col items-center">
               <button
                 type="button"
-                onClick={() => setPickerOpen((open) => !open)}
+                onClick={() => setPickerOpen(true)}
                 className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl shadow-2xs transition-colors"
                 aria-expanded={pickerOpen}
               >
                 <LayoutTemplate className="w-3.5 h-3.5" />
                 <span>Change Template</span>
+                <span className="ml-1 px-1.5 py-0.5 rounded-md bg-[#e8f0fe] text-[10px]">
+                  {activeTemplate.name}
+                </span>
               </button>
-              <p className="text-[11px] text-[#5f6368] mt-2">
-                Current: <span className="font-medium text-[#202124]">{activeTemplate.name}</span>
+              <p className="text-[11px] text-[#5f6368] mt-2 flex items-center space-x-1">
+                <span>Active:</span>
+                <span className="font-bold text-[#202124]">
+                  {activeTemplate.name}
+                </span>
+                <span className="text-[#dadce0]">•</span>
+                <span className="text-[#1a73e8] font-medium">
+                  {activeTemplate.tag}
+                </span>
               </p>
             </div>
-
-            {pickerOpen && (
-              <div className="mt-4 pt-4 border-t border-[#f1f3f4]">
-                <p className="text-xs font-semibold text-[#202124] mb-3">
-                  Choose a display template
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {TEMPLATES.map((template) => {
-                    const selected = template.id === templateId;
-                    return (
-                      <button
-                        key={template.id}
-                        type="button"
-                        onClick={() => handleSelectTemplate(template.id)}
-                        className="text-left"
-                      >
-                        <TemplateThumb template={template} selected={selected} />
-                        <p className="mt-2 text-[11px] font-semibold text-[#202124]">
-                          {template.name}
-                        </p>
-                        <p className="text-[10px] text-[#5f6368]">{template.blurb}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
+      {/* Template Selection Overlay Modal */}
+      <TemplateModal
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        activeId={templateId}
+        onSelect={handleSelectTemplate}
+      />
+
+      {/* Print Specific CSS to guarantee 300 DPI razor-sharp standard dimensions */}
       <style jsx global>{`
         @media print {
+          @page {
+            size: auto;
+            margin: 8mm;
+          }
+          html,
+          body {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
           body * {
-            visibility: hidden;
+            visibility: hidden !important;
           }
-          #printable-display-card,
-          #printable-display-card * {
-            visibility: visible;
+          #print-mount-point,
+          #print-mount-point * {
+            visibility: visible !important;
           }
-          #printable-display-card {
-            position: absolute;
-            left: 50%;
-            top: 8%;
-            transform: translateX(-50%);
-            width: 80% !important;
-            max-width: 500px !important;
+          #print-mount-point {
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
             box-shadow: none !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-card-4x6 {
+            width: 4in !important;
+            max-width: 4in !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+          }
+          .print-card-5x7 {
+            width: 5in !important;
+            max-width: 5in !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
+          }
+          .print-card-fold {
+            width: 4.2in !important;
+            max-width: 4.2in !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
           }
         }
       `}</style>

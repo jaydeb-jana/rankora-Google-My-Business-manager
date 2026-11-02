@@ -31,7 +31,7 @@ export default function BlogClient() {
       categoryName: 'Local SEO Strategy',
       readTime: '12 min read',
       date: 'October 28, 2026',
-      author: 'Ayan Mukherjee, CEO',
+      author: 'Jaydeb Jana, Founder & CEO',
       snippet:
         'Google’s local ranking algorithm has shifted dramatically from sheer review quantity to review velocity, semantic richness, and keyword prominence. Discover how modern businesses rank in the top 3 spots.',
       content: `For over a decade, local search engine optimization relied on a blunt, brute-force metric: whichever business had accumulated the highest raw number of reviews won the coveted Google 3-Pack.
@@ -122,7 +122,7 @@ By converting the review experience into a 10-second micro-game of recognition c
       categoryName: 'Hardware & Countertop',
       readTime: '9 min read',
       date: 'September 12, 2026',
-      author: 'Debjit Jana, Co-Founder',
+      author: 'Jaydeb Jana, Founder & CEO',
       snippet:
         'A comprehensive benchmark comparing customer engagement on NFC tap pucks versus vector QR codes across 3.8 million physical storefront scans.',
       content: `Should your business deploy contactless NFC tap pucks or traditional printed QR displays? We analyzed scan and tap conversion rates across 3.8 million physical interactions across dental clinics, restaurants, auto repair shops, and luxury salons.
@@ -176,7 +176,7 @@ Avoid repeating negative terms in your response (e.g., do not say "We apologize 
       categoryName: 'Local SEO Strategy',
       readTime: '13 min read',
       date: 'August 02, 2026',
-      author: 'Ayan Mukherjee, CEO',
+      author: 'Jaydeb Jana, Founder & CEO',
       snippet:
         'Generic 5-star reviews like "Great place!" provide zero SEO value. Discover how to configure service chips that trigger Google’s local matching algorithms.',
       content: `A 5-star Google review that reads: "Great place! Love it!" is emotionally satisfying, but algorithmically useless. It gives Google’s search bots zero semantic context regarding what products or services your business actually delivers.

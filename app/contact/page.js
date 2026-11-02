@@ -70,9 +70,34 @@ export default function ContactPage() {
   };
 
   const offices = [
-    { city: 'San Francisco, CA', country: 'United States', address: 'Market St, Suite 400', email: 'us@arventaventures.online', phone: '+1 (415) 890-4321' },
-    { city: 'London', country: 'United Kingdom', address: 'Bishopsgate, EC2N 4AY', email: 'uk@arventaventures.online', phone: '+44 20 7946 0912' },
-    { city: 'Kolkata, WB', country: 'India', address: 'Salt Lake Sector V, Tech Zone', email: 'in@arventaventures.online', phone: '+91 33 2357 8900' },
+    {
+      city: 'West Bengal (Global HQ)',
+      country: 'India',
+      address: 'Purba Gopinathpur, Chapatala, More, Contai, West Bengal 721442',
+      email: 'ceo@arventaventures.online',
+      phone: '+91 7872490719',
+    },
+    {
+      city: 'London',
+      country: 'United Kingdom',
+      address: 'One Canada Square, Canary Wharf, E14 5AB',
+      email: 'uk@arventaventures.online',
+      phone: '+44 20 7946 0912',
+    },
+    {
+      city: 'Singapore',
+      country: 'Singapore',
+      address: 'Marina Bay Financial Centre, Tower 1',
+      email: 'sg@arventaventures.online',
+      phone: '+65 6789 0123',
+    },
+    {
+      city: 'New York',
+      country: 'United States',
+      address: '100 Wall Street, Suite 500, NY 10005',
+      email: 'us@arventaventures.online',
+      phone: '+1 (212) 555-0199',
+    },
   ];
 
   return (
@@ -259,8 +284,18 @@ export default function ContactPage() {
                     <span>support@arventaventures.online</span>
                   </div>
                   <div className="flex items-center space-x-2">
+                    <Mail className="w-4 h-4 text-emerald-400" />
+                    <span>ceo@arventaventures.online (Direct Desk)</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-4 h-4 text-emerald-400" />
+                    <a href="https://wa.me/917872490719" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-300">
+                      WhatsApp: +91 7872490719
+                    </a>
+                  </div>
+                  <div className="flex items-center space-x-2">
                     <Building className="w-4 h-4 text-blue-400" />
-                    <span>Governed by Arventa Ventures</span>
+                    <span>Governed by Arventa Ventures (CEO: Jaydeb Jana)</span>
                   </div>
                 </div>
               </div>
