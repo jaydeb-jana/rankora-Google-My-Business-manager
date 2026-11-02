@@ -92,7 +92,7 @@ export default function PublicReviewPageClient({ business }) {
     setCurrentStep('DRAFT');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Track generation event in background
+    // Call server to generate with account-specific Gemini AI (if configured)
     fetch('/api/public/generate-draft', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -101,8 +101,23 @@ export default function PublicReviewPageClient({ business }) {
         selectedServiceIds,
         sentiment,
         answers: { experience: experienceText },
+        forceLanguage: forceLang,
       }),
-    }).catch(() => {});
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
+          const isAi = data.drafts.some((d) => d.id?.startsWith('gemini_'));
+          if (isAi) {
+            setDrafts(data.drafts);
+            setReviewText(data.drafts[0]?.text || '');
+            if (data.drafts[0]?.lang) {
+              setActiveLang(data.drafts[0].lang);
+            }
+          }
+        }
+      })
+      .catch(() => {});
   };
 
   const handleRegenerateInLanguage = (langCode) => {

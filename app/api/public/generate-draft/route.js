@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { userRepo, activityRepo } from '@/lib/repositories';
-import { generateReviewDrafts } from '@/lib/reviewEngine';
+import { generateReviewDraftsWithAi } from '@/lib/reviewEngine';
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { slug, selectedServiceIds = [], sentiment = 'exceptional', answers = {} } = body;
+    const { slug, selectedServiceIds = [], sentiment = 'exceptional', answers = {}, forceLanguage = null } = body;
 
     if (!slug) {
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
@@ -22,13 +22,18 @@ export async function POST(request) {
     const allServices = user.services || [];
     const chosenServices = allServices.filter((s) => selectedServiceIds.includes(s.id));
 
-    // Generate natural, authentic review drafts based strictly on customer selections & AI knowledge
-    const drafts = generateReviewDrafts({
+    // Generate authentic review drafts with account-specific Gemini API (or template fallback)
+    const drafts = await generateReviewDraftsWithAi({
       businessName: user.businessName,
+      businessCategory: user.businessCategory,
+      city: user.city,
+      address: user.address,
+      description: user.description,
       selectedServices: chosenServices,
       sentiment,
       answers,
       aiKnowledge: user.aiKnowledge || null,
+      forceLanguage,
     });
 
     // Record stats and activity in background
