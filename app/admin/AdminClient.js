@@ -395,15 +395,42 @@ export default function AdminClient({ currentUser }) {
     }
   };
 
-  // Save Subscription Plan Pricing
+  // Save Subscription Plan Pricing & Features
   const handleSavePricing = async (e) => {
     e?.preventDefault();
     setSavingPricing(true);
     try {
+      const normalizeFeatures = (feat) => {
+        if (Array.isArray(feat)) return feat.map((f) => String(f).trim()).filter(Boolean);
+        if (typeof feat === 'string') return feat.split('\n').map((f) => f.trim()).filter(Boolean);
+        return [];
+      };
+
+      const payload = {
+        pricing: {
+          currency: settings.pricing?.currency || '₹',
+          starter: {
+            monthly: Number(settings.pricing?.starter?.monthly) || 0,
+            yearly: Number(settings.pricing?.starter?.yearly) || 0,
+            features: normalizeFeatures(settings.pricing?.starter?.features),
+          },
+          pro: {
+            monthly: Number(settings.pricing?.pro?.monthly) || 0,
+            yearly: Number(settings.pricing?.pro?.yearly) || 0,
+            features: normalizeFeatures(settings.pricing?.pro?.features),
+          },
+          enterprise: {
+            monthly: Number(settings.pricing?.enterprise?.monthly) || 0,
+            yearly: Number(settings.pricing?.enterprise?.yearly) || 0,
+            features: normalizeFeatures(settings.pricing?.enterprise?.features),
+          },
+        },
+      };
+
       const res = await fetch('/api/admin/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pricing: settings.pricing }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -413,7 +440,7 @@ export default function AdminClient({ currentUser }) {
             pricing: data.settings.pricing,
           }));
         }
-        showToast('Subscription plan pricing updated successfully!', 'success');
+        showToast('Subscription plan pricing and features saved successfully!', 'success');
       } else {
         showToast(data.error || 'Failed to update plan pricing.', 'error');
       }
