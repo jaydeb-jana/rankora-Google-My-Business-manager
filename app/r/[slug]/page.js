@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const user = await userRepo.findBySlug(slug);
 
-  if (!user || !user.isVerified) {
+  if (!user || !user.isVerified || user.role === 'admin' || user.email === 'ceo@arventventures.online') {
     return {
       title: 'Review Page Not Found - Rankaro',
     };
@@ -24,7 +24,7 @@ export default async function PublicReviewPage({ params }) {
   const { slug } = await params;
   const user = await userRepo.findBySlug(slug);
 
-  if (!user || !user.isVerified) {
+  if (!user || !user.isVerified || user.role === 'admin' || user.email === 'ceo@arventventures.online') {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-4 text-[#202124]">
         <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center border border-[#dadce0] shadow-md">

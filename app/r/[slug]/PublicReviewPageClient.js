@@ -12,6 +12,7 @@ import {
   Languages,
   Edit3,
   MapPin,
+  RefreshCw,
 } from 'lucide-react';
 import { generateReviewDrafts, SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
 
@@ -30,6 +31,7 @@ export default function PublicReviewPageClient({ business }) {
   const [reviewText, setReviewText] = useState('');
   const [activeLang, setActiveLang] = useState('en');
   const [copied, setCopied] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
   const [privateFeedbackText, setPrivateFeedbackText] = useState('');
@@ -107,6 +109,19 @@ export default function PublicReviewPageClient({ business }) {
   const handleSelectDraftStyle = (index) => {
     setActiveDraftIndex(index);
     setReviewText(drafts[index]?.text || '');
+  };
+
+  const handleCycleNextDraft = () => {
+    setIsRegenerating(true);
+    setTimeout(() => setIsRegenerating(false), 400);
+
+    if (drafts && drafts.length > 1) {
+      const nextIndex = (activeDraftIndex + 1) % drafts.length;
+      setActiveDraftIndex(nextIndex);
+      setReviewText(drafts[nextIndex]?.text || '');
+    } else {
+      handleGenerateDraft(activeLang);
+    }
   };
 
   // Handle Copy text
@@ -485,39 +500,11 @@ export default function PublicReviewPageClient({ business }) {
                 </div>
               )}
 
-              {/* Draft Style Variations (Pills) */}
-              {drafts.length > 1 && (
-                <div>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {drafts.map((d, index) => {
-                      const isSelected = activeDraftIndex === index;
-                      return (
-                        <button
-                          key={d.id || index}
-                          type="button"
-                          onClick={() => handleSelectDraftStyle(index)}
-                          className={`py-1.5 px-1 rounded-xl border text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
-                            isSelected
-                              ? 'bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200/60 shadow-2xs'
-                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                          }`}
-                        >
-                          {d.title}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Editable Review Textbox */}
-              <div className="space-y-1">
+              {/* Review Section */}
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-700 flex items-center space-x-1">
-                    <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Review Text (Editable):</span>
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-medium">
+                  <span className="font-black text-slate-900 text-sm tracking-tight">Review</span>
+                  <span className="text-[10.5px] text-slate-400 font-medium">
                     {reviewText.trim().split(/\s+/).filter(Boolean).length} words
                   </span>
                 </div>
@@ -526,11 +513,25 @@ export default function PublicReviewPageClient({ business }) {
                   rows={4}
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
-                  className="w-full p-3 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-all bg-white"
+                  className="w-full p-3.5 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-all bg-white"
                 />
-                <p className="text-[10.5px] text-slate-400">
-                  ✏️ Tap into the box to adjust words before copying.
-                </p>
+
+                {/* Regenerate Button & Tap Hint */}
+                <div className="flex items-center justify-between gap-2 pt-0.5">
+                  <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                    <Edit3 className="w-3 h-3 text-slate-400" />
+                    <span>Tap to edit text</span>
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleCycleNextDraft}
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
+                    <span>Regenerate</span>
+                  </button>
+                </div>
               </div>
 
               {/* Direct Management Resolution Safe-Harbor for 1-3 Stars */}

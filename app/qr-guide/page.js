@@ -12,46 +12,56 @@ import {
   MapPin,
   Download,
   Lightbulb,
-  FileText
+  FileText,
+  Eye,
+  Check,
+  Radio,
+  Sliders,
+  DollarSign
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'The Countertop QR & NFC Setup Playbook | Rankaro',
+  title: 'The Countertop QR & NFC Setup Master Playbook | Rankaro',
   description:
-    'Master the physical art of in-store review generation: optimal countertop placement spots, NFC tap hardware, material selection, and printable templates.',
+    'Master the physical science of in-store review generation: optimal optical countertop placement spots, NFC tap hardware, material durability, and printable templates.',
 };
 
 export default function QrGuidePage() {
   const hotspots = [
     {
-      title: 'Checkout Register & Payment Terminal',
-      rate: '34% Scan Rate',
+      title: 'Checkout Register & Payment Terminal Dwell Zone',
+      rate: '34% Scan Rate (Highest Conversion)',
       why: 'While the customer’s credit card chip is reading or their receipt is printing, there is an unavoidable 5 to 10 second idle dwell time. Positioning a 4x6" matte acrylic stand directly adjacent to the payment terminal converts this dead time into authentic 5-star Google reviews.',
-      tips: 'Position stand at a 45-degree angle facing the customer’s dominant hand. Keep counter clutter to an absolute minimum.',
+      ergonomics: 'Position display at a 45-degree angle facing the customer’s dominant right hand. Place within 8 to 12 inches of the chip reader.',
+      tips: 'Keep counter clutter to an absolute minimum. Ensure store overhead lights do not produce specular glare across the QR code matrix.',
     },
     {
-      title: 'Leather Check Presenter / Bill Folio',
-      rate: '28% Scan Rate',
-      why: 'For restaurants, cafes, and bars, the bill presentation is the definitive moment of satisfaction. The meal was delicious, the server was warm, and the guest is feeling relaxed.',
-      tips: 'Insert a credit-card-sized laminated NFC/QR card right above the credit card pocket. Guests tap their phone before signing.',
+      title: 'Leather Check Presenter / Bill Folio Pocket',
+      rate: '28% Scan Rate (Hospitality Benchmark)',
+      why: 'For restaurants, cafes, and bars, the bill presentation is the definitive emotional moment of satisfaction. The meal was delicious, the server was warm, and the guest is feeling relaxed.',
+      ergonomics: 'Insert a credit-card-sized laminated NFC/QR card right above the credit card pocket. Guests tap their phone before signing.',
+      tips: 'Ensure waitstaff mention: “If you’d like to highlight your favorite dish, tapping this card takes just 10 seconds!”',
     },
     {
-      title: 'Reception Desk & Exit Lounge',
-      rate: '22% Scan Rate',
+      title: 'Clinic Reception Desk & Appointment Scheduling Counter',
+      rate: '22% Scan Rate (Medical & Dental Standard)',
       why: 'For dental clinics, med spas, and salon studios, patients pause at the front desk to book their next appointment or settle copays.',
+      ergonomics: 'Place on the front desk partition at eye level for seated or standing patients.',
       tips: 'Equip receptionists with our 10-second non-incentive verbal script: "Tapping this helps our small team immensely!"',
     },
     {
-      title: 'Service Invoices & Vehicle Dashboards',
-      rate: '25% Scan Rate',
+      title: 'Vehicle Steering Wheel & Service Invoices',
+      rate: '25% Scan Rate (Trades & Auto Repair)',
       why: 'For auto mechanics, roofers, and plumbers, handing over keys or reviewing completed repair line items is the peak moment of trust.',
-      tips: 'Print our vector QR code directly onto the printed invoice footer and hang a branded mirror tag on the vehicle rearview mirror.',
+      ergonomics: 'Print our vector QR code directly onto the printed invoice footer and hang a branded mirror tag on the vehicle rearview mirror.',
+      tips: 'Technicians should review the completed work line-by-line before pointing to the invoice footer code.',
     },
     {
-      title: 'Packaging Inserts & Shopping Bags',
-      rate: '14% Scan Rate',
+      title: 'Boutique Shopping Bags & Packaging Unboxing Inserts',
+      rate: '14% Scan Rate (Retail Footwear & Gifts)',
       why: 'For boutique retail and takeaway dining, unboxing at home provides a second touchpoint for customers who were in a hurry at the store.',
-      tips: 'Include a personalized postcard with the QR code and a handwritten "Thank you for supporting local business!" note.',
+      ergonomics: 'Place an embossed 4x4" postcard insert at the very top of the shopping bag tissue paper.',
+      tips: 'Include a handwritten note: “Thank you for supporting our local shop! Scan here to share your favorite find.”',
     },
   ];
 
@@ -61,24 +71,28 @@ export default function QrGuidePage() {
       bestFor: 'Medical Clinics, Salons & Law Offices',
       pros: 'Glare-resistant under harsh LED lighting; premium, hygienic modern appearance; easy to sanitize.',
       durability: '5+ Years',
+      cost: '$8 - $14 per stand',
     },
     {
       name: 'Engraved Hardwood Blocks with NFC',
       bestFor: 'Artisan Cafes, Fine Dining & Luxury Spas',
       pros: 'Warm, organic hospitality feel; hides embedded NTAG213 NFC chip underneath genuine walnut or oak.',
       durability: '3+ Years',
+      cost: '$12 - $18 per puck',
     },
     {
       name: 'Weatherproof Matte Vinyl Decals',
       bestFor: 'Auto Repair, Food Trucks & Storefront Windows',
       pros: 'UV-resistant, waterproof, scratch-proof adhesive that sticks securely to glass, metal, and registers.',
       durability: '2+ Years',
+      cost: '$2 - $4 per decal',
     },
     {
       name: 'Heavyweight Laminated Cardstock',
       bestFor: 'Pop-ups, Farmers Markets & Events',
       pros: 'Lowest cost; instantly printable on standard office laser printers; folds easily into self-standing tents.',
       durability: '6 Months',
+      cost: '&lt; $0.50 per sheet',
     },
   ];
 
@@ -93,7 +107,7 @@ export default function QrGuidePage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
-      <main className="flex-1 space-y-24 pb-24">
+      <main className="flex-1 space-y-24 pb-28">
         {/* HERO */}
         <section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-bold text-blue-700 mb-6">
@@ -107,12 +121,12 @@ export default function QrGuidePage() {
             </span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            A poorly placed QR code gets ignored. A strategically placed, glare-free acrylic stand captures 34% of checkout patrons. Here is the field-tested guide to maximizing physical scan conversion.
+            A poorly positioned QR code gets ignored. A strategically placed, glare-free acrylic stand captures 34% of checkout patrons. Here is the field-tested guide to maximizing physical scan conversion.
           </p>
         </section>
 
-        {/* 5 PLACEMENT ZONES */}
-        <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8">
+        {/* 5 PLACEMENT ZONES WITH ERGONOMIC SIGHTLINES */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-10">
           <div className="text-center mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
               Field-Tested Conversion Data
@@ -122,15 +136,15 @@ export default function QrGuidePage() {
             </h2>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {hotspots.map((spot, idx) => (
               <div
                 key={spot.title}
-                className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4 hover:shadow-md transition-shadow"
+                className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4 hover:shadow-lg transition-all"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                   <div className="flex items-center space-x-3">
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
+                    <span className="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
                       Spot #{idx + 1}
                     </span>
                     <h3 className="text-xl font-bold text-slate-900">{spot.title}</h3>
@@ -140,37 +154,53 @@ export default function QrGuidePage() {
                   </span>
                 </div>
 
-                <p className="text-slate-600 text-sm leading-relaxed">{spot.why}</p>
+                <p className="text-slate-700 text-sm leading-relaxed">{spot.why}</p>
 
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-700 flex items-start space-x-2">
-                  <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Pro Placement Tip:</strong> {spot.tips}
-                  </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <span className="font-bold text-blue-700 uppercase tracking-wider flex items-center space-x-1">
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Optical Sightline & Distance:</span>
+                    </span>
+                    <p className="text-slate-600 leading-relaxed">{spot.ergonomics}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <span className="font-bold text-amber-700 uppercase tracking-wider flex items-center space-x-1">
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      <span>Pro Placement Tip:</span>
+                    </span>
+                    <p className="text-slate-600 leading-relaxed">{spot.tips}</p>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* NFC VS QR CODE ANALYSIS */}
+        {/* NFC VS QR CODE TECHNICAL SHOWDOWN */}
         <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
           <div className="rounded-3xl bg-slate-900 text-white p-8 sm:p-12 border border-slate-800 space-y-6">
             <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
-              Technology Showdown
+              Contactless Hardware Physics
             </span>
             <h2 className="text-3xl font-black">
-              NFC Tap Cards vs QR Codes: The Verdict
+              NFC Tap Cards vs QR Codes: The Definitive Analysis
             </h2>
             <div className="text-slate-300 text-sm leading-relaxed space-y-4">
               <p>
-                <strong>QR Codes:</strong> Universally compatible with every smartphone produced in the last 10 years. Require the customer to open their camera app and point.
+                <strong>QR Codes (Optical Scanning):</strong> Universally compatible across 100% of smartphones. However, it introduces minor optical friction: the customer must open their camera app, focus, and tap the notification banner.
               </p>
               <p>
                 <strong>NFC (Near Field Communication):</strong> Zero camera opening required! The customer simply taps their iPhone or Android against the puck, and the review page immediately pops open via native OS prompt.
               </p>
-              <div className="p-4 rounded-2xl bg-slate-800 border border-slate-700 text-xs text-blue-300 font-semibold">
-                🏆 <strong>The Winning Recommendation:</strong> Deploy hybrid hardware. Our downloadable print files feature both a high-contrast vector QR code for scanning and an internal NFC chip payload so customers can interact using whichever method they prefer.
+              <div className="p-5 rounded-2xl bg-slate-800 border border-slate-700 text-xs text-blue-300 font-semibold space-y-2">
+                <div className="flex items-center space-x-2 text-emerald-400 font-bold uppercase">
+                  <Sparkles className="w-4 h-4" />
+                  <span>The Hybrid Recommendation:</span>
+                </div>
+                <p className="text-slate-200 leading-relaxed">
+                  Never force patrons to use one single modality. The highest-performing businesses deploy hybrid acrylic stands that feature a crisp vector QR code with an embedded NFC chip right behind the target icon. Customers under 35 instinctively tap via NFC, while mature patrons point their camera.
+                </p>
               </div>
             </div>
           </div>
@@ -196,11 +226,11 @@ export default function QrGuidePage() {
                 <div>
                   <h3 className="font-extrabold text-slate-900 text-base mb-1">{mat.name}</h3>
                   <div className="text-xs font-semibold text-blue-600 mb-3">{mat.bestFor}</div>
-                  <p className="text-xs text-slate-600 leading-relaxed">{mat.pros}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{mat.pros}</p>
                 </div>
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Durability:</span>
-                  <span className="font-bold text-slate-800">{mat.durability}</span>
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Estimated Cost:</span>
+                  <span className="font-bold text-slate-800">{mat.cost}</span>
                 </div>
               </div>
             ))}

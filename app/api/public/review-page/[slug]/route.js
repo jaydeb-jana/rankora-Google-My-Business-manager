@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
     const cleanSlug = slug.toLowerCase().trim();
     const user = await userRepo.findBySlug(cleanSlug);
 
-    if (!user || !user.isVerified) {
+    if (!user || !user.isVerified || user.role === 'admin' || user.email === 'ceo@arventventures.online') {
       return NextResponse.json({ error: 'Business review page not found.' }, { status: 404 });
     }
 

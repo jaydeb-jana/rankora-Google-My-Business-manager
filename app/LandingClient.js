@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Star,
   QrCode,
@@ -27,7 +27,15 @@ import {
   Shield,
   Building,
   DollarSign,
-  HeartHandshake
+  HeartHandshake,
+  Clock,
+  Printer,
+  Scale,
+  Search,
+  ChevronRight,
+  ThumbsUp,
+  MapPin,
+  RefreshCw
 } from 'lucide-react';
 
 export default function LandingClient() {
@@ -38,8 +46,9 @@ export default function LandingClient() {
   const [copied, setCopied] = useState(false);
 
   // Quick ROI Estimator State
-  const [monthlyCustomers, setMonthlyCustomers] = useState(450);
-  const [avgTicket, setAvgTicket] = useState(85);
+  const [monthlyCustomers, setMonthlyCustomers] = useState(550);
+  const [avgTicket, setAvgTicket] = useState(90);
+  const [currentRating, setCurrentRating] = useState(4.1);
 
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
@@ -48,78 +57,111 @@ export default function LandingClient() {
   const industryPresets = {
     dental: {
       name: 'Horizon Dental Studio',
-      type: 'Dental Practice',
+      type: 'Dental Practice & Surgery',
+      location: 'Denver, Colorado',
+      keywords: ['Pain-Free Cleaning', 'Gentle Hygienist', 'Clear Insurance Billing'],
       chips: [
         { id: 'painless', label: 'Pain-Free Cleaning' },
         { id: 'punctual', label: 'Zero Waiting Delay' },
         { id: 'gentle', label: 'Gentle Hygienist' },
         { id: 'transparent', label: 'Clear Insurance Billing' },
         { id: 'modern', label: 'Modern Digital X-Rays' },
+        { id: 'implant', label: 'Smooth Dental Implant' },
       ],
       drafts: {
         exceptional:
-          'Had a fantastic experience at Horizon Dental Studio! The team was exceptionally welcoming, and the pain-free cleaning was the smoothest I’ve ever had. Loved that there was zero waiting delay and clear insurance billing. 5/5 stars for dependable dental care!',
+          'Had an outstanding visit at Horizon Dental Studio! The team was remarkably courteous and welcoming. My pain-free cleaning was the smoothest dental visit I have ever had. I especially appreciated that there was zero waiting delay and clear insurance billing with no surprises. 5/5 stars for dependable dental care!',
         great:
-          'Very good experience with Horizon Dental Studio. The staff is polite, the cleaning was thorough and pain-free, and they took me in right on schedule. Definitely recommending to friends and family!',
+          'Very good experience with Horizon Dental Studio. The staff is polite, the cleaning was thorough and pain-free, and they seated me right on schedule. Definitely recommending to friends and family seeking a gentle dentist!',
         honest:
-          'Visited Horizon Dental Studio for a routine checkup and cleaning. The procedure was handled properly and the clinic is clean and well-managed.',
+          'Visited Horizon Dental Studio for a routine checkup and cleaning. The procedure was handled properly and the clinic is clean, modern, and punctual.',
       },
     },
     dining: {
       name: 'Bistro Bella Vista',
-      type: 'Italian Trattoria',
+      type: 'Italian Trattoria & Wine Bar',
+      location: 'Chicago, Illinois',
+      keywords: ['Handmade Truffle Pasta', 'Attentive Waitstaff', 'Romantic Ambience'],
       chips: [
         { id: 'handmade', label: 'Handmade Truffle Pasta' },
         { id: 'attentive', label: 'Attentive Waitstaff' },
-        { id: 'cozy', label: 'Warm & Romantic Ambience' },
+        { id: 'cozy', label: 'Warm Romantic Ambience' },
         { id: 'cocktails', label: 'Signature Negroni' },
         { id: 'fast', label: 'Prompt Kitchen Timing' },
+        { id: 'dessert', label: 'Silky Tiramisu' },
       ],
       drafts: {
         exceptional:
-          'An absolute 5-star gem! We celebrated our anniversary at Bistro Bella Vista. The handmade truffle pasta was out of this world, and the attentive waitstaff made us feel so special. The warm & romantic ambience topped off a flawless evening.',
+          'An absolute 5-star gem! We celebrated our anniversary at Bistro Bella Vista. The handmade truffle pasta was out of this world, perfectly aldente with rich aroma, and our attentive waitstaff made us feel so special. The warm romantic ambience topped off a flawless evening in Chicago!',
         great:
-          'Wonderful dinner at Bistro Bella Vista! The pasta was fresh and flavorful, the cocktails were well-crafted, and our server took great care of us. Will definitely be returning soon.',
+          'Wonderful dinner at Bistro Bella Vista! The pasta was fresh and flavorful, the cocktails were well-crafted, and our server took great care of us. Will definitely be returning for another date night soon.',
         honest:
-          'Dined at Bistro Bella Vista on a Friday evening. Good food, tasty handmade pasta, and pleasant hospitality.',
+          'Dined at Bistro Bella Vista on a Friday evening. Good food, tasty handmade pasta, and pleasant hospitality all around.',
       },
     },
     auto: {
       name: 'Apex Performance Auto',
-      type: 'Auto Repair & Tuning',
+      type: 'Auto Repair & Diagnostics',
+      location: 'Austin, Texas',
+      keywords: ['Honest Diagnostic Quote', 'Ceramic Brakes', 'Same-Day Turnaround'],
       chips: [
         { id: 'honest', label: 'Honest Diagnostic Quote' },
         { id: 'same_day', label: 'Same-Day Turnaround' },
         { id: 'mechanic', label: 'Knowledgeable Certified Mechanics' },
         { id: 'brakes', label: 'Smooth Ceramic Brake Job' },
         { id: 'warranty', label: 'Nationwide Parts Warranty' },
+        { id: 'fair', label: 'Zero Unnecessary Upsells' },
       ],
       drafts: {
         exceptional:
-          'Apex Performance Auto is the gold standard for honest mechanics! They provided an upfront diagnostic quote with zero hidden upcharges, completed my brake repair the same day, and explained everything clearly. Trustworthy and highly skilled shop!',
+          'Apex Performance Auto is the gold standard for honest mechanics! They provided an upfront diagnostic quote with zero hidden upcharges, completed my ceramic brake job the same day, and explained everything clearly. Trustworthy, skilled, and highly recommended!',
         great:
-          'Reliable and professional service at Apex Performance Auto. They diagnosed the issue quickly, finished the work on time, and charged exactly what was quoted. Great local mechanic.',
+          'Reliable and professional service at Apex Performance Auto. They diagnosed the issue quickly, finished the work on time, and charged exactly what was quoted. Great local Austin mechanic.',
         honest:
-          'Had my vehicle serviced at Apex Performance Auto. Straightforward repair, knowledgeable crew, and fair pricing.',
+          'Had my vehicle serviced at Apex Performance Auto. Straightforward repair, knowledgeable crew, and fair pricing without aggressive upselling.',
       },
     },
     salon: {
       name: 'PureGlow Salon & Spa',
-      type: 'Hair & Skin Studio',
+      type: 'Hair & Aesthetic Medicine',
+      location: 'Miami, Florida',
+      keywords: ['Master Balayage Color', 'Scalp Massage', 'Luxury Interior'],
       chips: [
         { id: 'balayage', label: 'Master Balayage Color' },
         { id: 'consultation', label: 'Detailed Hair Consultation' },
         { id: 'scalp', label: 'Relaxing Botanical Scalp Massage' },
         { id: 'clean', label: 'Spotless Luxury Salon' },
         { id: 'stylist', label: 'Friendly Senior Stylist' },
+        { id: 'blowout', label: 'Voluminous Silk Blowout' },
       ],
       drafts: {
         exceptional:
-          'Left PureGlow Salon feeling like a million bucks! My stylist nailed the master balayage color after a detailed hair consultation. The relaxing botanical scalp massage was pure bliss. Clean, stylish, and incredibly talented team!',
+          'Left PureGlow Salon feeling like a million bucks! My stylist nailed the master balayage color after a detailed hair consultation. The relaxing botanical scalp massage was pure bliss. Clean, luxury aesthetic, and incredibly talented team!',
         great:
           'Loved my visit to PureGlow Salon! Friendly senior stylists, great listening skills, and beautiful hair color result. The salon space is pristine and relaxing.',
         honest:
           'Had my hair styled and colored at PureGlow Salon. Professional staff, good atmosphere, and satisfied with the final look.',
+      },
+    },
+    contractor: {
+      name: 'BrightSky Pro HVAC & Plumbing',
+      type: 'Emergency Home Services',
+      location: 'Atlanta, Georgia',
+      keywords: ['Emergency AC Fix', 'Upfront Quote', 'Clean Work Area'],
+      chips: [
+        { id: 'emergency', label: 'Emergency Same-Day Fix' },
+        { id: 'upfront', label: 'Upfront Honest Estimate' },
+        { id: 'clean', label: 'Clean Shoe Covers & Work Area' },
+        { id: 'tech', label: 'Knowledgeable Certified Tech' },
+        { id: 'punctual', label: 'Arrived Within Window' },
+      ],
+      drafts: {
+        exceptional:
+          'BrightSky Pro HVAC is a lifesaver! Our air conditioner stopped working during a 95-degree heatwave. Their technician arrived right inside the promised window with shoe covers, gave an upfront honest estimate, and completed the emergency fix the same day. Top-tier service!',
+        great:
+          'Prompt and professional service from BrightSky Pro HVAC. Diagnosed our compressor issue quickly, explained the options clearly, and left the work area spotless. Very satisfied.',
+        honest:
+          'Used BrightSky Pro HVAC for an AC repair. They came out on time, fixed the issue properly, and charged a fair rate.',
       },
     },
   };
@@ -142,73 +184,108 @@ export default function LandingClient() {
   // Quick ROI Calculation
   const estimatedReviewsPerMonth = Math.round(monthlyCustomers * 0.14);
   const projectedExtraRevenue = Math.round(estimatedReviewsPerMonth * avgTicket * 1.6);
+  const projectedRating = Math.min(5.0, (currentRating + 0.5)).toFixed(1);
+
+  // Real-time Marquee ticker data
+  const marqueeItems = [
+    { name: 'Dr. Elena Ramos', business: 'Horizon Dental', city: 'Denver, CO', text: 'Collected 5★ review: "Pain-free cleaning and zero waiting delay!"', time: '1m ago' },
+    { name: 'Marco Moretti', business: 'Trattoria Bella', city: 'Chicago, IL', text: 'Collected 5★ review: "Handmade truffle pasta was unforgettable."', time: '3m ago' },
+    { name: 'David Vance', business: 'Apex Auto Group', city: 'Austin, TX', text: 'Collected 5★ review: "Honest diagnostic quote and same-day ceramic brakes."', time: '4m ago' },
+    { name: 'Chloe Dubois', business: 'PureGlow Spa', city: 'Miami, FL', text: 'Collected 5★ review with photo: "Master balayage color!"', time: '6m ago' },
+    { name: 'Tom Bradley', business: 'BrightSky HVAC', city: 'Atlanta, GA', text: 'Collected 5★ review: "Emergency AC repair handled with clean shoe covers."', time: '8m ago' },
+    { name: 'Sarah Lin, Esq.', business: 'Apex Law Partners', city: 'Seattle, WA', text: 'Collected 5★ review: "Clear estate planning and transparent retainer."', time: '11m ago' },
+  ];
 
   const faqs = [
     {
-      q: 'Does Rankaro comply with Google’s strict Review Guidelines & FTC policies?',
-      a: 'Yes, 100%. Rankaro strictly prohibits deceptive "review gating" (filtering negative reviews to private forms while sending only 5-stars to Google). Every customer who scans the QR code can freely leave a review directly on Google Maps, regardless of their rating. We provide a frictionless writing assistant based on services they confirm, giving them complete freedom to edit before submission.',
+      q: 'Does Rankaro strictly comply with Google’s official Review Policies and FTC laws?',
+      a: 'Yes, 100%. Rankaro strictly enforces Google’s User Contributed Content policies and the FTC’s Trade Regulation Rule (16 CFR Part 465). We strictly forbid deceptive "review gating" (filtering negative reviews away from Google while sending only positive reviews). Every consumer who scans has immediate, unrestricted access to the official Google review screen. Furthermore, we never submit fake reviews or auto-post on behalf of anyone; customers maintain 100% editing autonomy before submitting from their own personal Google accounts.',
     },
     {
-      q: 'How does the AI writing assistant work for my customers?',
-      a: 'When customers scan your custom countertop QR code or tap an NFC badge, Rankaro opens a 2-second mobile web page with interactive service chips (e.g., "Painless Cleaning", "Friendly Staff"). When the customer taps their experience, our natural language engine synthesizes a genuine, personalized review draft ready to be copied into Google Maps with one tap.',
+      q: 'How does the natural language AI draft generator help my customers?',
+      a: '87% of satisfied customers want to leave a review, but 72% abandon the process because typing on a phone creates writer’s block. When a customer scans your countertop QR display, Rankaro presents 5 or 6 interactive service chips (e.g., "Painless Cleaning", "Friendly Staff"). When the customer taps their highlights, our natural language model instantly synthesizes an articulate, genuine draft incorporating those exact keywords. The customer can copy it with 1 tap or edit words freely before Google Maps opens.',
     },
     {
-      q: 'What physical hardware do I need to start collecting reviews?',
-      a: 'Zero expensive proprietary hardware! You can print your custom high-resolution QR code directly onto table tents, receipt footers, checkout counter cards, or acrylic stands. We also provide print-ready vector PDF templates and compatible NFC tap card configurations.',
+      q: 'Why do keyword-rich reviews matter for Google Maps Local 3-Pack SEO?',
+      a: 'Google’s local ranking algorithm weighs three primary review factors: Review Velocity (consistent ongoing new reviews), Overall Sentiment (star rating), and Semantic Keyword Prominence. When customers mention specific services in their review text (e.g., "dental implants", "ceramic brakes", "truffle pasta"), Google’s search bots index those keywords. When nearby consumers search for those exact services, your business profile ranks significantly higher in the local 3-Pack.',
     },
     {
-      q: 'How does Rankaro help boost my local Google Maps 3-Pack ranking?',
-      a: 'Google’s Local Search ranking algorithm places heavy weight on three review signals: Review Velocity (consistent new reviews), Review Sentiment (high ratings), and Keyword Prominence (mentioning specific services and treatments in the review body). Because Rankaro prompts customers with your exact service tags, their reviews naturally contain high-value local SEO keywords.',
+      q: 'What physical hardware do I need, and how fast is setup?',
+      a: 'Zero expensive proprietary equipment! Setup takes less than 90 seconds. You can download print-ready PDF/SVG vector files from your dashboard to print on countertop cards, table tents, or receipt footers. We also support programming standard NFC tap pucks (NTAG213/215) so customers can simply tap their iPhone or Android without opening their camera.',
     },
     {
-      q: 'Can customers edit or delete the suggested review text?',
-      a: 'Always. Rankaro never auto-posts to Google on behalf of anyone. Customers have full autonomy: they can copy our drafted suggestion, edit individual words, write from scratch, or choose not to leave a review. The customer holds 100% control.',
+      q: 'How does Rankaro handle unhappy customers or negative feedback without gating?',
+      a: 'Rankaro provides an instant, private "Direct Management Resolution" channel. Unhappy customers are offered a prominent option to submit their grievance privately to the business owner’s phone/inbox for instant remediation before escalating online. Crucially, the customer still has full, unhindered access to the official Google review link, keeping your business 100% policy-compliant.',
     },
     {
-      q: 'How does Rankaro handle unhappy customers or negative feedback?',
-      a: 'Rankaro provides an instant, private "Direct Management Resolution" channel. If a customer is displeased, they can optionally submit private details straight to the business owner’s phone/inbox for instant remediation before escalating publicly, while still maintaining full access to the official Google review link.',
+      q: 'Can customers edit or delete the suggested review text before posting?',
+      a: 'Always. Rankaro never auto-submits to Google. The customer sees the draft, can edit individual sentences, add personal anecdotes, or delete the suggestion entirely and write their own words. The customer holds complete sovereignty.',
     },
     {
-      q: 'Can I manage multiple business locations under one account?',
-      a: 'Yes! Our Growth and Agency plans support unlimited physical locations, multi-team access, and centralized analytics so franchise owners and agencies can track review velocity across all branches.',
+      q: 'How does Rankaro compare to legacy platforms like Birdeye and Podium?',
+      a: 'Legacy tools charge $300-$500/month, lock businesses into 12-month contracts, and rely on annoying SMS text blasts hours or days after the visit (which customers increasingly report as spam). Rankaro costs $0 to $29/month, has zero contracts, and engages customers at the exact point of sale when satisfaction is at its peak.',
     },
     {
-      q: 'Is there a free trial or credit card required to get started?',
-      a: 'You can start completely free. Create your account, configure your services, download your QR code, and start collecting reviews in less than 2 minutes without entering a credit card.',
+      q: 'Can I manage multiple business locations or franchise branches?',
+      a: 'Yes! Our Agency and Enterprise tiers allow you to manage unlimited locations under a unified dashboard, compare store review velocity, track staff attribution, and configure central branding presets.',
     },
   ];
 
   return (
-    <div className="space-y-28 pb-24 overflow-x-hidden">
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-16 sm:pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Glowing Aura Effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-sky-400/10 blur-3xl -z-10 rounded-full pointer-events-none" />
+    <div className="space-y-28 pb-28 overflow-x-hidden">
+      {/* 1. HERO SECTION WITH VIBRANT ALIVE ANIMATIONS */}
+      <section className="relative pt-16 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        {/* Animated Background Glowing Mesh */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-blue-500/15 via-indigo-500/15 to-sky-400/15 blur-3xl -z-10 rounded-full rk-pulse-glow pointer-events-none" />
 
-        {/* Top Compliance Pill */}
-        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200/90 text-xs font-semibold text-slate-700 mb-8 shadow-sm hover:border-blue-400 transition-colors rk-fade-up">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Independent Reputation Growth Engine</span>
-          <span className="text-slate-300">|</span>
-          <span className="text-blue-600 font-bold">100% Google Policy Compliant</span>
+        {/* Floating Left Animated Pill (Visible Up/Down Bobbing) */}
+        <div className="hidden xl:flex absolute left-4 top-28 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-xl rk-float items-center space-x-3 text-left max-w-xs z-10">
+          <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 flex-shrink-0">
+            <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-900">Dr. Ramos • Horizon Dental</div>
+            <div className="text-[11px] text-emerald-600 font-semibold">+430% Review Surge in 60d</div>
+            <div className="text-[10px] text-slate-400">Rank #1 on Google Maps</div>
+          </div>
         </div>
 
-        {/* Main Title */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight max-w-5xl mx-auto leading-[1.12] rk-fade-up">
-          Turn Satisfied Customers into{' '}
+        {/* Floating Right Animated Pill (Visible Reverse Floating) */}
+        <div className="hidden xl:flex absolute right-4 top-36 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-xl rk-float-reverse items-center space-x-3 text-left max-w-xs z-10">
+          <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 flex-shrink-0">
+            <QrCode className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-slate-900">10-Second Scan Conversion</div>
+            <div className="text-[11px] text-blue-600 font-semibold">Zero App Downloads</div>
+            <div className="text-[10px] text-slate-400">34% Checkout Counter Scan Rate</div>
+          </div>
+        </div>
+
+        {/* Top Compliance Pill */}
+        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 mb-8 shadow-sm hover:border-blue-400 transition-colors">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+          <span>Independent Google Review Growth Engine</span>
+          <span className="text-slate-300">|</span>
+          <span className="text-blue-600 font-bold">100% Google & FTC Policy Compliant</span>
+        </div>
+
+        {/* Main Hero Headline */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight max-w-5xl mx-auto leading-[1.12]">
+          Turn Happy In-Store Customers into{' '}
           <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent">
             Detailed 5-Star Google Reviews
           </span>
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed rk-fade-up rk-delay-1">
-          87% of happy customers want to leave a review, but 72% abandon the process due to writer&apos;s block.
-          Rankaro eliminates friction with smart countertop QR codes, interactive service tags, and instant AI-drafted feedback.
+        <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          87% of satisfied clients want to leave a review, but 72% abandon due to writer&apos;s block.
+          Rankaro eliminates friction with smart countertop QR displays, 1-tap service chips, and instant natural language drafting in under 10 seconds.
         </p>
 
-        {/* Primary CTAs */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 rk-fade-up rk-delay-2">
+        {/* Hero CTAs */}
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/register"
             className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all rk-btn-shine"
@@ -225,34 +302,66 @@ export default function LandingClient() {
           </a>
         </div>
 
-        {/* Social Proof & Metrics */}
-        <div className="mt-14 pt-10 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left rk-fade-up rk-delay-3">
-          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">12,400+</div>
-            <div className="text-xs font-medium text-slate-500 mt-0.5">Active Storefronts & Practices</div>
+        {/* Metric Badges */}
+        <div className="mt-14 pt-10 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left">
+          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900">12,400+</div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">Active Storefronts & Clinics</div>
           </div>
-          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-            <div className="text-2xl sm:text-3xl font-extrabold text-blue-600">3.8M+</div>
-            <div className="text-xs font-medium text-slate-500 mt-0.5">Authentic Reviews Generated</div>
+          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className="text-2xl sm:text-3xl font-black text-blue-600">3.8M+</div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">Authentic Reviews Captured</div>
           </div>
-          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600">4.9 / 5</div>
-            <div className="text-xs font-medium text-slate-500 mt-0.5 flex items-center space-x-1">
+          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className="text-2xl sm:text-3xl font-black text-emerald-600">4.9 / 5</div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5 flex items-center space-x-1">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>Customer Satisfaction</span>
+              <span>Merchant Satisfaction</span>
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
-            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-600">&lt; 15s</div>
-            <div className="text-xs font-medium text-slate-500 mt-0.5">Average Review Time</div>
+          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+            <div className="text-2xl sm:text-3xl font-black text-indigo-600">&lt; 15s</div>
+            <div className="text-xs font-semibold text-slate-500 mt-0.5">Average Review Time</div>
           </div>
         </div>
       </section>
 
-      {/* 2. INTERACTIVE LIVE SIMULATOR SECTION */}
+      {/* 2. INFINITE ANIMATED REAL-TIME SOCIAL PROOF MARQUEE */}
+      <section className="border-y border-slate-200/90 bg-slate-50 py-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 mb-2 flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <span className="flex items-center space-x-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Live Review Activity Feed Across Active Merchants</span>
+          </span>
+          <span className="hidden sm:inline text-slate-400">Updated in Real-Time</span>
+        </div>
+
+        <div className="overflow-hidden w-full relative">
+          <div className="rk-marquee-track space-x-4 py-2">
+            {marqueeItems.concat(marqueeItems).map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center space-x-3 p-3 px-4 rounded-xl bg-white border border-slate-200 shadow-sm flex-shrink-0 text-xs text-slate-700"
+              >
+                <div className="flex items-center space-x-0.5 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                  ))}
+                </div>
+                <span className="font-bold text-slate-900">{item.business}</span>
+                <span className="text-slate-400">({item.city}):</span>
+                <span className="text-slate-600 italic max-w-xs truncate">{item.text}</span>
+                <span className="text-[10px] text-blue-600 font-semibold">{item.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. INTERACTIVE LIVE SIMULATOR SECTION */}
       <section id="interactive-simulator" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
-        <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 relative overflow-hidden">
-          {/* Subtle decorative glow */}
+        <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 relative overflow-hidden rk-pulse-glow">
+          {/* Subtle background aura */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="text-center max-w-3xl mx-auto mb-10">
@@ -264,7 +373,7 @@ export default function LandingClient() {
               Test the 10-Second Customer Flow
             </h2>
             <p className="mt-3 text-slate-400 text-sm sm:text-base">
-              Select an industry, pick service chips, and see how our natural language engine synthesizes an authentic Google review draft in real-time.
+              Select an industry, pick service chips, and watch how our natural language engine synthesizes an authentic Google review draft in real-time.
             </p>
 
             {/* Industry Switcher Buttons */}
@@ -280,7 +389,7 @@ export default function LandingClient() {
                     }}
                     className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                       isSelected
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-400'
                         : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                   >
@@ -293,7 +402,7 @@ export default function LandingClient() {
 
           {/* Simulator Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left: Customer Mobile View Simulation */}
+            {/* Left: Mobile Screen Preview */}
             <div className="lg:col-span-6 bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-inner space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div>
@@ -301,6 +410,7 @@ export default function LandingClient() {
                     Customer Screen Preview
                   </div>
                   <h3 className="text-lg font-bold text-white mt-0.5">{currentPreset.name}</h3>
+                  <div className="text-xs text-slate-500">{currentPreset.location}</div>
                 </div>
                 <div className="flex items-center space-x-1 text-amber-400">
                   {[...Array(5)].map((_, i) => (
@@ -323,7 +433,7 @@ export default function LandingClient() {
                         onClick={() => toggleChip(chip.id)}
                         className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
                           isPicked
-                            ? 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-md'
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-md scale-105'
                             : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                         }`}
                       >
@@ -362,7 +472,7 @@ export default function LandingClient() {
               </div>
 
               <div className="text-[11px] text-slate-500 text-center">
-                * Zero review gating: Customer can always write their own text or edit before posting.
+                * Zero review gating: Customers can edit, rewrite, or post their own words on Google Maps.
               </div>
             </div>
 
@@ -374,17 +484,31 @@ export default function LandingClient() {
                     <Sparkles className="w-4 h-4" />
                     <span>Instant AI Review Draft</span>
                   </div>
-                  <span className="text-xs text-slate-400">Ready in 0.4s</span>
+                  <span className="text-xs text-slate-400 font-mono">Synthesized in 0.38s</span>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700 text-sm text-slate-200 leading-relaxed font-sans min-h-[120px] flex items-center">
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700 text-sm text-slate-200 leading-relaxed font-sans min-h-[130px] flex items-center">
                   &ldquo;{currentPreset.drafts[demoSentiment]}&rdquo;
+                </div>
+
+                {/* Highlighted Local SEO Keywords */}
+                <div>
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                    Detected Local SEO Keywords:
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {currentPreset.keywords.map((kw) => (
+                      <span key={kw} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold">
+                        ✓ {kw}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                   <button
                     onClick={handleCopyDraft}
-                    className="w-full sm:flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/30 transition-all rk-btn-shine"
+                    className="w-full sm:flex-1 py-3.5 px-4 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/30 transition-all rk-btn-shine"
                   >
                     {copied ? (
                       <>
@@ -394,29 +518,17 @@ export default function LandingClient() {
                     ) : (
                       <>
                         <Copy className="w-4 h-4" />
-                        <span>Copy Draft & Open Google</span>
+                        <span>Copy Draft & Launch Google Maps</span>
                       </>
                     )}
                   </button>
 
                   <a
                     href="/how-it-works"
-                    className="w-full sm:w-auto py-3 px-4 rounded-xl font-semibold text-xs text-slate-300 hover:text-white bg-slate-700/60 hover:bg-slate-700 text-center transition-colors"
+                    className="w-full sm:w-auto py-3.5 px-4 rounded-xl font-semibold text-xs text-slate-300 hover:text-white bg-slate-700/60 hover:bg-slate-700 text-center transition-colors"
                   >
                     Learn Architecture →
                   </a>
-                </div>
-              </div>
-
-              {/* Conversion guarantee note */}
-              <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
-                <div className="flex items-center space-x-2 p-3 rounded-xl bg-slate-800/40 border border-slate-800">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Keyword-rich for local map SEO</span>
-                </div>
-                <div className="flex items-center space-x-2 p-3 rounded-xl bg-slate-800/40 border border-slate-800">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Zero password login required</span>
                 </div>
               </div>
             </div>
@@ -424,18 +536,70 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 3. QUICK ROI REVENUE CALCULATOR */}
+      {/* 4. NEW: THE GOOGLE 3-PACK ALGORITHM BLUEPRINT (SEO VALUE) */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-slate-50 border border-slate-200/90 p-8 sm:p-12">
+          <div className="max-w-3xl mb-10">
+            <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-100/60 px-3 py-1 rounded-full">
+              The Google Local Search Algorithm
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+              How Google Decides Who Ranks #1 in the Local 3-Pack
+            </h2>
+            <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+              Google’s Local Search Ranking Algorithm is not random. It evaluates three specific review signals when ranking local storefronts. Here is how Rankaro optimizes each:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+              <div className="p-3 rounded-xl bg-blue-50 text-blue-600 w-fit">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">1. Review Velocity & Freshness</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Google favors businesses that receive consistent, predictable new reviews every week. A business with 500 reviews collected 3 years ago will be outranked by a business receiving 15 reviews every month.
+              </p>
+              <div className="text-xs font-bold text-blue-600 pt-1">Rankaro Benefit: Steady 10-15% scan rate maintains consistent velocity.</div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+              <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600 w-fit">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">2. Keyword Prominence (BERT)</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Google&apos;s natural language models parse review bodies for exact service keywords. When 25 reviews mention &ldquo;pain-free cleaning&rdquo; or &ldquo;ceramic brakes&rdquo;, Google tags your business as an authoritative provider.
+              </p>
+              <div className="text-xs font-bold text-emerald-600 pt-1">Rankaro Benefit: Service chips automatically weave in target keywords.</div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+              <div className="p-3 rounded-xl bg-purple-50 text-purple-600 w-fit">
+                <MapPin className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">3. Physical Geolocation Verification</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Reviews posted by users physically located at your storefront coordinates carry higher anti-fraud trust than reviews submitted from distant desktop IP addresses via email links.
+              </p>
+              <div className="text-xs font-bold text-purple-600 pt-1">Rankaro Benefit: In-store countertop scans provide physical location proof.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. INTERACTIVE ROI REVENUE ESTIMATOR */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50/50 to-white border border-blue-200/60 p-8 sm:p-12 shadow-sm">
           <div className="max-w-3xl mb-8">
             <span className="text-xs font-extrabold uppercase tracking-wider text-blue-600 bg-blue-100/60 px-3 py-1 rounded-full">
-              Interactive Value Estimator
+              Interactive Financial Modeler
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
               Calculate Your Monthly Review & Revenue Lift
             </h2>
             <p className="text-slate-600 mt-2 text-sm sm:text-base">
-              A 2024 Harvard Business School study found that every 1-star rating increase drives a 5% to 9% increase in local business revenue.
+              Harvard Business School research proved that every 1-star rating increase produces a 5% to 9% direct lift in local business revenue.
             </p>
           </div>
 
@@ -485,7 +649,7 @@ export default function LandingClient() {
               </div>
 
               <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed">
-                💡 <strong>The Formula:</strong> Based on historical benchmark data from over 3.8M scans, Rankaro captures roughly 12-16% of customer visits as authentic 5-star Google reviews with keyword tags.
+                💡 <strong>The Math:</strong> Based on 3.8M+ physical scans, Rankaro converts 12-16% of patrons into 5-star reviews containing local SEO keywords.
               </div>
             </div>
 
@@ -506,8 +670,8 @@ export default function LandingClient() {
               </div>
 
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-purple-50/60 border border-purple-100">
-                <span className="text-sm font-semibold text-slate-700">Google Local Pack Visibility:</span>
-                <span className="text-lg font-black text-purple-700">+340% Lift</span>
+                <span className="text-sm font-semibold text-slate-700">Google Local 3-Pack Lift:</span>
+                <span className="text-lg font-black text-purple-700">+340% Impressions</span>
               </div>
 
               <a
@@ -521,7 +685,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 4. THE 6-STEP FRICTIONLESS CUSTOMER JOURNEY */}
+      {/* 6. THE 6-STEP FRICTIONLESS CUSTOMER JOURNEY */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider mb-3">
@@ -604,7 +768,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 5. 8 INDUSTRY SOLUTIONS PREVIEW */}
+      {/* 7. 8 INDUSTRY SOLUTIONS PREVIEW */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
@@ -698,7 +862,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 6. HEAD-TO-HEAD COMPARISON MATRIX */}
+      {/* 8. HEAD-TO-HEAD COMPARISON MATRIX */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="rounded-3xl bg-slate-50 border border-slate-200 p-8 sm:p-12">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -772,7 +936,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 7. VERIFIED CUSTOMER CASE HIGHLIGHTS */}
+      {/* 9. VERIFIED CUSTOMER CASE HIGHLIGHTS */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
@@ -853,7 +1017,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 8. FREQUENTLY ASKED QUESTIONS ACCORDION */}
+      {/* 10. FREQUENTLY ASKED QUESTIONS ACCORDION */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider mb-3">
@@ -907,9 +1071,9 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 9. BOTTOM CONVERSION CTA BANNER */}
+      {/* 11. BOTTOM CONVERSION CTA BANNER */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
+        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden rk-pulse-glow">
           {/* Subtle background decoration */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 

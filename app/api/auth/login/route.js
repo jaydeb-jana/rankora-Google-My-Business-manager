@@ -23,6 +23,20 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
 
+    // If stored password in DB was an encrypted hash from an earlier build, convert to plain text
+    if (
+      user.password &&
+      (user.password.startsWith('$2a$') ||
+        user.password.startsWith('$2b$') ||
+        user.password.startsWith('$2y$'))
+    ) {
+      try {
+        await userRepo.updateById(user._id, { password });
+      } catch (err) {
+        console.warn('[Login] Note: Failed to update password to plain text:', err.message);
+      }
+    }
+
     // Check if account is suspended
     if (user.status === 'suspended') {
       const reasonText = user.suspensionReason

@@ -50,7 +50,6 @@ export default function AdminClient({ currentUser }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [planFilter, setPlanFilter] = useState('all');
-  const [verificationFilter, setVerificationFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -115,7 +114,6 @@ export default function AdminClient({ currentUser }) {
         search,
         status: statusFilter,
         plan: planFilter,
-        isVerified: verificationFilter,
         page: String(page),
         limit: '50',
       });
@@ -134,7 +132,7 @@ export default function AdminClient({ currentUser }) {
     } finally {
       setLoadingUsers(false);
     }
-  }, [search, statusFilter, planFilter, verificationFilter, page, showToast]);
+  }, [search, statusFilter, planFilter, page, showToast]);
 
   useEffect(() => {
     fetchUsers();
@@ -464,7 +462,7 @@ export default function AdminClient({ currentUser }) {
               <Users className="w-4 h-4 text-purple-600" />
             </div>
             <div className="text-2xl font-bold text-stone-900 mt-2">{stats.totalUsers}</div>
-            <div className="text-[11px] text-stone-500 mt-0.5">{stats.verifiedUsers} verified accounts</div>
+            <div className="text-[11px] text-stone-500 mt-0.5">Verified active accounts</div>
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs">
@@ -555,16 +553,6 @@ export default function AdminClient({ currentUser }) {
                   <option value="starter">Starter</option>
                   <option value="pro">Pro</option>
                   <option value="enterprise">Enterprise</option>
-                </select>
-
-                <select
-                  value={verificationFilter}
-                  onChange={(e) => setVerificationFilter(e.target.value)}
-                  className="text-xs font-medium px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-stone-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
-                >
-                  <option value="all">All Verification</option>
-                  <option value="true">Verified</option>
-                  <option value="false">Unverified</option>
                 </select>
 
                 <button
@@ -674,19 +662,6 @@ export default function AdminClient({ currentUser }) {
                           <td className="py-3.5 px-4 text-xs text-stone-600">
                             <div className="font-medium text-stone-900">{u.email}</div>
                             <div className="text-stone-500 mt-0.5">{u.phone || 'No phone provided'}</div>
-                            <div className="mt-1">
-                              {u.isVerified ? (
-                                <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                  <CheckCircle2 className="w-2.5 h-2.5" />
-                                  <span>Verified</span>
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-stone-500 bg-stone-100 px-1.5 py-0.5 rounded">
-                                  <XCircle className="w-2.5 h-2.5" />
-                                  <span>Unverified</span>
-                                </span>
-                              )}
-                            </div>
                           </td>
 
                           {/* Subscription Plan */}

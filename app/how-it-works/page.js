@@ -16,123 +16,146 @@ import {
   HelpCircle,
   Clock,
   Printer,
-  Smile
+  Smile,
+  Eye,
+  Check,
+  X,
+  Lightbulb,
+  Heart,
+  MessageSquare
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'How It Works - The 7-Step Frictionless Review Flow | Rankaro',
+  title: 'How It Works - The Complete 7-Step Review Conversion Architecture | Rankaro',
   description:
-    'Discover the exact step-by-step architecture behind Rankaro: how physical QR codes and AI assistance convert in-store patrons into authentic 5-star Google reviews in 10 seconds.',
+    'Master the step-by-step science of physical review conversion: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
 };
 
 export default function HowItWorksPage() {
-  const steps = [
+  const masterSteps = [
     {
       step: 'Step 01',
-      title: 'Merchant Onboarding & Service Tagging',
-      time: 'Takes 90 seconds',
-      desc: 'Connect your official Google Business Profile. Input the signature services, dishes, or procedures your business is known for (e.g. "Pain-Free Cleaning", "Truffle Pasta", "Same-Day Brake Fix").',
+      title: 'Merchant Onboarding & Semantic Tag Configuration',
+      time: '90 Seconds',
+      psychology: 'Pre-seeds the algorithmic keywords that Google Maps searchers type every day.',
+      desc: 'Link your verified Google Business Profile. Select your vertical (e.g., Dental Practice, Auto Repair, Italian Dining) or customize your own signature services and dishes. These tags form the structured semantic vocabulary that our natural language engine uses to generate keyword-rich reviews.',
+      actions: [
+        'Select 4 to 8 primary service tags that reflect your highest-margin offerings',
+        'Upload your brand logo and select custom interface accent colors',
+        'Auto-resolve your official Google Place ID for instant direct linking',
+      ],
       icon: Layers,
-      highlight: 'Sets up your local SEO keyword foundation.',
     },
     {
       step: 'Step 02',
-      title: 'Dynamic Vector QR & NFC Generation',
+      title: 'Vector QR & Contactless NFC Hardware Generation',
       time: 'Instantaneous',
-      desc: 'Rankaro instantly outputs customized vector QR codes and NFC chip data. Download print-ready PDF table tents, counter displays, or order durable acrylic pucks.',
+      psychology: 'Provides a tangible, tactile physical anchor at the point of sale.',
+      desc: 'Rankaro instantly renders vector SVG and 300 DPI print-ready templates sized for standard 4x6" acrylic counter stands, leather check folios, and POS receipts. Download your files immediately or encode standard NFC NTAG213 smart tags.',
+      actions: [
+        'Download pre-formatted PDF templates ready for desktop printing or commercial print shops',
+        'Optional: Program NFC pucks so patrons can simply tap their phone without opening the camera',
+        'Ensure displays are placed directly adjacent to your credit card terminal',
+      ],
       icon: QrCode,
-      highlight: '300 DPI high-res print outputs ready for any print shop.',
     },
     {
       step: 'Step 03',
-      title: 'Customer Scans at Peak Satisfaction',
-      time: 'Takes 2 seconds',
-      desc: 'Position displays where satisfaction peaks: checkout registers, check presenters, or waiting lounges. The customer opens their smartphone camera and points it at the code.',
+      title: 'Customer Scans at the Moment of Peak Gratitude',
+      time: '1 to 2 Seconds',
+      psychology: 'Replaces forgotten evening requests with immediate in-person action.',
+      desc: 'The customer points their smartphone camera at the code or taps the NFC badge while their card payment processes. The page loads in under 380ms on their native browser with zero app downloads, account creation, or login friction.',
+      actions: [
+        'No app store download required; runs natively on Safari and Chrome',
+        'Zero logins, passwords, or personal email signups required from the customer',
+        'Mobile web interface loads cleanly even on slow 3G cellular connections',
+      ],
       icon: Smartphone,
-      highlight: 'Loads in under 380ms with zero app downloads or logins.',
     },
     {
       step: 'Step 04',
-      title: 'Frictionless Experience Chip Selection',
-      time: 'Takes 3 seconds',
-      desc: 'Rather than facing an intimidating blank text box, customers simply tap 2 or 3 visual chips representing what they enjoyed during their visit.',
+      title: 'Recognition-Over-Recall: 1-Tap Service Chip Selection',
+      time: '2 to 3 Seconds',
+      psychology: 'Eliminates 100% of customer writer’s block through cognitive recognition.',
+      desc: 'Rather than facing a daunting blank text box, the customer simply taps 2 or 3 visual chips representing what they enjoyed during their visit (e.g., "Painless Cleaning", "Zero Waiting Delay", "Friendly Hygienist").',
+      actions: [
+        'Cognitive load is reduced by 90% compared to typing from scratch',
+        'Customer chooses their preferred sentiment tone (Exceptional 5★, Great 5★, or Concise)',
+        'Selected chips automatically highlight for immediate tactile feedback',
+      ],
       icon: Smile,
-      highlight: 'Eliminates 100% of customer writer’s block.',
     },
     {
       step: 'Step 05',
-      title: 'On-Device Natural Language Synthesis',
-      time: 'Takes 0.4 seconds',
-      desc: 'Our contextual AI engine assembles a genuine, beautifully phrased review paragraph incorporating the specific tags picked by the customer.',
+      title: 'On-Device Natural Language Review Formulation',
+      time: '0.4 Seconds',
+      psychology: 'Provides an articulate, polished voice reflecting the customer’s true sentiment.',
+      desc: 'Our contextual AI engine synthesizes a genuine, personalized review paragraph weaving in the exact service chips picked by the customer. It sounds natural, authentic, and grammatically flawless.',
+      actions: [
+        'Formulates human-cadence phrasing without repetitive robotic templates',
+        'Naturally incorporates high-value local SEO keywords into the review body',
+        'Customer can freely edit individual sentences, add personal details, or rewrite completely',
+      ],
       icon: Sparkles,
-      highlight: 'Customer can easily adjust, add words, or rewrite.',
     },
     {
       step: 'Step 06',
-      title: '1-Tap Copy & Deep-Link to Google Maps',
-      time: 'Takes 1 second',
-      desc: 'The customer taps "Copy & Open Google". The drafted text copies to their clipboard, and Google Maps launches straight to your business’s 5-star rating screen.',
+      title: '1-Tap Copy & Native Google Maps Launch',
+      time: '1 Second',
+      psychology: 'Removes the final friction barrier of navigating Google’s review interface.',
+      desc: 'The customer taps "Copy & Open Google". The drafted text copies to their clipboard, and Google Maps launches straight to your business’s 5-star rating screen. The customer long-presses to paste and taps "Post".',
+      actions: [
+        'Automatically copies the review text to the mobile device clipboard',
+        'Deep-links directly into Google Maps, bypassing search query distractions',
+        'Customer voluntarily submits from their own personal Google account',
+      ],
       icon: Copy,
-      highlight: 'Bypasses confusing search queries and lost clicks.',
     },
     {
       step: 'Step 07',
-      title: 'Organic Google Local 3-Pack Growth',
+      title: 'Google Local 3-Pack Elevation & Inbound Customer Growth',
       time: 'Continuous',
-      desc: 'As Google’s algorithm indexes frequent reviews packed with specific service keywords, your business ascends into the prestigious Google Maps 3-Pack.',
+      psychology: 'Permanent, compounding organic visibility that competitors cannot easily displace.',
+      desc: 'As Google’s algorithm indexes frequent reviews packed with specific service keywords, your business ascends into the prestigious Google Maps 3-Pack, attracting high-intent organic calls 24/7.',
+      actions: [
+        'Consistent weekly review velocity signals active operational excellence to Google',
+        'Keyword density in review bodies matches local search queries (e.g. "implants near me")',
+        'Higher average rating drives higher click-through and phone call conversion rates',
+      ],
       icon: TrendingUp,
-      highlight: 'Drives permanent inbound organic customer phone calls.',
     },
   ];
 
-  const beforeAfter = [
+  const frictionComparison = [
     {
-      attribute: 'Time Required',
-      before: '4 to 7 minutes of typing on phone',
-      after: 'Under 15 seconds total',
+      aspect: 'When Request Occurs',
+      oldWay: '4 to 48 hours later via automated SMS text blast',
+      rankaroWay: 'At the checkout counter during peak gratitude',
+      why: 'Satisfaction peaks at checkout; by evening, customer attention is lost.',
     },
     {
-      attribute: 'Customer Drop-Off Rate',
-      before: '72% abandon due to writer’s block',
-      after: 'Less than 8% drop-off',
+      aspect: 'Customer Effort Required',
+      oldWay: 'Type 3-4 sentences from scratch on a blank phone screen',
+      rankaroWay: 'Tap 2-3 visual service chips (under 10 seconds)',
+      why: 'Recognition requires 90% less cognitive effort than recall.',
     },
     {
-      attribute: 'Review Quality & Depth',
-      before: 'Short: "Good food" or "Nice"',
-      after: 'Detailed: 3-4 sentences rich in service keywords',
+      aspect: 'Customer Friction & Spam',
+      oldWay: 'Requires giving phone number; risks TCPA SMS spam complaints',
+      rankaroWay: 'Zero personal data requested; 100% voluntary mobile web',
+      why: 'Customers increasingly ignore or report intrusive SMS texts.',
     },
     {
-      attribute: 'Delivery Channel',
-      before: 'Annoying SMS blasts days later',
-      after: 'In-person at peak customer gratitude',
+      aspect: 'Review Keyword Richness',
+      oldWay: 'Generic: "Good food!" or "Nice place" (zero SEO benefit)',
+      rankaroWay: 'Rich: mentions specific treatments, dishes, and staff traits',
+      why: 'Google ranks profiles based on keywords contained in review text.',
     },
     {
-      attribute: 'Google Policy Compliance',
-      before: 'Risky review gating software',
-      after: '100% transparent, policy-safe architecture',
-    },
-  ];
-
-  const placementSpots = [
-    {
-      title: 'Checkout Counter / Payment Terminal',
-      desc: 'The #1 highest converting spot. Customers scan while waiting for their credit card receipt or terminal prompt.',
-      conversion: '34% Scan Rate',
-    },
-    {
-      title: 'Dining Table Tents & Check Presenters',
-      desc: 'Perfect for restaurants and cafes. Handed directly with the bill when the customer has just enjoyed their meal.',
-      conversion: '28% Scan Rate',
-    },
-    {
-      title: 'Reception Desk / Waiting Lounge',
-      desc: 'For dental, medical, and beauty clinics. Patients have downtime before leaving to leave their review.',
-      conversion: '22% Scan Rate',
-    },
-    {
-      title: 'Vehicle Dashboard / Service Invoices',
-      desc: 'For auto mechanics, plumbers, and home contractors. Handed over when reviewing the finished work with the homeowner.',
-      conversion: '25% Scan Rate',
+      aspect: 'Google & FTC Compliance',
+      oldWay: 'Uses deceptive gating (diverts negative reviews to private forms)',
+      rankaroWay: '100% anti-gating compliant with optional private remediation',
+      why: 'Protects business from FTC civil penalties of up to $51,744.',
     },
   ];
 
@@ -140,12 +163,12 @@ export default function HowItWorksPage() {
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
-      <main className="flex-1 space-y-24 pb-24">
+      <main className="flex-1 space-y-24 pb-28">
         {/* HERO */}
         <section className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-bold text-blue-700 mb-6">
             <Compass className="w-3.5 h-3.5" />
-            <span>The Science of Review Conversion</span>
+            <span>The Science of In-Store Review Conversion</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight">
             How Rankaro Turns a 2-Minute Chore into a{' '}
@@ -154,47 +177,72 @@ export default function HowItWorksPage() {
             </span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            By removing cognitive friction and leveraging the physical point of sale, Rankaro drives 3x to 5x more detailed Google reviews without annoying SMS reminders.
+            By eliminating cognitive friction and leveraging the physical point of sale, Rankaro drives 3x to 5x more detailed, keyword-rich Google reviews without annoying SMS text reminders.
           </p>
         </section>
 
-        {/* THE 7-STEP ARCHITECTURE */}
-        <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        {/* THE 7-STEP ARCHITECTURE MASTERCLASS */}
+        <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-10">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+              Complete Blueprint
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2">
+              The 7-Step Anatomy of a 10-Second Review
+            </h2>
+          </div>
+
           <div className="space-y-8">
-            {steps.map((st, idx) => {
+            {masterSteps.map((st, idx) => {
               const Icon = st.icon;
               return (
                 <div
                   key={st.step}
-                  className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center gap-8 relative overflow-hidden"
+                  className="p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-lg transition-all space-y-6"
                 >
-                  <div className="p-5 rounded-2xl bg-blue-50 text-blue-600 flex-shrink-0">
-                    <Icon className="w-8 h-8" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3.5 rounded-2xl bg-blue-50 text-blue-600">
+                        <Icon className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-black text-blue-600 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded">
+                          {st.step}
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-1">
+                          {st.title}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold text-slate-500 flex items-center space-x-1.5 bg-slate-50 px-3 py-1.5 rounded-full w-fit">
+                      <Clock className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{st.time}</span>
+                    </div>
                   </div>
 
-                  <div className="flex-1 space-y-2">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
-                        {st.step}
-                      </span>
-                      <span className="text-xs text-slate-600 flex items-center space-x-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-500" />
-                        <span>{st.time}</span>
-                      </span>
+                  <p className="text-slate-700 text-sm sm:text-base leading-relaxed">
+                    {st.desc}
+                  </p>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                    <div className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                      Why This Step Works (Psychological Insight):
                     </div>
-
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                      {st.title}
-                    </h3>
-
-                    <p className="text-slate-600 text-sm leading-relaxed">
-                      {st.desc}
+                    <p className="text-xs text-slate-600 italic">
+                      {st.psychology}
                     </p>
+                  </div>
 
-                    <div className="pt-2 text-xs font-semibold text-emerald-600 flex items-center space-x-1.5">
-                      <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                      <span>{st.highlight}</span>
+                  <div className="space-y-2 pt-2">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Execution Actions:
                     </div>
+                    {st.actions.map((act, i) => (
+                      <div key={i} className="flex items-start space-x-2.5 text-xs sm:text-sm text-slate-700 font-medium">
+                        <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                        <span>{act}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
@@ -202,102 +250,77 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
-        {/* BEFORE VS AFTER TABLE */}
+        {/* WHY OLD WAYS FAIL (COGNITIVE FRICTION ANALYSIS) */}
         <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-          <div className="rounded-3xl bg-slate-900 text-white p-8 sm:p-12 shadow-xl border border-slate-800">
-            <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="rounded-3xl bg-slate-900 text-white p-8 sm:p-12 shadow-xl border border-slate-800 space-y-8">
+            <div className="text-center max-w-2xl mx-auto">
               <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
-                Direct Comparison
+                Behavioral Economics
               </span>
               <h2 className="text-3xl font-black mt-2">
-                Traditional Review Asking vs Rankaro
+                Why Traditional Review Asking Fails 87% of the Time
               </h2>
+              <p className="mt-2 text-slate-400 text-xs sm:text-sm">
+                A side-by-side analysis of how legacy SMS software introduces friction versus Rankaro&apos;s point-of-sale architecture.
+              </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-700 text-slate-400 text-xs uppercase">
-                    <th className="py-3 px-4">Metric</th>
-                    <th className="py-3 px-4 text-rose-400">Old Manual / SMS Method</th>
-                    <th className="py-3 px-4 text-emerald-400">Rankaro Engine</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {beforeAfter.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-800/50">
-                      <td className="py-4 px-4 font-bold text-white">{row.attribute}</td>
-                      <td className="py-4 px-4 text-slate-400">{row.before}</td>
-                      <td className="py-4 px-4 font-semibold text-emerald-300">{row.after}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* PHYSICAL COUNTER PLACEMENT HOTSPOTS */}
-        <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-              In-Store Strategy
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-2">
-              The 4 Highest-Converting Physical Placement Spots
-            </h2>
-            <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              Where you position your countertop display makes all the difference.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {placementSpots.map((spot) => (
-              <div
-                key={spot.title}
-                className="p-6 rounded-3xl bg-slate-50 border border-slate-200/90 shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-100/60 px-2.5 py-1 rounded-md">
-                    {spot.conversion}
-                  </span>
-                  <h3 className="font-extrabold text-slate-900 text-lg mt-3 mb-2">
-                    {spot.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {spot.desc}
-                  </p>
+            <div className="space-y-4">
+              {frictionComparison.map((row, idx) => (
+                <div key={idx} className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+                  <div className="text-sm font-bold text-white flex items-center justify-between">
+                    <span>{row.aspect}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300">
+                      <span className="font-bold block text-rose-400 mb-0.5">Old SMS / Manual Method:</span>
+                      {row.oldWay}
+                    </div>
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+                      <span className="font-bold block text-emerald-400 mb-0.5">The Rankaro Architecture:</span>
+                      {row.rankaroWay}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-slate-400 pt-1">
+                    💡 <em>{row.why}</em>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* STAFF SCRIPTING PLAYBOOK */}
+        {/* STAFF TRAINING SCRIPTS PLAYBOOK */}
         <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
           <div className="p-8 sm:p-12 rounded-3xl bg-blue-50/60 border border-blue-200/80 space-y-6">
-            <div className="flex items-center space-x-2 text-xs font-bold text-blue-700 uppercase tracking-wider">
-              <Printer className="w-4 h-4" />
-              <span>Staff Training & Verbal Scripts</span>
-            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-700">
+              Staff Training Manual
+            </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              What to Say at the Register (100% Policy-Safe)
+              Exact Verbal Scripts for Your Front-Desk Team (100% Policy-Safe)
             </h2>
-            <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
-              <p>
-                <strong>Never say:</strong> &ldquo;If you give us 5 stars, I&apos;ll give you 10% off.&rdquo; (This violates Google’s terms and FTC rules).
-              </p>
-              <div className="p-5 rounded-2xl bg-white border border-blue-200/60 shadow-sm">
-                <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">
-                  The Golden 10-Second Script:
-                </div>
-                <p className="text-slate-800 italic font-medium">
-                  &ldquo;Thank you so much for coming in today, [Name]! If you have 10 seconds, tapping this QR code helps our small team tremendously on Google Maps &mdash; you can simply tap the dishes/services you loved!&rdquo;
+            <p className="text-slate-700 text-sm leading-relaxed">
+              Google and the FTC strictly prohibit incentivized reviews (e.g. &ldquo;Leave 5 stars and get 10% off&rdquo;). Here are field-tested, non-incentive scripts that convert 30%+ of patrons:
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="p-5 rounded-2xl bg-white border border-blue-200 shadow-sm space-y-2">
+                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                  For Receptionists & Front Desks:
+                </span>
+                <p className="text-xs sm:text-sm text-slate-800 italic font-medium leading-relaxed">
+                  &ldquo;Thank you so much for coming in today, [Name]! If you have 10 seconds while your receipt prints, tapping this stand helps our team immensely &mdash; you can simply tap the treatments you loved!&rdquo;
                 </p>
               </div>
-              <p className="text-xs text-slate-500">
-                Staff script complies with FTC Title 16 CFR Part 255 regarding non-incentivized voluntary customer endorsements.
-              </p>
+
+              <div className="p-5 rounded-2xl bg-white border border-blue-200 shadow-sm space-y-2">
+                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                  For Restaurant Waitstaff:
+                </span>
+                <p className="text-xs sm:text-sm text-slate-800 italic font-medium leading-relaxed">
+                  &ldquo;I hope you had a fantastic dinner this evening! If you’d like to highlight your favorite dish, tapping the card inside the bill presenter takes just 10 seconds. We really appreciate it!&rdquo;
+                </p>
+              </div>
             </div>
           </div>
         </section>
