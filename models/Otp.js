@@ -26,6 +26,10 @@ const OtpSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    registrationData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

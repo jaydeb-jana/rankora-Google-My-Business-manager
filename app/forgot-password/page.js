@@ -39,8 +39,7 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not send reset code');
       setStep('CODE');
-      setSuccessMsg(data.message || 'Verification code ready (default: 1234).');
-      setDevOtp(data.devOtp || '1234');
+      setSuccessMsg(data.message || 'Verification code sent to your email.');
       startCooldown(45);
     } catch (err) {
       fail(err.message);
@@ -96,7 +95,7 @@ export default function ForgotPasswordPage() {
 
   const titles = {
     REQUEST: ['Forgot your password?', "No worries — enter your account email and we'll send you a reset code."],
-    CODE: ['Enter reset code', <>Enter the 4-digit code (default: <strong className="text-[#1a73e8]">1234</strong>) sent to <strong className="text-[#202124]">{email}</strong>.</>],
+    CODE: ['Enter reset code', <>Enter the 4-digit code sent to <strong className="text-[#202124]">{email}</strong>.</>],
     PASSWORD: ['Set a new password', 'Choose a strong password you haven’t used before.'],
     DONE: ['Password updated', 'You can now sign in with your new password.'],
   };
@@ -140,7 +139,6 @@ export default function ForgotPasswordPage() {
 
       {step === 'CODE' && (
         <div className="space-y-6 rk-scale-in">
-          <DevOtpBanner code={devOtp} onUse={() => confirmCode(devOtp)} />
           <OtpInput length={4} value={code} onChange={setCode} onComplete={confirmCode} />
           <SubmitButton type="button" onClick={() => confirmCode()} loading={loading} disabled={code.length < 4} loadingText="Checking…" icon={ShieldCheck}>
             Verify code

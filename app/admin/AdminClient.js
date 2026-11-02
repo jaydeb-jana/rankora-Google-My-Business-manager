@@ -27,6 +27,8 @@ import {
   Check,
   Send,
   Pencil,
+  Lock,
+  ShieldCheck,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -92,6 +94,18 @@ export default function AdminClient({ currentUser }) {
   const [testEmailRecipient, setTestEmailRecipient] = useState(currentUser?.email || '');
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState(null);
+
+  // Change Admin Password State
+  const [pwdForm, setPwdForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showCurrentPwd, setShowCurrentPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
+  const [updatingPwd, setUpdatingPwd] = useState(false);
+  const [pwdMsg, setPwdMsg] = useState(null);
 
   // Fetch users with filters
   const fetchUsers = useCallback(async () => {
@@ -352,6 +366,47 @@ export default function AdminClient({ currentUser }) {
     }
   };
 
+  // Change Admin Password Handler
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (!pwdForm.currentPassword || !pwdForm.newPassword || !pwdForm.confirmPassword) {
+      showToast('All password fields are required.', 'warning');
+      return;
+    }
+    if (pwdForm.newPassword.length < 6) {
+      showToast('New password must be at least 6 characters long.', 'error');
+      return;
+    }
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      showToast('New password and confirmation do not match.', 'error');
+      return;
+    }
+
+    setUpdatingPwd(true);
+    setPwdMsg(null);
+    try {
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pwdForm),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setPwdMsg({ type: 'success', text: data.message });
+        showToast('Admin password changed successfully!', 'success');
+      } else {
+        setPwdMsg({ type: 'error', text: data.error || 'Failed to update password.' });
+        showToast(data.error || 'Failed to update password.', 'error');
+      }
+    } catch (err) {
+      setPwdMsg({ type: 'error', text: err.message || 'Network error occurred.' });
+      showToast('Network error while updating password.', 'error');
+    } finally {
+      setUpdatingPwd(false);
+    }
+  };
+
   const copyReviewLink = (slug) => {
     const url = `${window.location.origin}/r/${slug}`;
     navigator.clipboard.writeText(url);
@@ -394,8 +449,8 @@ export default function AdminClient({ currentUser }) {
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <Mail className="w-4 h-4 text-purple-600" />
-            <span>Gmail API Settings</span>
+            <Settings className="w-4 h-4 text-purple-600" />
+            <span>Settings</span>
           </button>
         </div>
       </div>
@@ -753,9 +808,143 @@ export default function AdminClient({ currentUser }) {
 
       {/* TAB 2: SYSTEM & API SETTINGS */}
       {activeTab === 'settings' && (
-        <form onSubmit={handleSaveSettings} className="space-y-6">
-          {/* Gmail API / SMTP Configuration */}
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-5">
+        <div className="space-y-6">
+          {/* CARD 1: CHANGE ADMIN PASSWORD */}
+          <form onSubmit={handleChangePassword} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-5">
+            <div className="flex items-start justify-between border-b border-stone-100 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-stone-900">
+                    Change Admin Password
+                  </h2>
+                  <p className="text-xs text-stone-500">
+                    Update your administrator login password by verifying your current password
+                  </p>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">
+                Security
+              </span>
+            </div>
+
+            {pwdMsg && (
+              <div
+                className={`p-3.5 rounded-xl border text-xs flex items-center space-x-2 ${
+                  pwdMsg.type === 'success'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-red-50 border-red-200 text-red-800'
+                }`}
+              >
+                {pwdMsg.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                )}
+                <span>{pwdMsg.text}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Current Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-stone-700">
+                  Current Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Key className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showCurrentPwd ? 'text' : 'password'}
+                    required
+                    value={pwdForm.currentPassword}
+                    onChange={(e) => setPwdForm({ ...pwdForm, currentPassword: e.target.value })}
+                    placeholder="Enter current password"
+                    className="w-full pl-9 pr-10 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPwd(!showCurrentPwd)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                  >
+                    {showCurrentPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-stone-700">
+                  New Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showNewPwd ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={pwdForm.newPassword}
+                    onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
+                    placeholder="Minimum 6 characters"
+                    className="w-full pl-9 pr-10 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPwd(!showNewPwd)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                  >
+                    {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-stone-700">
+                  Confirm New Password <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showConfirmPwd ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={pwdForm.confirmPassword}
+                    onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
+                    placeholder="Re-enter new password"
+                    className="w-full pl-9 pr-10 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPwd(!showConfirmPwd)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                  >
+                    {showConfirmPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-3 border-t border-stone-100 flex items-center justify-end">
+              <button
+                type="submit"
+                disabled={updatingPwd}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 text-sm font-semibold text-white bg-purple-700 hover:bg-purple-800 rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
+              >
+                {updatingPwd ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Key className="w-4 h-4" />
+                )}
+                <span>Update Admin Password</span>
+              </button>
+            </div>
+          </form>
+
+          {/* CARD 2: GMAIL API & SMTP CONFIGURATION */}
+          <form onSubmit={handleSaveSettings} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-5">
             <div className="flex items-start justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
@@ -924,8 +1113,8 @@ export default function AdminClient({ currentUser }) {
                 <span>Save Gmail API Settings</span>
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
 
       {/* PLAN CHANGE MODAL */}

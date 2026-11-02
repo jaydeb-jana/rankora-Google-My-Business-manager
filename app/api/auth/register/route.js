@@ -45,72 +45,56 @@ export async function POST(request) {
       baseSlug = `${baseSlug}-${Math.floor(100 + Math.random() * 900)}`;
     }
 
-    let user;
+    // Clean up any stale unverified account if present from older versions
     if (existing && !existing.isVerified) {
-      // Update existing unverified account
-      user = await userRepo.updateByEmail(cleanEmail, {
-        businessName: businessName.trim(),
-        ownerName: ownerName.trim(),
-        phone: phone.trim(),
-        password: hashedPassword,
-        slug: baseSlug,
-      });
-    } else {
-      // Create new user with sensible starter services
-      user = await userRepo.create({
-        email: cleanEmail,
-        password: hashedPassword,
-        businessName: businessName.trim(),
-        ownerName: ownerName.trim(),
-        phone: phone.trim(),
-        slug: baseSlug,
-        isVerified: false,
-        services: [],
-        welcomeHeadline: `How was your experience at ${businessName.trim()}?`,
-        instructions:
-          'Tap what we helped you with today. We will help draft an authentic review you can review and paste into Google.',
-        googleReviewUrl: '',
-        stats: {
-          totalVisits: 0,
-          draftsGenerated: 0,
-          reviewsCopied: 0,
-          googleClicks: 0,
-        },
-      });
+      await userRepo.deleteUserAndData(existing._id);
     }
 
-    // Generate OTP (default: 1234)
+    // Generate real secure OTP
     const otpCode = generateOTP();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
 
+    // NOTE: DO NOT CREATE USER IN DB YET!
+    // Registration data is securely attached to the OTP record.
+    // The user account is strictly created ONLY after the OTP is verified.
     await otpRepo.createOtp({
       email: cleanEmail,
       code: otpCode,
       purpose: 'VERIFY_EMAIL',
       expiresAt,
+      registrationData: {
+        businessName: businessName.trim(),
+        ownerName: ownerName.trim(),
+        phone: phone.trim(),
+        password: hashedPassword,
+        slug: baseSlug,
+      },
     });
 
-    // Send OTP via Gmail SMTP (gracefully handles delivery issues)
-    let emailResult = null;
-    try {
-      emailResult = await sendOtpEmail({
-        toEmail: cleanEmail,
-        otpCode,
-        purpose: 'VERIFY_EMAIL',
-        recipientName: ownerName.trim(),
-      });
-    } catch (e) {
-      console.warn('[Register] sendOtpEmail warning:', e.message);
+    // Send OTP via Gmail SMTP with auto-retries
+    const emailResult = await sendOtpEmail({
+      toEmail: cleanEmail,
+      otpCode,
+      purpose: 'VERIFY_EMAIL',
+      recipientName: ownerName.trim(),
+    });
+
+    if (!emailResult?.delivered) {
+      return NextResponse.json(
+        {
+          error:
+            emailResult?.error ||
+            'সিস্টেমে সমস্যা আছে, অনুগ্রহ করে পরে চেষ্টা করুন। (System issue, please try again later.)',
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
       requireOtp: true,
       email: cleanEmail,
-      devOtp: otpCode,
-      message: emailResult?.delivered
-        ? 'Verification code sent to your email. Please check your inbox.'
-        : 'Verification code generated (default: 1234).',
+      message: 'Verification code sent to your email. Please check your inbox.',
     });
   } catch (err) {
     console.error('[Register API Error]:', err);

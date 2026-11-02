@@ -38,8 +38,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not send code');
       setError('');
-      setSuccessMsg(data.message || `A verification code was sent to ${targetEmail} (default: 1234).`);
-      setDevOtp(data.devOtp || '1234');
+      setSuccessMsg(data.message || `A verification code was sent to ${targetEmail}.`);
       startCooldown(45);
     } catch (err) {
       fail(err.message);
@@ -106,13 +105,12 @@ export default function LoginPage() {
         title="Verify your email"
         subtitle={
           <>
-            Your account isn&apos;t activated yet. Enter the 4-digit code (default: <strong className="text-[#1a73e8]">1234</strong>) sent to <strong className="text-[#202124]">{email}</strong>.
+            Your account isn&apos;t activated yet. Enter the 4-digit code sent to <strong className="text-[#202124]">{email}</strong>.
           </>
         }
       >
         <Alert shakeKey={errorKey}>{error}</Alert>
         <Alert type="success">{!error && successMsg}</Alert>
-        <DevOtpBanner code={devOtp} onUse={() => { setOtpCode(devOtp); handleVerify(devOtp); }} />
 
         <div className="space-y-6 rk-scale-in">
           <OtpInput length={4} value={otpCode} onChange={setOtpCode} onComplete={handleVerify} />

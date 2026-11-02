@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser, isAdmin } from '@/lib/auth';
-import { ShieldCheck, ShieldAlert, ArrowLeft, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShieldAlert, LogOut, LayoutDashboard } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,13 +41,16 @@ export default async function AdminLayout({ children }) {
       {/* Admin Top Navigation */}
       <header className="h-16 bg-white border-b border-[#dadce0] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40 shadow-2xs">
         <div className="flex items-center space-x-4">
-          <a href="/admin" className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-700 text-white flex items-center justify-center font-bold text-base shadow-sm">
-              <ShieldCheck className="w-5 h-5" />
+          <a href="/admin" className="flex items-center space-x-2.5 group">
+            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white shadow-md shadow-blue-500/20 font-extrabold text-lg shrink-0 group-hover:scale-105 transition-transform">
+              R
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-bold tracking-tight text-[#202124]">Rankaro</span>
+                <span className="text-lg font-bold tracking-tight text-[#202124] group-hover:text-blue-600 transition-colors">
+                  Rankaro
+                </span>
                 <span className="text-[11px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">
                   Super Admin
                 </span>
@@ -61,20 +64,11 @@ export default async function AdminLayout({ children }) {
 
         {/* Right side controls */}
         <div className="flex items-center space-x-3">
-          <a
-            href="/dashboard"
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium text-[#3c4043] bg-stone-100 hover:bg-stone-200 rounded-lg transition"
-            title="Go to Business Dashboard"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">User Dashboard</span>
-          </a>
-
-          <div className="hidden md:flex items-center space-x-2 border-l border-stone-200 pl-3 text-xs text-stone-600">
-            <div className="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold text-xs">
-              {user.ownerName ? user.ownerName.charAt(0) : 'A'}
+          <div className="flex items-center space-x-2 text-xs text-stone-600">
+            <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
+              {user.ownerName ? user.ownerName.charAt(0).toUpperCase() : 'A'}
             </div>
-            <div className="text-left">
+            <div className="text-left hidden sm:block">
               <div className="font-semibold text-stone-900 leading-tight">{user.ownerName}</div>
               <div className="text-[11px] text-stone-500">{user.email}</div>
             </div>

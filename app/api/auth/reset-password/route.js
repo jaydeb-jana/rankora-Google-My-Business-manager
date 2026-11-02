@@ -24,19 +24,16 @@ export async function POST(request) {
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.trim();
 
-    let validOtp = await otpRepo.findValidOtp({
+    // Strict validation: Only match real, unexpired, unused OTP from the database
+    const validOtp = await otpRepo.findValidOtp({
       email: cleanEmail,
       code: cleanCode,
       purpose: 'RESET_PASSWORD',
     });
 
-    if (!validOtp && (cleanCode === '1234' || cleanCode === '123456')) {
-      validOtp = { _id: null };
-    }
-
     if (!validOtp) {
       return NextResponse.json(
-        { error: 'Invalid or expired verification code. Please request a new one.' },
+        { error: 'ভুল বা মেয়াদোত্তীর্ণ ওটিপি কোড (Invalid or expired verification code).' },
         { status: 400 }
       );
     }

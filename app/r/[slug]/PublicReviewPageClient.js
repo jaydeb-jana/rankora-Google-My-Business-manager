@@ -343,19 +343,19 @@ export default function PublicReviewPageClient({ business }) {
                 })}
               </div>
 
-              {/* Service Chips (Compact horizontal wrap tags) */}
+              {/* Services Grid (Balanced 2-Column Touch Cards) */}
               {business.services && business.services.length > 0 && (
-                <div className="space-y-1.5 pt-1">
+                <div className="space-y-2 pt-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700">
+                    <label className="text-xs font-bold text-slate-800">
                       What did we help you with?
                     </label>
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span className="text-[10px] text-slate-400 font-semibold">
                       (Optional)
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="grid grid-cols-2 gap-2">
                     {business.services.map((svc) => {
                       const isSelected = selectedServiceIds.includes(svc.id);
                       return (
@@ -363,14 +363,28 @@ export default function PublicReviewPageClient({ business }) {
                           key={svc.id}
                           type="button"
                           onClick={() => toggleService(svc.id)}
-                          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
+                          className={`relative p-2.5 rounded-2xl border text-left transition-all duration-150 cursor-pointer flex items-center space-x-2 active:scale-95 ${
                             isSelected
-                              ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                              ? 'bg-blue-50/90 border-blue-600 text-blue-900 shadow-2xs ring-1 ring-blue-500/30'
+                              : 'bg-white border-slate-200/90 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                           }`}
                         >
-                          {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                          <span>{svc.name}</span>
+                          <div
+                            className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                              isSelected
+                                ? 'bg-blue-600 border-blue-600 text-white'
+                                : 'border-slate-300 bg-white'
+                            }`}
+                          >
+                            {isSelected ? (
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            ) : (
+                              <div className="w-1 h-1 rounded-full bg-slate-300" />
+                            )}
+                          </div>
+                          <span className="text-[11.5px] font-bold leading-tight line-clamp-2">
+                            {svc.name}
+                          </span>
                         </button>
                       );
                     })}
@@ -380,19 +394,24 @@ export default function PublicReviewPageClient({ business }) {
 
               {/* Optional Experience Input */}
               <div className="space-y-1.5 pt-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  Optional: Add any highlight or note
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-800">
+                    Share your experience
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-semibold">
+                    (Optional)
+                  </span>
+                </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                    <Sparkles className="w-4 h-4 text-blue-500" />
                   </div>
                   <input
                     type="text"
-                    placeholder="e.g. Fast service, polite staff, fair price..."
+                    placeholder="e.g. Fast repair, polite staff, reasonable price..."
                     value={experienceText}
                     onChange={(e) => setExperienceText(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-xs text-slate-800 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white placeholder:text-slate-400"
+                    className="w-full pl-9 pr-3 py-2.5 text-xs text-slate-800 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white placeholder:text-slate-400 shadow-2xs"
                   />
                 </div>
               </div>

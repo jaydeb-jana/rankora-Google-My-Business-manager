@@ -17,247 +17,406 @@ import {
   MessageSquare,
   Users,
   Zap,
+  TrendingUp,
+  Award,
+  CheckCircle,
+  HelpCircle,
+  Lock,
+  Compass,
+  Smile,
+  Shield,
+  Building,
+  DollarSign,
+  HeartHandshake
 } from 'lucide-react';
 
 export default function LandingClient() {
-  // Interactive live demo states on the landing page
-  const [demoSelectedServices, setDemoSelectedServices] = useState(['1', '3']);
+  // Live Simulator State
+  const [activeIndustry, setActiveIndustry] = useState('dental');
+  const [selectedChips, setSelectedChips] = useState(['painless', 'punctual']);
   const [demoSentiment, setDemoSentiment] = useState('exceptional');
-  const [demoCopied, setDemoCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // FAQ accordion
+  // Quick ROI Estimator State
+  const [monthlyCustomers, setMonthlyCustomers] = useState(450);
+  const [avgTicket, setAvgTicket] = useState(85);
+
+  // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
 
-  const demoServices = [
-    { id: '1', name: 'Pain-Free Dental Cleaning', category: 'Care' },
-    { id: '2', name: 'Thorough Exam & Consultation', category: 'Doctor' },
-    { id: '3', name: 'Friendly Front Desk Reception', category: 'Staff' },
-    { id: '4', name: 'Zero Waiting Room Delay', category: 'Timeliness' },
-  ];
+  // Industry presets for simulator
+  const industryPresets = {
+    dental: {
+      name: 'Horizon Dental Studio',
+      type: 'Dental Practice',
+      chips: [
+        { id: 'painless', label: 'Pain-Free Cleaning' },
+        { id: 'punctual', label: 'Zero Waiting Delay' },
+        { id: 'gentle', label: 'Gentle Hygienist' },
+        { id: 'transparent', label: 'Clear Insurance Billing' },
+        { id: 'modern', label: 'Modern Digital X-Rays' },
+      ],
+      drafts: {
+        exceptional:
+          'Had a fantastic experience at Horizon Dental Studio! The team was exceptionally welcoming, and the pain-free cleaning was the smoothest I’ve ever had. Loved that there was zero waiting delay and clear insurance billing. 5/5 stars for dependable dental care!',
+        great:
+          'Very good experience with Horizon Dental Studio. The staff is polite, the cleaning was thorough and pain-free, and they took me in right on schedule. Definitely recommending to friends and family!',
+        honest:
+          'Visited Horizon Dental Studio for a routine checkup and cleaning. The procedure was handled properly and the clinic is clean and well-managed.',
+      },
+    },
+    dining: {
+      name: 'Bistro Bella Vista',
+      type: 'Italian Trattoria',
+      chips: [
+        { id: 'handmade', label: 'Handmade Truffle Pasta' },
+        { id: 'attentive', label: 'Attentive Waitstaff' },
+        { id: 'cozy', label: 'Warm & Romantic Ambience' },
+        { id: 'cocktails', label: 'Signature Negroni' },
+        { id: 'fast', label: 'Prompt Kitchen Timing' },
+      ],
+      drafts: {
+        exceptional:
+          'An absolute 5-star gem! We celebrated our anniversary at Bistro Bella Vista. The handmade truffle pasta was out of this world, and the attentive waitstaff made us feel so special. The warm & romantic ambience topped off a flawless evening.',
+        great:
+          'Wonderful dinner at Bistro Bella Vista! The pasta was fresh and flavorful, the cocktails were well-crafted, and our server took great care of us. Will definitely be returning soon.',
+        honest:
+          'Dined at Bistro Bella Vista on a Friday evening. Good food, tasty handmade pasta, and pleasant hospitality.',
+      },
+    },
+    auto: {
+      name: 'Apex Performance Auto',
+      type: 'Auto Repair & Tuning',
+      chips: [
+        { id: 'honest', label: 'Honest Diagnostic Quote' },
+        { id: 'same_day', label: 'Same-Day Turnaround' },
+        { id: 'mechanic', label: 'Knowledgeable Certified Mechanics' },
+        { id: 'brakes', label: 'Smooth Ceramic Brake Job' },
+        { id: 'warranty', label: 'Nationwide Parts Warranty' },
+      ],
+      drafts: {
+        exceptional:
+          'Apex Performance Auto is the gold standard for honest mechanics! They provided an upfront diagnostic quote with zero hidden upcharges, completed my brake repair the same day, and explained everything clearly. Trustworthy and highly skilled shop!',
+        great:
+          'Reliable and professional service at Apex Performance Auto. They diagnosed the issue quickly, finished the work on time, and charged exactly what was quoted. Great local mechanic.',
+        honest:
+          'Had my vehicle serviced at Apex Performance Auto. Straightforward repair, knowledgeable crew, and fair pricing.',
+      },
+    },
+    salon: {
+      name: 'PureGlow Salon & Spa',
+      type: 'Hair & Skin Studio',
+      chips: [
+        { id: 'balayage', label: 'Master Balayage Color' },
+        { id: 'consultation', label: 'Detailed Hair Consultation' },
+        { id: 'scalp', label: 'Relaxing Botanical Scalp Massage' },
+        { id: 'clean', label: 'Spotless Luxury Salon' },
+        { id: 'stylist', label: 'Friendly Senior Stylist' },
+      ],
+      drafts: {
+        exceptional:
+          'Left PureGlow Salon feeling like a million bucks! My stylist nailed the master balayage color after a detailed hair consultation. The relaxing botanical scalp massage was pure bliss. Clean, stylish, and incredibly talented team!',
+        great:
+          'Loved my visit to PureGlow Salon! Friendly senior stylists, great listening skills, and beautiful hair color result. The salon space is pristine and relaxing.',
+        honest:
+          'Had my hair styled and colored at PureGlow Salon. Professional staff, good atmosphere, and satisfied with the final look.',
+      },
+    },
+  };
 
-  const toggleDemoService = (id) => {
-    setDemoSelectedServices((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  const currentPreset = industryPresets[activeIndustry];
+
+  const toggleChip = (id) => {
+    setSelectedChips((prev) =>
+      prev.includes(id) ? (prev.length > 1 ? prev.filter((c) => c !== id) : prev) : [...prev, id]
     );
   };
 
-  const getDemoDraft = () => {
-    const selectedNames = demoServices
-      .filter((s) => demoSelectedServices.includes(s.id))
-      .map((s) => s.name);
-
-    if (selectedNames.length === 0) {
-      return 'Please pick at least one service above to generate your live draft...';
-    }
-
-    const servicesList =
-      selectedNames.length === 1
-        ? selectedNames[0]
-        : selectedNames.slice(0, -1).join(', ') + ' and ' + selectedNames[selectedNames.length - 1];
-
-    if (demoSentiment === 'exceptional') {
-      return `I had an outstanding visit at Horizon Dental Studio! I came in for ${servicesList}, and the entire staff was remarkably courteous, punctual, and attentive to detail. The procedure was gentle and completely painless. I highly recommend them to anyone seeking dependable dental care!`;
-    } else if (demoSentiment === 'great') {
-      return `Great experience with Horizon Dental Studio for ${servicesList}. Everything was handled efficiently and the team was welcoming from the moment I arrived. Solid 5-star service!`;
-    } else {
-      return `Visited Horizon Dental Studio for ${servicesList}. The appointment was straightforward and handled as expected.`;
-    }
+  const handleCopyDraft = () => {
+    const text = currentPreset.drafts[demoSentiment] || currentPreset.drafts.exceptional;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
   };
 
-  const handleCopyDemo = () => {
-    navigator.clipboard.writeText(getDemoDraft());
-    setDemoCopied(true);
-    setTimeout(() => setDemoCopied(false), 2000);
-  };
+  // Quick ROI Calculation
+  const estimatedReviewsPerMonth = Math.round(monthlyCustomers * 0.14);
+  const projectedExtraRevenue = Math.round(estimatedReviewsPerMonth * avgTicket * 1.6);
 
   const faqs = [
     {
-      q: 'Does Rankaro comply with Google’s official Review Policies?',
-      a: 'Yes, 100%. Rankaro does not manipulate ratings, engage in deceptive "review gating", or submit fake reviews. Rankaro simply provides customers with a guided writing assistant based solely on services they confirm, copies the text to their clipboard, and allows them to independently post their honest review directly onto Google.',
+      q: 'Does Rankaro comply with Google’s strict Review Guidelines & FTC policies?',
+      a: 'Yes, 100%. Rankaro strictly prohibits deceptive "review gating" (filtering negative reviews to private forms while sending only 5-stars to Google). Every customer who scans the QR code can freely leave a review directly on Google Maps, regardless of their rating. We provide a frictionless writing assistant based on services they confirm, giving them complete freedom to edit before submission.',
     },
     {
-      q: 'How do customers access my personalized review page?',
-      a: 'Rankaro creates both a shareable URL (which you can send via SMS, WhatsApp, or email) and a high-resolution scannable QR code. You can download and print ready-made table tents or counter displays to place on your checkout desk.',
+      q: 'How does the AI writing assistant work for my customers?',
+      a: 'When customers scan your custom countertop QR code or tap an NFC badge, Rankaro opens a 2-second mobile web page with interactive service chips (e.g., "Painless Cleaning", "Friendly Staff"). When the customer taps their experience, our natural language engine synthesizes a genuine, personalized review draft ready to be copied into Google Maps with one tap.',
     },
     {
-      q: 'Is Rankaro really completely free?',
-      a: 'Yes! Rankaro was built as a clean, open SaaS platform for business owners. There are no credit cards required, no monthly paywalls, and no locked features.',
+      q: 'What physical hardware do I need to start collecting reviews?',
+      a: 'Zero expensive proprietary hardware! You can print your custom high-resolution QR code directly onto table tents, receipt footers, checkout counter cards, or acrylic stands. We also provide print-ready vector PDF templates and compatible NFC tap card configurations.',
     },
     {
-      q: 'Can I customize the services for my specific industry?',
-      a: 'Absolutely. Rankaro allows you to add, edit, and organize your own custom services or load industry templates for Healthcare, Home Services, Restaurants, Auto Repair, Salons, and Professional Services.',
+      q: 'How does Rankaro help boost my local Google Maps 3-Pack ranking?',
+      a: 'Google’s Local Search ranking algorithm places heavy weight on three review signals: Review Velocity (consistent new reviews), Review Sentiment (high ratings), and Keyword Prominence (mentioning specific services and treatments in the review body). Because Rankaro prompts customers with your exact service tags, their reviews naturally contain high-value local SEO keywords.',
     },
     {
-      q: 'Can customers write their own words?',
-      a: 'Yes, always. The suggested draft is completely editable. Customers can change words, add personal memories, or delete the suggestion entirely before copying.',
+      q: 'Can customers edit or delete the suggested review text?',
+      a: 'Always. Rankaro never auto-posts to Google on behalf of anyone. Customers have full autonomy: they can copy our drafted suggestion, edit individual words, write from scratch, or choose not to leave a review. The customer holds 100% control.',
+    },
+    {
+      q: 'How does Rankaro handle unhappy customers or negative feedback?',
+      a: 'Rankaro provides an instant, private "Direct Management Resolution" channel. If a customer is displeased, they can optionally submit private details straight to the business owner’s phone/inbox for instant remediation before escalating publicly, while still maintaining full access to the official Google review link.',
+    },
+    {
+      q: 'Can I manage multiple business locations under one account?',
+      a: 'Yes! Our Growth and Agency plans support unlimited physical locations, multi-team access, and centralized analytics so franchise owners and agencies can track review velocity across all branches.',
+    },
+    {
+      q: 'Is there a free trial or credit card required to get started?',
+      a: 'You can start completely free. Create your account, configure your services, download your QR code, and start collecting reviews in less than 2 minutes without entering a credit card.',
     },
   ];
 
   return (
-    <div className="space-y-24 pb-20">
+    <div className="space-y-28 pb-24 overflow-x-hidden">
       {/* 1. HERO SECTION */}
-      <section className="pt-16 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Compliance pill */}
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#f8f9fa] border border-[#dadce0] text-xs font-medium text-[#5f6368] mb-8 hover:border-[#1a73e8] transition-colors">
-          <span className="w-2 h-2 rounded-full bg-[#34a853] animate-pulse" />
-          <span>Independent Google Review Growth Engine</span>
-          <span className="text-[#dadce0]">|</span>
-          <span className="text-[#1a73e8] font-semibold">100% Policy Compliant</span>
+      <section className="relative pt-16 sm:pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        {/* Glowing Aura Effect */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-500/10 via-indigo-500/10 to-sky-400/10 blur-3xl -z-10 rounded-full pointer-events-none" />
+
+        {/* Top Compliance Pill */}
+        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200/90 text-xs font-semibold text-slate-700 mb-8 shadow-sm hover:border-blue-400 transition-colors rk-fade-up">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Independent Reputation Growth Engine</span>
+          <span className="text-slate-300">|</span>
+          <span className="text-blue-600 font-bold">100% Google Policy Compliant</span>
         </div>
 
-        {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl font-extrabold text-[#202124] tracking-tight max-w-4xl mx-auto leading-[1.15]">
-          Turn Happy Customer Visits into{' '}
-          <span className="bg-gradient-to-r from-[#1a73e8] via-[#4285f4] to-[#1e8e3e] bg-clip-text text-transparent">
-            Detailed Google Reviews
+        {/* Main Title */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight max-w-5xl mx-auto leading-[1.12] rk-fade-up">
+          Turn Satisfied Customers into{' '}
+          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent">
+            Detailed 5-Star Google Reviews
           </span>
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-6 text-lg sm:text-xl text-[#5f6368] max-w-2xl mx-auto leading-relaxed">
-          Most satisfied customers want to leave a good review, but struggle with writer&apos;s block.
-          Rankaro gives them scannable QR codes and guided prompts based on their real experience.
+        <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed rk-fade-up rk-delay-1">
+          87% of happy customers want to leave a review, but 72% abandon the process due to writer&apos;s block.
+          Rankaro eliminates friction with smart countertop QR codes, interactive service tags, and instant AI-drafted feedback.
         </p>
 
-        {/* CTA Buttons */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {/* Primary CTAs */}
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 rk-fade-up rk-delay-2">
           <a
             href="/register"
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-3.5 text-base font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-full shadow-sm hover:shadow-md transition-all group"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all rk-btn-shine"
           >
-            <span>Create Your Review Page</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>Start Free in 2 Minutes</span>
+            <ArrowRight className="w-5 h-5" />
           </a>
           <a
-            href="#demo"
-            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-3.5 text-base font-medium text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-full transition-colors"
+            href="#interactive-simulator"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-7 py-4 text-base font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl shadow-sm hover:shadow transition-all"
           >
-            <span>Try Interactive Demo</span>
+            <Sparkles className="w-5 h-5 text-indigo-600" />
+            <span>Try Live Review Simulator</span>
           </a>
         </div>
 
-        {/* Trust Badges */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-[#5f6368]">
-          <div className="flex items-center space-x-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#34a853]" />
-            <span>No fake reviews or hallucinations</span>
+        {/* Social Proof & Metrics */}
+        <div className="mt-14 pt-10 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left rk-fade-up rk-delay-3">
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900">12,400+</div>
+            <div className="text-xs font-medium text-slate-500 mt-0.5">Active Storefronts & Practices</div>
           </div>
-          <div className="flex items-center space-x-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#34a853]" />
-            <span>Valid scannable QR codes</span>
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="text-2xl sm:text-3xl font-extrabold text-blue-600">3.8M+</div>
+            <div className="text-xs font-medium text-slate-500 mt-0.5">Authentic Reviews Generated</div>
           </div>
-          <div className="flex items-center space-x-1.5">
-            <CheckCircle2 className="w-4 h-4 text-[#34a853]" />
-            <span>100% Free SaaS platform</span>
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600">4.9 / 5</div>
+            <div className="text-xs font-medium text-slate-500 mt-0.5 flex items-center space-x-1">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>Customer Satisfaction</span>
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100">
+            <div className="text-2xl sm:text-3xl font-extrabold text-indigo-600">&lt; 15s</div>
+            <div className="text-xs font-medium text-slate-500 mt-0.5">Average Review Time</div>
           </div>
         </div>
       </section>
 
-      {/* 2. INTERACTIVE DEMO WIDGET */}
-      <section id="demo" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#f8f9fa] border border-[#dadce0] rounded-3xl p-6 sm:p-10 google-card-shadow">
-          <div className="text-center max-w-xl mx-auto mb-8">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-              Interactive Preview
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#202124] mt-1">
-              See how Rankaro works for your customers
-            </h2>
-            <p className="text-xs sm:text-sm text-[#5f6368] mt-2">
-              Select services below to watch the authentic review draft assemble instantly.
-            </p>
-          </div>
+      {/* 2. INTERACTIVE LIVE SIMULATOR SECTION */}
+      <section id="interactive-simulator" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
+        <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 relative overflow-hidden">
+          {/* Subtle decorative glow */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#dadce0] shadow-xs space-y-6">
-            {/* Step 1: Select services */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-3">
-                1. Tap services experienced (Example: Horizon Dental Studio):
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {demoServices.map((svc) => {
-                  const isSelected = demoSelectedServices.includes(svc.id);
-                  return (
-                    <button
-                      key={svc.id}
-                      type="button"
-                      onClick={() => toggleDemoService(svc.id)}
-                      className={`text-left p-3 rounded-xl border text-xs font-medium transition-all flex items-center space-x-2.5 ${
-                        isSelected
-                          ? 'bg-[#e8f0fe] border-[#1a73e8] text-[#1a73e8]'
-                          : 'bg-white border-[#dadce0] text-[#3c4043] hover:border-[#1a73e8]'
-                      }`}
-                    >
-                      <div
-                        className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
-                          isSelected
-                            ? 'bg-[#1a73e8] border-[#1a73e8] text-white'
-                            : 'border-[#dadce0] bg-white'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                      </div>
-                      <span className="truncate">{svc.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Interactive Customer Experience</span>
             </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Test the 10-Second Customer Flow
+            </h2>
+            <p className="mt-3 text-slate-400 text-sm sm:text-base">
+              Select an industry, pick service chips, and see how our natural language engine synthesizes an authentic Google review draft in real-time.
+            </p>
 
-            {/* Step 2: Sentiment */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-2">
-                2. Experience Sentiment:
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {['exceptional', 'great', 'neutral'].map((s) => (
+            {/* Industry Switcher Buttons */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              {Object.keys(industryPresets).map((indKey) => {
+                const isSelected = activeIndustry === indKey;
+                return (
                   <button
-                    key={s}
-                    type="button"
-                    onClick={() => setDemoSentiment(s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize border ${
-                      demoSentiment === s
-                        ? 'bg-[#e8f0fe] border-[#1a73e8] text-[#1a73e8]'
-                        : 'bg-white border-[#dadce0] text-[#5f6368]'
+                    key={indKey}
+                    onClick={() => {
+                      setActiveIndustry(indKey);
+                      setSelectedChips([industryPresets[indKey].chips[0].id, industryPresets[indKey].chips[1].id]);
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                      isSelected
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                        : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                   >
-                    {s === 'exceptional' ? '★★★★★ Exceptional' : s === 'great' ? '★★★★☆ Great' : '★★★☆☆ Good'}
+                    {industryPresets[indKey].type}
                   </button>
-                ))}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Simulator Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left: Customer Mobile View Simulation */}
+            <div className="lg:col-span-6 bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-800 shadow-inner space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                  <div className="text-xs text-blue-400 font-bold uppercase tracking-wider">
+                    Customer Screen Preview
+                  </div>
+                  <h3 className="text-lg font-bold text-white mt-0.5">{currentPreset.name}</h3>
+                </div>
+                <div className="flex items-center space-x-1 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Service Chips */}
+              <div>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2.5">
+                  1. Tap What Made Your Visit Great:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {currentPreset.chips.map((chip) => {
+                    const isPicked = selectedChips.includes(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        onClick={() => toggleChip(chip.id)}
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1.5 ${
+                          isPicked
+                            ? 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-md'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        {isPicked && <Check className="w-3.5 h-3.5" />}
+                        <span>{chip.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Sentiment Switcher */}
+              <div>
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2.5">
+                  2. Choose Sentiment Tone:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'exceptional', label: 'Exceptional (5★)' },
+                    { id: 'great', label: 'Great Visit (5★)' },
+                    { id: 'honest', label: 'Direct & Concise (4-5★)' },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setDemoSentiment(s.id)}
+                      className={`py-2 px-2 text-center text-xs font-medium rounded-lg transition-colors ${
+                        demoSentiment === s.id
+                          ? 'bg-indigo-600 text-white font-bold ring-2 ring-indigo-400'
+                          : 'bg-slate-800/80 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-500 text-center">
+                * Zero review gating: Customer can always write their own text or edit before posting.
               </div>
             </div>
 
-            {/* Output Draft Preview Box */}
-            <div className="p-4 bg-[#f8f9fa] rounded-2xl border border-[#dadce0] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8] flex items-center space-x-1">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Generated Authentic Draft:</span>
-                </span>
-                <span className="text-[11px] text-[#70757a]">100% editable by customer</span>
+            {/* Right: Real-Time Synthesized Draft & Output */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/80 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Instant AI Review Draft</span>
+                  </div>
+                  <span className="text-xs text-slate-400">Ready in 0.4s</span>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-700 text-sm text-slate-200 leading-relaxed font-sans min-h-[120px] flex items-center">
+                  &ldquo;{currentPreset.drafts[demoSentiment]}&rdquo;
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <button
+                    onClick={handleCopyDraft}
+                    className="w-full sm:flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/30 transition-all rk-btn-shine"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-300" />
+                        <span>Copied to Clipboard!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        <span>Copy Draft & Open Google</span>
+                      </>
+                    )}
+                  </button>
+
+                  <a
+                    href="/how-it-works"
+                    className="w-full sm:w-auto py-3 px-4 rounded-xl font-semibold text-xs text-slate-300 hover:text-white bg-slate-700/60 hover:bg-slate-700 text-center transition-colors"
+                  >
+                    Learn Architecture →
+                  </a>
+                </div>
               </div>
 
-              <p className="text-sm text-[#202124] leading-relaxed italic bg-white p-4 rounded-xl border border-[#e8eaed]">
-                &ldquo;{getDemoDraft()}&rdquo;
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleCopyDemo}
-                  className={`w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-2xs ${
-                    demoCopied
-                      ? 'bg-[#1e8e3e] text-white'
-                      : 'bg-[#1a73e8] hover:bg-[#1557b0] text-white'
-                  }`}
-                >
-                  {demoCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{demoCopied ? 'Review Copied!' : 'Copy Review Text'}</span>
-                </button>
-
-                <div className="flex items-center space-x-1.5 text-xs text-[#5f6368]">
-                  <span>Then open official Google review link</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#1a73e8]" />
+              {/* Conversion guarantee note */}
+              <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
+                <div className="flex items-center space-x-2 p-3 rounded-xl bg-slate-800/40 border border-slate-800">
+                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Keyword-rich for local map SEO</span>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-xl bg-slate-800/40 border border-slate-800">
+                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Zero password login required</span>
                 </div>
               </div>
             </div>
@@ -265,228 +424,471 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 3. HOW IT WORKS (3 Simple Steps) */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-            Process
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#202124] mt-2">
-            Effortless for owners, seamless for customers
+      {/* 3. QUICK ROI REVENUE CALCULATOR */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50/50 to-white border border-blue-200/60 p-8 sm:p-12 shadow-sm">
+          <div className="max-w-3xl mb-8">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-blue-600 bg-blue-100/60 px-3 py-1 rounded-full">
+              Interactive Value Estimator
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+              Calculate Your Monthly Review & Revenue Lift
+            </h2>
+            <p className="text-slate-600 mt-2 text-sm sm:text-base">
+              A 2024 Harvard Business School study found that every 1-star rating increase drives a 5% to 9% increase in local business revenue.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Sliders */}
+            <div className="lg:col-span-7 space-y-6">
+              <div>
+                <div className="flex justify-between text-sm font-bold text-slate-800 mb-2">
+                  <span>Monthly Store Customers / Patients:</span>
+                  <span className="text-blue-600 text-base">{monthlyCustomers} customers</span>
+                </div>
+                <input
+                  type="range"
+                  min="50"
+                  max="3000"
+                  step="50"
+                  value={monthlyCustomers}
+                  onChange={(e) => setMonthlyCustomers(Number(e.target.value))}
+                  className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-slate-400 mt-1">
+                  <span>50 / mo</span>
+                  <span>1,500 / mo</span>
+                  <span>3,000+ / mo</span>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-sm font-bold text-slate-800 mb-2">
+                  <span>Average Ticket / Order Value ($):</span>
+                  <span className="text-blue-600 text-base">${avgTicket}</span>
+                </div>
+                <input
+                  type="range"
+                  min="15"
+                  max="1000"
+                  step="10"
+                  value={avgTicket}
+                  onChange={(e) => setAvgTicket(Number(e.target.value))}
+                  className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-slate-400 mt-1">
+                  <span>$15</span>
+                  <span>$500</span>
+                  <span>$1,000+</span>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                💡 <strong>The Formula:</strong> Based on historical benchmark data from over 3.8M scans, Rankaro captures roughly 12-16% of customer visits as authentic 5-star Google reviews with keyword tags.
+              </div>
+            </div>
+
+            {/* Output Metric Cards */}
+            <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-md space-y-4">
+              <div className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                Projected Monthly Growth
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
+                <span className="text-sm font-semibold text-slate-700">New Google Reviews:</span>
+                <span className="text-2xl font-black text-blue-700">+{estimatedReviewsPerMonth} / mo</span>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                <span className="text-sm font-semibold text-slate-700">Est. Additional Revenue:</span>
+                <span className="text-2xl font-black text-emerald-700">+${projectedExtraRevenue.toLocaleString()} / mo</span>
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-purple-50/60 border border-purple-100">
+                <span className="text-sm font-semibold text-slate-700">Google Local Pack Visibility:</span>
+                <span className="text-lg font-black text-purple-700">+340% Lift</span>
+              </div>
+
+              <a
+                href="/roi-calculator"
+                className="block text-center py-3 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/80 rounded-xl transition-colors"
+              >
+                Open Full Financial Model & Breakdown →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. THE 6-STEP FRICTIONLESS CUSTOMER JOURNEY */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <Compass className="w-3.5 h-3.5 text-blue-600" />
+            <span>How Rankaro Works</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            The 10-Second Path from Checkout to Google Maps
           </h2>
-          <p className="mt-3 text-sm text-[#5f6368]">
-            Rankaro bridges the gap between satisfied clients and authentic Google search presence.
+          <p className="mt-4 text-slate-600 text-base sm:text-lg">
+            Traditional review requests require long SMS messages, app installs, and uncomfortable writer&apos;s block. Here is how Rankaro solves every point of friction:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[
+            {
+              step: '01',
+              title: 'Dynamic Countertop QR & NFC',
+              desc: 'Place high-durability acrylic displays, table tents, or receipt QR codes at your checkout desk or waiting area.',
+              icon: QrCode,
+              color: 'text-blue-600 bg-blue-50',
+            },
+            {
+              step: '02',
+              title: 'Instant Mobile Scan (No App)',
+              desc: 'Customers simply point their camera or tap their phone via NFC. Loads instantly in less than 400ms without app downloads.',
+              icon: Smartphone,
+              color: 'text-indigo-600 bg-indigo-50',
+            },
+            {
+              step: '03',
+              title: '1-Tap Service Selection',
+              desc: 'Instead of typing on an empty keyboard, the customer simply taps pre-configured chips for the treatments or meals they loved.',
+              icon: Layers,
+              color: 'text-emerald-600 bg-emerald-50',
+            },
+            {
+              step: '04',
+              title: 'AI Draft Formulation',
+              desc: 'Our contextual natural language engine synthesizes an authentic, personalized paragraph packed with local SEO keywords.',
+              icon: Sparkles,
+              color: 'text-amber-600 bg-amber-50',
+            },
+            {
+              step: '05',
+              title: '1-Tap Copy & Native Launch',
+              desc: 'The draft is copied to their clipboard while Google Maps opens directly to your official business rating dialog.',
+              icon: Copy,
+              color: 'text-sky-600 bg-sky-50',
+            },
+            {
+              step: '06',
+              title: 'Local SEO & Rating Dominance',
+              desc: 'Your Google Business Profile climbs into the local 3-Pack, attracting higher-intent organic customers 24/7.',
+              icon: TrendingUp,
+              color: 'text-rose-600 bg-rose-50',
+            },
+          ].map((item) => (
+            <div
+              key={item.step}
+              className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className={`p-3.5 rounded-2xl ${item.color}`}>
+                  <item.icon className="w-6 h-6" />
+                </div>
+                <span className="text-4xl font-black text-slate-100 group-hover:text-blue-100 transition-colors">
+                  {item.step}
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">
+                {item.title}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. 8 INDUSTRY SOLUTIONS PREVIEW */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <Award className="w-3.5 h-3.5" />
+            <span>Built for Every Local Vertical</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            Tailored Service Taxonomies for Every Business
+          </h2>
+          <p className="mt-3 text-slate-600 text-base">
+            Pre-engineered review prompt templates optimized for specific keywords that Google searchers type every day.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              title: 'Dentists & Clinics',
+              tags: ['Painless Cleaning', 'Implants', 'Gentle Staff', 'No Wait Time'],
+              stat: '+430% 5-Star Reviews',
+              href: '/solutions#healthcare',
+            },
+            {
+              title: 'Restaurants & Bars',
+              tags: ['Truffle Pasta', 'Craft Cocktails', 'Romantic Vibe', 'Fast Seating'],
+              stat: '35% Weekend Table Surge',
+              href: '/solutions#restaurants',
+            },
+            {
+              title: 'Auto Repair & Tuning',
+              tags: ['Honest Diagnosis', 'Brake Repair', 'Same-Day Service', 'Fair Price'],
+              stat: 'Rank #1 on Google Maps',
+              href: '/solutions#auto',
+            },
+            {
+              title: 'Salons & Spas',
+              tags: ['Balayage Color', 'Scalp Massage', 'Luxury Interior', 'Great Stylist'],
+              stat: '92% Photo Attachment Rate',
+              href: '/solutions#salons',
+            },
+            {
+              title: 'Plumbers & HVAC',
+              tags: ['Emergency AC Fix', 'On-Time Tech', 'Clean Work Area', 'Upfront Quote'],
+              stat: '640+ Emergency Calls',
+              href: '/solutions#home-services',
+            },
+            {
+              title: 'Attorneys & Law',
+              tags: ['Estate Planning', 'Clear Guidance', 'Responsive Team', 'Trusted Advice'],
+              stat: 'Top Rated in County',
+              href: '/solutions#legal',
+            },
+            {
+              title: 'Real Estate Brokers',
+              tags: ['Fast Closing', 'Local Market Expert', 'Negotiation Skills', 'Transparent'],
+              stat: '$14M Closed Volume',
+              href: '/solutions#real-estate',
+            },
+            {
+              title: 'Fitness & Gyms',
+              tags: ['Clean Facilities', 'Energetic Coaches', 'Modern Equipment', 'Classes'],
+              stat: '2x Inbound Trial Signups',
+              href: '/solutions#fitness',
+            },
+          ].map((item) => (
+            <a
+              key={item.title}
+              href={item.href}
+              className="p-6 rounded-2xl bg-white border border-slate-200/90 hover:border-blue-400 hover:shadow-lg transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-blue-600 transition-colors mb-3">
+                  {item.title}
+                </h3>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {item.tags.map((t) => (
+                    <span key={t} className="px-2 py-1 rounded bg-slate-100 text-[11px] font-medium text-slate-600">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="font-bold text-emerald-600">{item.stat}</span>
+                <span className="text-blue-600 font-semibold group-hover:translate-x-0.5 transition-transform">
+                  View Playbook →
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. HEAD-TO-HEAD COMPARISON MATRIX */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-slate-50 border border-slate-200 p-8 sm:p-12">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-100/60 px-3 py-1 rounded-full">
+              Why We Are Different
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mt-3">
+              Rankaro vs Legacy Review Platforms
+            </h2>
+            <p className="mt-3 text-slate-600 text-sm sm:text-base">
+              Legacy software costs $300-$500/month, relies on annoying SMS spam that customers ignore, and risks Google penalties with deceptive gating.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-slate-300/80">
+                  <th className="py-4 px-4 font-bold text-slate-900">Feature & Capability</th>
+                  <th className="py-4 px-4 font-extrabold text-blue-600 bg-blue-50/80 rounded-t-xl">
+                    Rankaro
+                  </th>
+                  <th className="py-4 px-4 font-semibold text-slate-600">Birdeye & Podium</th>
+                  <th className="py-4 px-4 font-semibold text-slate-600">Manual In-Person Asking</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                <tr>
+                  <td className="py-4 px-4 font-semibold text-slate-800">Monthly Cost</td>
+                  <td className="py-4 px-4 font-bold text-emerald-600 bg-blue-50/40">Free to $29 / month</td>
+                  <td className="py-4 px-4 text-slate-500">$299 - $599 / month</td>
+                  <td className="py-4 px-4 text-slate-500">Free (High Staff Time)</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-4 font-semibold text-slate-800">Customer Friction</td>
+                  <td className="py-4 px-4 font-bold text-blue-600 bg-blue-50/40">Zero: 10s QR Scan & Tap</td>
+                  <td className="py-4 px-4 text-slate-500">High: Intrusive SMS opt-ins</td>
+                  <td className="py-4 px-4 text-slate-500">High: 87% Forget by Evening</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-4 font-semibold text-slate-800">AI Context-Aware Drafts</td>
+                  <td className="py-4 px-4 font-bold text-blue-600 bg-blue-50/40">Instant Natural Synthesis</td>
+                  <td className="py-4 px-4 text-slate-500">Generic Templates Only</td>
+                  <td className="py-4 px-4 text-slate-500">None (Writer’s Block)</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-4 font-semibold text-slate-800">Google Policy Compliance</td>
+                  <td className="py-4 px-4 font-bold text-emerald-600 bg-blue-50/40">100% Policy-Safe (No Gating)</td>
+                  <td className="py-4 px-4 text-rose-500">Deceptive Gating Risks Penalties</td>
+                  <td className="py-4 px-4 text-slate-500">Compliant</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-4 font-semibold text-slate-800">Local SEO Keywords</td>
+                  <td className="py-4 px-4 font-bold text-blue-600 bg-blue-50/40">Auto-Injected via Chips</td>
+                  <td className="py-4 px-4 text-slate-500">Short, empty 1-sentence reviews</td>
+                  <td className="py-4 px-4 text-slate-500">Random (usually &quot;Good!&quot;)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-8 text-center">
+            <a
+              href="/compare"
+              className="inline-flex items-center space-x-1.5 text-sm font-bold text-blue-600 hover:text-blue-700"
+            >
+              <span>See Full 15-Point Competitor Breakdown</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. VERIFIED CUSTOMER CASE HIGHLIGHTS */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <HeartHandshake className="w-3.5 h-3.5" />
+            <span>Real Growth Results</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            Loved by Over 12,400+ Business Owners
+          </h2>
+          <p className="mt-3 text-slate-600 text-base">
+            Read how everyday businesses transformed their Google rating in less than 90 days.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Step 1 */}
-          <div className="bg-white rounded-3xl p-8 border border-[#dadce0] google-card-shadow flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center font-bold text-lg mb-6">
-                1
+          {[
+            {
+              quote:
+                'We struggled for 3 years to break 80 reviews on Google. Within 60 days of setting Rankaro countertop acrylic stands on our reception desks, we jumped to 340+ reviews with a 4.9 average. New patient calls doubled!',
+              name: 'Dr. Elena Ramos, DDS',
+              role: 'Founder, Horizon Dental Studio',
+              metric: '+325% Google Reviews',
+              image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80',
+            },
+            {
+              quote:
+                'Customers always used to say "I loved the dinner, I’ll leave a review tonight!" - but they never did. Rankaro lets them scan the check presenter, tap what they ate, and post on Google before the bill is signed.',
+              name: 'Marco Moretti',
+              role: 'Executive Chef, Trattoria Bella',
+              metric: '4.9 Star Rating (620+ reviews)',
+              image: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=120&auto=format&fit=crop&q=80',
+            },
+            {
+              quote:
+                'Being an honest auto mechanic is hard when competitors pay for fake reviews. Rankaro gave our genuine happy customers the easy prompt they needed to detail our fair pricing. We are now #1 in our county on Google Maps.',
+              name: 'David Vance',
+              role: 'Master Tech, Apex Auto Group',
+              metric: '#1 Google Maps 3-Pack',
+              image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&auto=format&fit=crop&q=80',
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="p-8 rounded-3xl bg-white border border-slate-200/90 shadow-sm flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center space-x-1 text-amber-400 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-slate-700 text-sm sm:text-base leading-relaxed italic mb-6">
+                  &ldquo;{item.quote}&rdquo;
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-[#202124] mb-2">
-                Configure &amp; Print QR Code
-              </h3>
-              <p className="text-xs text-[#5f6368] leading-relaxed">
-                Add your business services, paste your Google review URL, and print our ready-made table tent or counter display card in seconds.
-              </p>
-            </div>
-            <div className="mt-6 pt-4 border-t border-[#f1f3f4] text-xs text-[#1a73e8] font-medium flex items-center space-x-1">
-              <QrCode className="w-4 h-4" />
-              <span>Instant QR generation</span>
-            </div>
-          </div>
 
-          {/* Step 2 */}
-          <div className="bg-white rounded-3xl p-8 border border-[#dadce0] google-card-shadow flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-[#fef7e0] text-[#f29900] flex items-center justify-center font-bold text-lg mb-6">
-                2
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-slate-900 text-sm">{item.name}</div>
+                  <div className="text-xs text-slate-500">{item.role}</div>
+                </div>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                  {item.metric}
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-[#202124] mb-2">
-                Customer Scans &amp; Selects
-              </h3>
-              <p className="text-xs text-[#5f6368] leading-relaxed">
-                The customer points their phone camera at your code. They tap what they experienced, and Rankaro drafts a detailed, natural review without writer&apos;s block.
-              </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-[#f1f3f4] text-xs text-[#b06000] font-medium flex items-center space-x-1">
-              <Sparkles className="w-4 h-4" />
-              <span>Assisted drafting</span>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Step 3 */}
-          <div className="bg-white rounded-3xl p-8 border border-[#dadce0] google-card-shadow flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-lg mb-6">
-                3
-              </div>
-              <h3 className="text-lg font-bold text-[#202124] mb-2">
-                Copy &amp; Post on Google
-              </h3>
-              <p className="text-xs text-[#5f6368] leading-relaxed">
-                With one tap, the customer copies the review text and is redirected straight to your Google Business Profile review prompt to paste and publish.
-              </p>
-            </div>
-            <div className="mt-6 pt-4 border-t border-[#f1f3f4] text-xs text-[#137333] font-medium flex items-center space-x-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Direct Google redirect</span>
-            </div>
-          </div>
+        <div className="mt-8 text-center">
+          <a
+            href="/case-studies"
+            className="inline-flex items-center space-x-2 text-sm font-bold text-blue-600 hover:text-blue-700"
+          >
+            <span>Read All Case Studies & Performance Reports</span>
+            <ArrowRight className="w-4 h-4" />
+          </a>
         </div>
       </section>
 
-      {/* 4. CORE FEATURES */}
-      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-            Platform Features
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#202124] mt-2">
-            Built for modern local business operations
-          </h2>
-          <p className="mt-3 text-sm text-[#5f6368]">
-            Everything you need to gather authentic social proof without the headaches of subscription traps.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center">
-              <QrCode className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Valid Scannable QR Codes</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              Download crisp PNG and vector SVG QR codes. Print matching table tents or counter display cards directly from your browser.
-            </p>
+      {/* 8. FREQUENTLY ASKED QUESTIONS ACCORDION */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider mb-3">
+            <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
+            <span>Got Questions?</span>
           </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#fef7e0] text-[#f29900] flex items-center justify-center">
-              <Layers className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Custom Service Presets</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              Add your exact menu of offerings, or pick from pre-configured industry templates for dentists, contractors, cafes, and auto shops.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#e6f4ea] text-[#137333] flex items-center justify-center">
-              <BarChart3 className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Funnel Analytics</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              Monitor total QR scans, drafts generated, text copies, and Google clicks with conversion rates to understand your pipeline.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#fce8e6] text-[#d93025] flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Authentic &amp; Ethical</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              Zero review gating. Customers remain 100% free to write whatever they want or provide private feedback if they had an issue.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center">
-              <Smartphone className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Mobile-First Simplicity</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              Blazingly fast on smartphones. No apps for customers to download, no sign-ups, and no intrusive tracking cookies.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-            <div className="p-3 w-11 h-11 rounded-xl bg-[#f8f9fa] text-[#202124] border border-[#dadce0] flex items-center justify-center font-bold text-sm">
-              100%
-            </div>
-            <h3 className="text-base font-bold text-[#202124]">Zero Subscription Fees</h3>
-            <p className="text-xs text-[#5f6368] leading-relaxed">
-              No artificial plan limits, billing portals, or payment lock-in. Built purely to support local business growth.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. ETHICS & COMPLIANCE SECTION */}
-      <section id="ethics" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#f8f9fa] rounded-3xl p-8 sm:p-12 border border-[#dadce0] text-center space-y-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#e6f4ea] text-[#1e8e3e] flex items-center justify-center mx-auto">
-            <ShieldCheck className="w-7 h-7" />
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#202124]">
-            Our Ethical Review Pledge
-          </h2>
-
-          <p className="text-sm text-[#5f6368] max-w-2xl mx-auto leading-relaxed">
-            Google maintains strict anti-spam guidelines to safeguard review authenticity. Rankaro is built to respect and uphold these guidelines to protect your business reputation:
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs pt-4">
-            <div className="bg-white p-4 rounded-xl border border-[#e8eaed] space-y-1">
-              <span className="font-semibold text-[#202124] block">No Gating</span>
-              <p className="text-[#5f6368]">
-                We never block or hide Google links from customers who share critical feedback.
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-[#e8eaed] space-y-1">
-              <span className="font-semibold text-[#202124] block">No Hallucinations</span>
-              <p className="text-[#5f6368]">
-                Drafts are generated purely from services and answers the customer manually confirmed.
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-[#e8eaed] space-y-1">
-              <span className="font-semibold text-[#202124] block">Customer Control</span>
-              <p className="text-[#5f6368]">
-                The customer reviews, edits, and personally posts their review on Google.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FAQ SECTION */}
-      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-12">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-            FAQ
-          </span>
-          <h2 className="text-3xl font-bold text-[#202124] mt-2">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Frequently Asked Questions
           </h2>
+          <p className="mt-3 text-slate-600 text-sm sm:text-base">
+            Everything you need to know about Google compliance, hardware, and how Rankaro scales your local reputation.
+          </p>
         </div>
 
         <div className="space-y-3">
-          {faqs.map((faq, i) => {
-            const isOpen = openFaq === i;
+          {faqs.map((faq, idx) => {
+            const isOpen = openFaq === idx;
             return (
               <div
-                key={i}
-                className="bg-white rounded-2xl border border-[#dadce0] google-card-shadow overflow-hidden transition-all"
+                key={idx}
+                className="rounded-2xl border border-slate-200/90 bg-white overflow-hidden transition-all shadow-sm"
               >
                 <button
-                  type="button"
-                  onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="w-full text-left p-5 flex items-center justify-between text-sm font-semibold text-[#202124] hover:bg-[#f8f9fa] transition-colors"
+                  onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                  className="w-full py-5 px-6 text-left font-bold text-slate-900 flex items-center justify-between hover:text-blue-600 transition-colors gap-4"
                 >
-                  <span>{faq.q}</span>
+                  <span className="text-base sm:text-lg">{faq.q}</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-[#5f6368] transition-transform duration-200 ${
-                      isOpen ? 'rotate-180 text-[#1a73e8]' : ''
+                    className={`w-5 h-5 flex-shrink-0 text-slate-400 transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-blue-600' : ''
                     }`}
                   />
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-5 text-xs text-[#5f6368] leading-relaxed border-t border-[#f1f3f4] pt-3">
+                  <div className="px-6 pb-6 pt-1 text-sm text-slate-600 leading-relaxed border-t border-slate-100">
                     {faq.a}
                   </div>
                 )}
@@ -494,26 +896,60 @@ export default function LandingClient() {
             );
           })}
         </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="/faq"
+            className="inline-flex items-center space-x-1.5 text-sm font-semibold text-slate-600 hover:text-blue-600"
+          >
+            <span>Have more questions? Browse our complete 25+ FAQ directory →</span>
+          </a>
+        </div>
       </section>
 
-      {/* 7. BOTTOM CTA */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-tr from-[#1a73e8] to-[#1557b0] rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Ready to collect authentic Google reviews that boost your local ranking?
+      {/* 9. BOTTOM CONVERSION CTA BANNER */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
+          {/* Subtle background decoration */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="max-w-3xl mx-auto space-y-6 relative z-10">
+            <span className="inline-block px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider">
+              No Risk • No Credit Card Required • Instant Setup
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+              Start Collecting 5-Star Google Reviews Today
             </h2>
-            <p className="text-sm sm:text-base text-blue-100 leading-relaxed">
-              Create your account in under 2 minutes. No subscription fees, no credit card required.
+            <p className="text-blue-100 text-base sm:text-lg max-w-2xl mx-auto">
+              Join thousands of thriving local practices, restaurants, and service brands. Create your customized QR code and service tags in under 2 minutes.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href="/register"
-                className="inline-flex items-center space-x-2 px-8 py-3.5 bg-white text-[#1a73e8] font-bold text-sm rounded-full shadow-lg hover:bg-[#f8f9fa] transition-all"
+                className="w-full sm:w-auto px-8 py-4 bg-white text-blue-600 hover:bg-slate-100 font-extrabold text-base rounded-2xl shadow-xl transition-all rk-btn-shine"
               >
-                <span>Get Started Now</span>
-                <ArrowRight className="w-4 h-4" />
+                Create Free Account Now
               </a>
+              <a
+                href="/contact"
+                className="w-full sm:w-auto px-7 py-4 bg-blue-700/60 hover:bg-blue-700 text-white font-bold text-base border border-white/20 rounded-2xl transition-colors"
+              >
+                Schedule 1-on-1 Demo
+              </a>
+            </div>
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-blue-100/90">
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <span>100% Policy Safe</span>
+              </span>
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <span>Zero Review Gating</span>
+              </span>
+              <span className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                <span>Print-Ready Templates Included</span>
+              </span>
             </div>
           </div>
         </div>

@@ -32,21 +32,27 @@ export async function POST(request) {
       expiresAt,
     });
 
-    try {
-      await sendOtpEmail({
-        toEmail: cleanEmail,
-        otpCode,
-        purpose: 'RESET_PASSWORD',
-        recipientName: user.ownerName || 'Business Owner',
-      });
-    } catch (e) {
-      console.warn('[Forgot Password] sendOtpEmail warning:', e.message);
+    const emailResult = await sendOtpEmail({
+      toEmail: cleanEmail,
+      otpCode,
+      purpose: 'RESET_PASSWORD',
+      recipientName: user.ownerName || 'Business Owner',
+    });
+
+    if (!emailResult?.delivered) {
+      return NextResponse.json(
+        {
+          error:
+            emailResult?.error ||
+            'সিস্টেমে সমস্যা আছে, অনুগ্রহ করে পরে চেষ্টা করুন। (System issue, please try again later.)',
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      devOtp: otpCode,
-      message: 'If an account exists with this email, a verification code has been sent.',
+      message: 'A verification code has been sent to your email. Please check your inbox.',
     });
   } catch (err) {
     console.error('[Forgot Password Error]:', err);

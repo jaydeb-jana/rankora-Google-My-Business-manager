@@ -13,10 +13,14 @@ export async function POST(request) {
 
     const cleanEmail = email.toLowerCase().trim();
     const user = await userRepo.findByEmail(cleanEmail);
+    const latestOtp = await otpRepo.findLatestOtp(cleanEmail, purpose);
 
-    if (!user) {
-      return NextResponse.json({ error: 'No account found with this email.' }, { status: 404 });
+    if (!user && !latestOtp) {
+      return NextResponse.json({ error: 'No pending registration or account found with this email.' }, { status: 404 });
     }
+
+    const recipientName = user?.ownerName || latestOtp?.registrationData?.ownerName || 'Business Owner';
+    const registrationData = latestOtp?.registrationData || null;
 
     const otpCode = generateOTP();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
@@ -26,26 +30,30 @@ export async function POST(request) {
       code: otpCode,
       purpose,
       expiresAt,
+      registrationData,
     });
 
-    let emailResult = null;
-    try {
-      emailResult = await sendOtpEmail({
-        toEmail: cleanEmail,
-        otpCode,
-        purpose,
-        recipientName: user.ownerName || 'Business Owner',
-      });
-    } catch (e) {
-      console.warn('[Resend OTP] sendOtpEmail warning:', e.message);
+    const emailResult = await sendOtpEmail({
+      toEmail: cleanEmail,
+      otpCode,
+      purpose,
+      recipientName,
+    });
+
+    if (!emailResult?.delivered) {
+      return NextResponse.json(
+        {
+          error:
+            emailResult?.error ||
+            'সিস্টেমে সমস্যা আছে, অনুগ্রহ করে পরে চেষ্টা করুন। (System issue, please try again later.)',
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      devOtp: otpCode,
-      message: emailResult?.delivered
-        ? 'A new verification code has been sent to your email.'
-        : 'A new verification code is ready (default: 1234).',
+      message: 'A new verification code has been sent to your email. Please check your inbox.',
     });
   } catch (err) {
     console.error('[Resend OTP Error]:', err);

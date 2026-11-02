@@ -14,33 +14,67 @@ export async function POST(request) {
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = code.trim();
 
-    let validOtp = await otpRepo.findValidOtp({
+    // Strict validation: Only match real, unexpired, unused OTP from the database
+    const validOtp = await otpRepo.findValidOtp({
       email: cleanEmail,
       code: cleanCode,
       purpose,
     });
 
-    // Fallback/Default OTP bypass for 1234 or 123456
-    if (!validOtp && (cleanCode === '1234' || cleanCode === '123456')) {
-      validOtp = { _id: null, email: cleanEmail, code: cleanCode, purpose };
-    }
-
     if (!validOtp) {
       return NextResponse.json(
-        { error: 'Invalid or expired verification code. Please request a new one.' },
+        { error: 'ভুল বা মেয়াদোত্তীর্ণ ওটিপি কোড (Invalid or expired verification code).' },
         { status: 400 }
       );
     }
 
-    // Mark OTP as used if saved in DB
+    // Invalidate immediately so OTP cannot be reused
     if (validOtp._id) {
       await otpRepo.markUsed(validOtp._id);
     }
 
     if (purpose === 'VERIFY_EMAIL') {
-      const user = await userRepo.updateByEmail(cleanEmail, { isVerified: true });
+      let user = await userRepo.findByEmail(cleanEmail);
+
+      // If user does not exist in DB yet, create it now from the verified registrationData
       if (!user) {
-        return NextResponse.json({ error: 'User not found.' }, { status: 404 });
+        const reg = validOtp.registrationData;
+        if (!reg) {
+          return NextResponse.json(
+            { error: 'Registration session expired or invalid. Please submit registration again.' },
+            { status: 400 }
+          );
+        }
+
+        user = await userRepo.create({
+          email: cleanEmail,
+          password: reg.password,
+          businessName: reg.businessName,
+          ownerName: reg.ownerName,
+          phone: reg.phone,
+          slug: reg.slug,
+          isVerified: true,
+          role: 'user',
+          status: 'active',
+          plan: 'free',
+          services: [],
+          welcomeHeadline: `How was your experience at ${reg.businessName}?`,
+          instructions:
+            'Tap what we helped you with today. We will help draft an authentic review you can review and paste into Google.',
+          googleReviewUrl: '',
+          stats: {
+            totalVisits: 0,
+            draftsGenerated: 0,
+            reviewsCopied: 0,
+            googleClicks: 0,
+          },
+        });
+      } else if (!user.isVerified) {
+        user = await userRepo.updateByEmail(cleanEmail, { isVerified: true });
+      }
+
+      if (!user) {
+        return NextResponse.json({ error: 'Failed to complete account registration.' }, { status: 500 });
       }
 
       // Generate session token

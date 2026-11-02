@@ -78,8 +78,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
       setStep(1);
-      setSuccessMsg(data.message || `We sent a verification code to ${form.email} (default: 1234).`);
-      setDevOtp(data.devOtp || '1234');
+      setSuccessMsg(data.message || `We sent a verification code to ${form.email}.`);
       startCooldown(45);
     } catch (err) {
       fail(err.message);
@@ -140,7 +139,7 @@ export default function RegisterPage() {
           'Set up your personalized review page in under 2 minutes.'
         ) : (
           <>
-            Enter the 4-digit code (default: <strong className="text-[#1a73e8]">1234</strong>) sent to <strong className="text-[#202124]">{form.email}</strong>.
+            Enter the 4-digit code sent to <strong className="text-[#202124]">{form.email}</strong>.
           </>
         )
       }
@@ -182,9 +181,8 @@ export default function RegisterPage() {
         </form>
       ) : (
         <div className="space-y-6 rk-scale-in">
-          <DevOtpBanner code={devOtp} onUse={() => { setOtpCode(devOtp); handleVerify(devOtp); }} />
           <OtpInput length={4} value={otpCode} onChange={setOtpCode} onComplete={handleVerify} />
-          <p className="text-center text-xs text-[#70757a] -mt-2">Default test code: 1234 · Expires in 15 minutes</p>
+          <p className="text-center text-xs text-[#70757a] -mt-2">Enter the verification code sent to your email · Expires in 15 minutes</p>
           <SubmitButton type="button" onClick={() => handleVerify()} loading={loading} disabled={otpCode.length < 4} loadingText="Verifying…" icon={ShieldCheck}>
             Verify &amp; activate
           </SubmitButton>
