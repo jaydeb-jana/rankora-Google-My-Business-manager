@@ -64,6 +64,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   const [verifyingKey, setVerifyingKey] = useState(false);
   const [verificationResult, setVerificationResult] = useState(null);
   const [removingKey, setRemovingKey] = useState(false);
+  const [isChangingKey, setIsChangingKey] = useState(false);
 
   // Service Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -198,6 +199,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       });
 
       setGeminiApiKeyInput('');
+      setIsChangingKey(false);
       showToast('Gemini API Key verified & saved!', 'success');
     } catch (err) {
       const errMsg = err.message || 'Network connection failed during verification.';
@@ -220,6 +222,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       if (!res.ok) throw new Error(data.error || 'Failed to remove API key');
       setGeminiStatus({ hasKey: false, isKeyVerified: false, maskedKey: '' });
       setVerificationResult(null);
+      setIsChangingKey(false);
       showToast('Gemini API Key removed.', 'info');
     } catch (err) {
       showToast(err.message, 'error');
@@ -416,15 +419,25 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled={removingKey}
-              onClick={handleRemoveGeminiKey}
-              className="text-xs font-medium text-red-600 hover:text-red-700 hover:underline inline-flex items-center space-x-1 self-start sm:self-auto cursor-pointer disabled:opacity-50"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>{removingKey ? 'Disconnecting...' : 'Disconnect Key'}</span>
-            </button>
+            <div className="flex items-center space-x-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setIsChangingKey(!isChangingKey)}
+                className="text-xs font-semibold text-[#1a73e8] hover:text-[#1557b0] hover:underline cursor-pointer"
+              >
+                {isChangingKey ? 'Cancel' : 'Change Key'}
+              </button>
+              <span className="text-slate-300">•</span>
+              <button
+                type="button"
+                disabled={removingKey}
+                onClick={handleRemoveGeminiKey}
+                className="text-xs font-medium text-red-600 hover:text-red-700 hover:underline inline-flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{removingKey ? 'Disconnecting...' : 'Disconnect Key'}</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -454,68 +467,79 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
           </div>
         )}
 
-        {/* Form to Enter and Verify Gemini API Key */}
-        <form onSubmit={handleVerifyAndSaveGeminiKey} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-[#202124] uppercase tracking-wider">
-              Enter Gemini API Key
-            </label>
-            <div className="relative">
-              <input
-                type={showApiKey ? 'text' : 'password'}
-                value={geminiApiKeyInput}
-                onChange={(e) => setGeminiApiKeyInput(e.target.value)}
-                placeholder={
-                  geminiStatus.isKeyVerified
-                    ? 'Enter new key to update (starts with AIzaSy...)'
-                    : 'AIzaSy...'
-                }
-                className="w-full pl-4 pr-11 py-2.5 bg-[#f8fafd] border border-[#dadce0] rounded-xl text-xs text-[#202124] placeholder-[#80868b] focus:bg-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] font-mono transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                tabIndex={-1}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] transition-colors cursor-pointer"
-                aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
-              >
-                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+        {/* Form to Enter and Verify Gemini API Key (Hidden once key is verified) */}
+        {(!geminiStatus.isKeyVerified || isChangingKey) && (
+          <form onSubmit={handleVerifyAndSaveGeminiKey} className="space-y-4 pt-1">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#202124] uppercase tracking-wider">
+                {isChangingKey ? 'Enter New Gemini API Key' : 'Enter Gemini API Key'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={geminiApiKeyInput}
+                  onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                  placeholder="AIzaSy... or AQ.Ab8..."
+                  className="w-full pl-4 pr-11 py-2.5 bg-[#f8fafd] border border-[#dadce0] rounded-xl text-xs text-[#202124] placeholder-[#80868b] focus:bg-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] font-mono transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] transition-colors cursor-pointer"
+                  aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                >
+                  {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[11px] text-[#5f6368]">
+                Get a free API key from{' '}
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[#1a73e8] font-semibold hover:underline"
+                >
+                  Google AI Studio
+                </a>
+                . When you click Verify &amp; Save, a test prompt &quot;Hi&quot; is sent to Gemini to validate the key before saving.
+              </p>
             </div>
-            <p className="text-[11px] text-[#5f6368]">
-              Get a free API key from{' '}
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#1a73e8] font-semibold hover:underline"
-              >
-                Google AI Studio
-              </a>
-              . When you click Verify &amp; Save, a test prompt &quot;Hi&quot; is sent to Gemini to validate the key before saving.
-            </p>
-          </div>
 
-          <div className="pt-1">
-            <button
-              type="submit"
-              disabled={verifyingKey || !geminiApiKeyInput.trim()}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {verifyingKey ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Verifying with Gemini (Sending &apos;Hi&apos;)...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                  <span>Verify &amp; Save API Key</span>
-                </>
+            <div className="pt-1 flex items-center space-x-2">
+              <button
+                type="submit"
+                disabled={verifyingKey || !geminiApiKeyInput.trim()}
+                className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {verifyingKey ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Verifying with Gemini (Sending &apos;Hi&apos;)...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                    <span>Verify &amp; Save API Key</span>
+                  </>
+                )}
+              </button>
+
+              {isChangingKey && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsChangingKey(false);
+                    setGeminiApiKeyInput('');
+                  }}
+                  className="px-4 py-2.5 text-xs font-medium text-[#5f6368] hover:bg-[#f1f3f4] rounded-xl cursor-pointer"
+                >
+                  Cancel
+                </button>
               )}
-            </button>
-          </div>
-        </form>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* 1. Main AI Knowledge Settings Card (Shop Details & Style) */}
