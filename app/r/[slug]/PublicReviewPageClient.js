@@ -26,7 +26,20 @@ export default function PublicReviewPageClient({ business }) {
   });
   const [sentiment, setSentiment] = useState('exceptional'); // 'exceptional' (5), 'great' (4), 'neutral' (3), 'critical' (2), 'terrible' (1)
   const [experienceText, setExperienceText] = useState('');
+
+  // Generated review draft states
+  const [drafts, setDrafts] = useState([]);
+  const [activeDraftIndex, setActiveDraftIndex] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [activeLang, setActiveLang] = useState('en');
+  const [copied, setCopied] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
+  const [privateFeedbackText, setPrivateFeedbackText] = useState('');
+
   const experienceTextareaRef = useRef(null);
+  const reviewTextareaRef = useRef(null);
 
   // Auto-resize experience textarea as user types or pastes text
   useEffect(() => {
@@ -43,16 +56,31 @@ export default function PublicReviewPageClient({ business }) {
     target.style.height = `${Math.max(44, target.scrollHeight)}px`;
   };
 
-  // Generated review draft states
-  const [drafts, setDrafts] = useState([]);
-  const [activeDraftIndex, setActiveDraftIndex] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [activeLang, setActiveLang] = useState('en');
-  const [copied, setCopied] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [showGuideModal, setShowGuideModal] = useState(false);
-  const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
-  const [privateFeedbackText, setPrivateFeedbackText] = useState('');
+  // Auto-resize review draft textarea as draft loads, regenerates, or user edits
+  useEffect(() => {
+    if (currentStep === 'DRAFT') {
+      const resize = () => {
+        if (reviewTextareaRef.current) {
+          reviewTextareaRef.current.style.height = 'auto';
+          reviewTextareaRef.current.style.height = `${Math.max(100, reviewTextareaRef.current.scrollHeight)}px`;
+        }
+      };
+      resize();
+      const raf = requestAnimationFrame(resize);
+      const timer = setTimeout(resize, 60);
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
+    }
+  }, [reviewText, currentStep]);
+
+  const handleReviewTextChange = (e) => {
+    setReviewText(e.target.value);
+    const target = e.target;
+    target.style.height = 'auto';
+    target.style.height = `${Math.max(90, target.scrollHeight)}px`;
+  };
 
   // Trigger celebration confetti
   const triggerConfetti = () => {
@@ -517,10 +545,11 @@ export default function PublicReviewPageClient({ business }) {
                 </div>
 
                 <textarea
-                  rows={4}
+                  ref={reviewTextareaRef}
                   value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  className="w-full p-3.5 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-all bg-white"
+                  onChange={handleReviewTextChange}
+                  className="w-full p-3.5 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-[height] duration-75 bg-white resize-none overflow-hidden block min-h-[90px]"
+                  placeholder="Your review draft..."
                 />
 
                 {/* Regenerate Button & Tap Hint */}

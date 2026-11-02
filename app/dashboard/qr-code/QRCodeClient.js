@@ -192,6 +192,49 @@ function GoogleStar({ className = 'w-4 h-4' }) {
   );
 }
 
+function BusinessLogoBadge({
+  logoUrl,
+  businessName,
+  size = 'w-14 h-14',
+  className = '',
+  imgClassName = '',
+  variant = 'light',
+}) {
+  const initial = businessName ? businessName.trim().charAt(0).toUpperCase() : 'B';
+
+  const containerStyles =
+    {
+      light: 'bg-white border-[#dadce0] text-[#1a73e8] shadow-xs',
+      dark: 'bg-white border-white/40 text-[#0a1628] shadow-md',
+      gold: 'bg-white border-2 border-[#d4af37] text-[#12100e] shadow-lg',
+      emerald: 'bg-white border-2 border-[#a7f3d0] text-[#064e3b] shadow-xs',
+      minimal: 'bg-white border border-[#e8eaed] text-[#202124] shadow-xs',
+    }[variant] || 'bg-white border-[#dadce0] text-[#1a73e8] shadow-xs';
+
+  if (logoUrl) {
+    return (
+      <div
+        className={`${size} rounded-2xl border p-1 flex items-center justify-center shrink-0 ${containerStyles} ${className}`}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoUrl}
+          alt={businessName || 'Business Logo'}
+          className={`w-full h-full object-contain rounded-xl ${imgClassName}`}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${size} rounded-2xl border flex items-center justify-center font-black select-none shrink-0 ${containerStyles} ${className}`}
+    >
+      <span className="text-base">{initial}</span>
+    </div>
+  );
+}
+
 function QrViewfinder({
   dataUrl,
   className = 'w-48 h-48',
@@ -267,7 +310,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
         <div className="p-6 sm:p-7 flex flex-col items-center">
           {/* Official Google Header */}
           <div className="flex items-center justify-center space-x-2.5 mb-2">
-            <GoogleG className="w-8 h-8" />
+            <GoogleG className="w-7 h-7" />
             <div className="flex flex-col items-start leading-tight">
               <GoogleWordmark className="text-xl leading-none" />
               <span className="text-[10px] font-semibold text-[#5f6368] tracking-wider uppercase">
@@ -276,8 +319,27 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             </div>
           </div>
 
+          {/* Business Logo in exact right place */}
+          <div className="flex flex-col items-center mt-2 mb-1">
+            <BusinessLogoBadge
+              logoUrl={user.logoUrl}
+              businessName={user.businessName}
+              size="w-14 h-14 sm:w-16 sm:h-16"
+              className="mb-2"
+              variant="light"
+            />
+            <h2 className="text-xl sm:text-2xl font-black text-[#202124] tracking-tight max-w-[90%] truncate">
+              {user.businessName}
+            </h2>
+          </div>
+
+          <div className="flex items-center space-x-1.5 text-xs text-[#5F6368] mb-3">
+            <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
+            <span className="font-medium">Verified on Google Search &amp; Maps</span>
+          </div>
+
           {/* Official Review Badge */}
-          <div className="mt-2.5 inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#E8F0FE] border border-[#D2E3FC] text-[#1A73E8]">
+          <div className="mb-3.5 inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-[#E8F0FE] border border-[#D2E3FC] text-[#1A73E8]">
             <span className="text-xs font-bold tracking-tight">Review us on Google</span>
             <span className="w-1 h-1 rounded-full bg-[#1A73E8]" />
             <div className="flex items-center space-x-0.5">
@@ -286,16 +348,6 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
               ))}
               <span className="text-xs font-bold ml-1 text-[#202124]">5.0</span>
             </div>
-          </div>
-
-          {/* Business Name */}
-          <h2 className="text-xl sm:text-2xl font-black text-[#202124] tracking-tight mt-3.5 mb-1 max-w-[90%] truncate">
-            {user.businessName}
-          </h2>
-
-          <div className="flex items-center space-x-1.5 text-xs text-[#5F6368] mb-4">
-            <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
-            <span className="font-medium">Verified on Google Search &amp; Maps</span>
           </div>
 
           {/* QR Code Container with High-Tech Google Brackets */}
@@ -342,7 +394,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
       >
         <div className="bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#FBBC05] p-1" />
         <div className="p-6 sm:p-7 flex flex-col items-center">
-          <div className="flex items-center space-x-2 mb-2.5">
+          <div className="flex items-center space-x-2 mb-2">
             <GoogleG className="w-7 h-7" />
             <GoogleWordmark className="text-xl" />
           </div>
@@ -353,15 +405,25 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
           <h2 className="text-3xl font-black tracking-tight text-[#202124] mt-0.5 mb-1">
             FIVE STAR
           </h2>
-          <div className="flex items-center justify-center space-x-1 mb-3.5">
+          <div className="flex items-center justify-center space-x-1 mb-3">
             {[1, 2, 3, 4, 5].map((s) => (
               <GoogleStar key={s} className="w-5 h-5" />
             ))}
           </div>
 
-          <h3 className="text-base sm:text-lg font-bold text-[#1A73E8] mb-3.5 max-w-[90%] truncate">
-            {user.businessName}
-          </h3>
+          {/* Business Logo & Name */}
+          <div className="flex flex-col items-center mb-3">
+            <BusinessLogoBadge
+              logoUrl={user.logoUrl}
+              businessName={user.businessName}
+              size="w-13 h-13 sm:w-14 sm:h-14"
+              className="mb-1.5"
+              variant="light"
+            />
+            <h3 className="text-base sm:text-lg font-bold text-[#1A73E8] max-w-[90%] truncate">
+              {user.businessName}
+            </h3>
+          </div>
 
           <div className="mb-3.5">
             <QrViewfinder
@@ -393,18 +455,25 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
       <div
         className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#E8EAED] shadow-sm relative p-6 sm:p-7 flex flex-col items-center`}
       >
-        <div className="w-11 h-11 rounded-2xl bg-[#F8F9FA] border border-[#E8EAED] flex items-center justify-center mb-3">
-          <GoogleG className="w-6 h-6" />
+        {/* Business Logo as prominent centerpiece */}
+        <BusinessLogoBadge
+          logoUrl={user.logoUrl}
+          businessName={user.businessName}
+          size="w-14 h-14 sm:w-16 sm:h-16"
+          className="mb-2.5"
+          variant="minimal"
+        />
+
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#F8F9FA] border border-[#E8EAED] text-xs font-semibold text-[#1A73E8] mb-1.5">
+          <GoogleG className="w-3.5 h-3.5" />
+          <span>Review us on Google</span>
         </div>
 
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#1A73E8] mb-1">
-          Review us on Google
-        </p>
         <h2 className="text-xl sm:text-2xl font-bold text-[#202124] tracking-tight mb-2 max-w-[90%] truncate">
           {user.businessName}
         </h2>
 
-        <div className="flex items-center justify-center space-x-1 mb-4">
+        <div className="flex items-center justify-center space-x-1 mb-3.5">
           {[1, 2, 3, 4, 5].map((s) => (
             <GoogleStar key={s} className="w-4 h-4" />
           ))}
@@ -438,17 +507,25 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
       <div
         className={`bg-gradient-to-b from-[#0A1628] to-[#0F2444] rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border border-[#1E293B] shadow-xl relative p-6 sm:p-7 flex flex-col items-center text-white`}
       >
-        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#38BDF8] text-[10px] font-bold uppercase tracking-widest mb-3">
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[#38BDF8] text-[10px] font-bold uppercase tracking-widest mb-2.5">
           <Radio className="w-3 h-3 text-[#38BDF8]" />
           <span>We Value Your Feedback</span>
         </div>
 
+        <BusinessLogoBadge
+          logoUrl={user.logoUrl}
+          businessName={user.businessName}
+          size="w-14 h-14 sm:w-16 sm:h-16"
+          className="mb-2"
+          variant="dark"
+        />
+
         <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1 max-w-[90%] truncate">
           {user.businessName}
         </h2>
-        <p className="text-xs text-[#94A3B8] mb-3">Share your experience on Google</p>
+        <p className="text-xs text-[#94A3B8] mb-2.5">Share your experience on Google</p>
 
-        <div className="flex items-center justify-center space-x-1 mb-4">
+        <div className="flex items-center justify-center space-x-1 mb-3.5">
           {[1, 2, 3, 4, 5].map((s) => (
             <GoogleStar key={s} className="w-4 h-4" />
           ))}
@@ -486,14 +563,22 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
           <span>• A Five Star Thank You •</span>
         </div>
 
+        <BusinessLogoBadge
+          logoUrl={user.logoUrl}
+          businessName={user.businessName}
+          size="w-14 h-14 sm:w-16 sm:h-16"
+          className="mb-2"
+          variant="gold"
+        />
+
         <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F8F1D8] tracking-wide mb-1 max-w-[90%] truncate">
           {user.businessName}
         </h2>
-        <p className="text-xs text-[#D4AF37] mb-3 font-serif italic">
+        <p className="text-xs text-[#D4AF37] mb-2.5 font-serif italic">
           Your kind words illuminate our journey
         </p>
 
-        <div className="flex items-center justify-center space-x-1.5 mb-4">
+        <div className="flex items-center justify-center space-x-1.5 mb-3.5">
           {[1, 2, 3, 4, 5].map((s) => (
             <GoogleStar key={s} className="w-4 h-4" />
           ))}
@@ -528,13 +613,22 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
       <div
         className={`bg-[#F0FDF4] rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#A7F3D0] shadow-md relative`}
       >
-        <div className="bg-[#064E3B] px-6 py-3.5 text-white">
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#6EE7B7]">
-            Thank You For Visiting
-          </p>
-          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5 truncate">
-            {user.businessName}
-          </h2>
+        <div className="bg-[#064E3B] px-5 py-3 text-white flex items-center justify-center space-x-3">
+          <BusinessLogoBadge
+            logoUrl={user.logoUrl}
+            businessName={user.businessName}
+            size="w-11 h-11"
+            className="border-white/40 shadow-sm shrink-0"
+            variant="emerald"
+          />
+          <div className="text-left overflow-hidden">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-[#6EE7B7]">
+              Thank You For Visiting
+            </p>
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight truncate">
+              {user.businessName}
+            </h2>
+          </div>
         </div>
 
         <div className="p-6 sm:p-7 flex flex-col items-center">
@@ -542,7 +636,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             If we earned your smile today, a Google review means the world to our team!
           </p>
 
-          <div className="flex items-center justify-center space-x-1 mb-4">
+          <div className="flex items-center justify-center space-x-1 mb-3.5">
             {[1, 2, 3, 4, 5].map((s) => (
               <GoogleStar key={s} className="w-4 h-4" />
             ))}
@@ -575,13 +669,22 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
       <div
         className={`bg-white rounded-3xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#111827] shadow-xl relative`}
       >
-        <div className="bg-[#1A73E8] px-6 py-3.5 text-white">
-          <p className="text-[11px] font-black uppercase tracking-[0.25em] text-white/80">
-            RATE YOUR EXPERIENCE
-          </p>
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-0.5 truncate">
-            {user.businessName}
-          </h2>
+        <div className="bg-[#1A73E8] px-5 py-3 text-white flex items-center justify-center space-x-3">
+          <BusinessLogoBadge
+            logoUrl={user.logoUrl}
+            businessName={user.businessName}
+            size="w-11 h-11"
+            className="border-white/40 shadow-sm shrink-0"
+            variant="light"
+          />
+          <div className="text-left overflow-hidden">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/80">
+              RATE YOUR EXPERIENCE
+            </p>
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+              {user.businessName}
+            </h2>
+          </div>
         </div>
 
         <div className="p-6 sm:p-7 flex flex-col items-center">
@@ -589,7 +692,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             ★ ★ ★ ★ ★ 5 STARS
           </div>
 
-          <p className="text-xs font-bold text-[#5F6368] mb-3.5">
+          <p className="text-xs font-bold text-[#5F6368] mb-3">
             Takes only 15 seconds at the counter
           </p>
 
@@ -622,10 +725,17 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
         className={`bg-white rounded-2xl overflow-hidden ${cardWidth} mx-auto text-center border-2 border-[#DADCE0] shadow-md relative`}
       >
         {/* Panel 1: Top Face (Side A) */}
-        <div className="p-5 bg-[#F8F9FA] flex flex-col items-center border-b border-[#E8EAED]">
-          <div className="flex items-center space-x-2 mb-1.5">
-            <GoogleG className="w-5 h-5" />
-            <GoogleWordmark className="text-base" />
+        <div className="p-4 sm:p-5 bg-[#F8F9FA] flex flex-col items-center border-b border-[#E8EAED]">
+          <BusinessLogoBadge
+            logoUrl={user.logoUrl}
+            businessName={user.businessName}
+            size="w-12 h-12"
+            className="mb-1.5"
+            variant="light"
+          />
+          <div className="flex items-center space-x-1.5 mb-1">
+            <GoogleG className="w-4 h-4" />
+            <GoogleWordmark className="text-sm" />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-[#202124] max-w-[90%] truncate">
             {user.businessName}
@@ -648,7 +758,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
         </div>
 
         {/* Panel 2: Bottom Face (Side B with QR code) */}
-        <div className="p-5 flex flex-col items-center">
+        <div className="p-4 sm:p-5 flex flex-col items-center">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#E8F0FE] text-[#1A73E8] text-xs font-bold mb-2.5">
             <span>Rate Us On Google</span>
           </div>
@@ -1013,9 +1123,17 @@ export default function QRCodeClient({ user }) {
               )}
             </div>
 
-            <p className="text-xs text-[#202124] font-medium mb-1">
-              {user.businessName}
-            </p>
+            <div className="flex items-center space-x-2 mb-1 max-w-xs">
+              <BusinessLogoBadge
+                logoUrl={user.logoUrl}
+                businessName={user.businessName}
+                size="w-7 h-7"
+                className="rounded-lg"
+              />
+              <p className="text-xs text-[#202124] font-bold truncate">
+                {user.businessName}
+              </p>
+            </div>
             <p className="text-[11px] font-mono text-[#5f6368] mb-4 truncate max-w-xs">
               {reviewUrl}
             </p>
