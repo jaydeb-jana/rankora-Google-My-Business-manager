@@ -87,9 +87,43 @@ export default function AdminClient({ currentUser }) {
     },
     pricing: {
       currency: '₹',
-      starter: { monthly: 499, yearly: 399 },
-      pro: { monthly: 999, yearly: 849 },
-      enterprise: { monthly: 2499, yearly: 1999 },
+      starter: {
+        monthly: 499,
+        yearly: 399,
+        features: [
+          'Single Business Profile connection',
+          'Standard QR Code Stand generation',
+          'AI Review Drafts (Powered by Gemini)',
+          'Basic review analytics & activity log',
+          'Direct link to Google review box',
+        ],
+      },
+      pro: {
+        monthly: 999,
+        yearly: 849,
+        features: [
+          'Everything in Starter, plus:',
+          'Custom Branded QR Stands (Print Ready PDF)',
+          'Unlimited AI Review Draft generations',
+          'AI Knowledge Base customization with custom services',
+          'WhatsApp instant inquiry desk priority',
+          'Custom review landing page branding & colors',
+          'Zero Google review link dropouts',
+        ],
+      },
+      enterprise: {
+        monthly: 2499,
+        yearly: 1999,
+        features: [
+          'Everything in Pro, plus:',
+          'Multi-location dashboard (up to 10 locations)',
+          'Dedicated Technical Account Manager at Arventa Ventures',
+          'Custom REST API & Webhook integration',
+          'Priority SLA support via direct WhatsApp & phone',
+          'Automated monthly Google Business Profile local SEO audits',
+          'Custom domain support for review pages',
+        ],
+      },
     },
   });
   const [loadingSettings, setLoadingSettings] = useState(false);
@@ -160,14 +194,23 @@ export default function AdminClient({ currentUser }) {
             starter: {
               monthly: Number(data.settings.pricing?.starter?.monthly) || 499,
               yearly: Number(data.settings.pricing?.starter?.yearly) || 399,
+              features: Array.isArray(data.settings.pricing?.starter?.features) && data.settings.pricing.starter.features.length > 0
+                ? data.settings.pricing.starter.features
+                : prev.pricing?.starter?.features || [],
             },
             pro: {
               monthly: Number(data.settings.pricing?.pro?.monthly ?? 999),
               yearly: Number(data.settings.pricing?.pro?.yearly ?? 849),
+              features: Array.isArray(data.settings.pricing?.pro?.features) && data.settings.pricing.pro.features.length > 0
+                ? data.settings.pricing.pro.features
+                : prev.pricing?.pro?.features || [],
             },
             enterprise: {
               monthly: Number(data.settings.pricing?.enterprise?.monthly ?? 2499),
               yearly: Number(data.settings.pricing?.enterprise?.yearly ?? 1999),
+              features: Array.isArray(data.settings.pricing?.enterprise?.features) && data.settings.pricing.enterprise.features.length > 0
+                ? data.settings.pricing.enterprise.features
+                : prev.pricing?.enterprise?.features || [],
             },
           },
         }));

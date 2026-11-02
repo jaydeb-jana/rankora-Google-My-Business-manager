@@ -125,6 +125,13 @@ export async function PUT(request) {
       };
     }
 
+    if (body.famgateway) {
+      updates.famgateway = {
+        enabled: body.famgateway.enabled !== false,
+        apiKey: body.famgateway.apiKey ? body.famgateway.apiKey.trim() : '',
+      };
+    }
+
     const updated = await settingsRepo.saveSettings(updates);
 
     // Sync appUrl to .env.local if updated
