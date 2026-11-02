@@ -46,10 +46,13 @@ export async function POST(request) {
       sentiment,
     }).catch(() => {});
 
+    const isAiGenerated = Boolean(drafts?.[0]?.id?.startsWith('gemini_'));
+
     return NextResponse.json({
       success: true,
       businessName: user.businessName,
       googleReviewUrl: user.googleReviewUrl || '',
+      isAiGenerated,
       drafts,
     });
   } catch (err) {

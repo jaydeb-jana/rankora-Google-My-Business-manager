@@ -12,6 +12,7 @@ import {
   Edit3,
   MapPin,
   RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import { generateReviewDrafts, SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
 
@@ -34,6 +35,8 @@ export default function PublicReviewPageClient({ business }) {
   const [activeLang, setActiveLang] = useState('en');
   const [copied, setCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [isAiDraft, setIsAiDraft] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
   const [privateFeedbackText, setPrivateFeedbackText] = useState('');
@@ -109,11 +112,14 @@ export default function PublicReviewPageClient({ business }) {
   };
 
   // Generate Review Drafts
-  const handleGenerateDraft = (forceLang = null) => {
+  const handleGenerateDraft = async (forceLang = null) => {
+    setIsAiGenerating(true);
+
     const servicesList = business.services || [];
     const chosenServices = servicesList.filter((s) => selectedServiceIds.includes(s.id));
 
-    const generated = generateReviewDrafts({
+    // Fallback template drafts in case of offline / network issue
+    const fallbackTemplate = generateReviewDrafts({
       businessName: business.businessName,
       businessCategory: business.businessCategory,
       city: business.city,
@@ -129,41 +135,45 @@ export default function PublicReviewPageClient({ business }) {
       forceLanguage: forceLang,
     });
 
-    setDrafts(generated);
-    setActiveDraftIndex(0);
-    setReviewText(generated[0]?.text || '');
-    if (generated[0]?.lang) {
-      setActiveLang(generated[0].lang);
-    }
-    setCurrentStep('DRAFT');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      const res = await fetch('/api/public/generate-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: business.slug,
+          selectedServiceIds,
+          sentiment,
+          answers: { experience: experienceText },
+          forceLanguage: forceLang,
+        }),
+      });
 
-    // Call server to generate with account-specific Gemini AI (if configured)
-    fetch('/api/public/generate-draft', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        slug: business.slug,
-        selectedServiceIds,
-        sentiment,
-        answers: { experience: experienceText },
-        forceLanguage: forceLang,
-      }),
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
-          const isAi = data.drafts.some((d) => d.id?.startsWith('gemini_'));
-          if (isAi) {
-            setDrafts(data.drafts);
-            setReviewText(data.drafts[0]?.text || '');
-            if (data.drafts[0]?.lang) {
-              setActiveLang(data.drafts[0].lang);
-            }
-          }
+      const data = await res.json();
+      if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
+        setDrafts(data.drafts);
+        setActiveDraftIndex(0);
+        setReviewText(data.drafts[0]?.text || '');
+        const isAi = Boolean(data.isAiGenerated || data.drafts.some((d) => d.id?.startsWith('gemini_')));
+        setIsAiDraft(isAi);
+        if (data.drafts[0]?.lang) {
+          setActiveLang(data.drafts[0].lang);
         }
-      })
-      .catch(() => {});
+      } else {
+        setDrafts(fallbackTemplate);
+        setActiveDraftIndex(0);
+        setReviewText(fallbackTemplate[0]?.text || '');
+        setIsAiDraft(false);
+      }
+    } catch {
+      setDrafts(fallbackTemplate);
+      setActiveDraftIndex(0);
+      setReviewText(fallbackTemplate[0]?.text || '');
+      setIsAiDraft(false);
+    } finally {
+      setIsAiGenerating(false);
+      setCurrentStep('DRAFT');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleRegenerateInLanguage = (langCode) => {
@@ -176,16 +186,50 @@ export default function PublicReviewPageClient({ business }) {
     setReviewText(drafts[index]?.text || '');
   };
 
-  const handleCycleNextDraft = () => {
-    setIsRegenerating(true);
-    setTimeout(() => setIsRegenerating(false), 400);
-
-    if (drafts && drafts.length > 1) {
-      const nextIndex = (activeDraftIndex + 1) % drafts.length;
+  const handleCycleNextDraft = async () => {
+    // If we have remaining Gemini drafts, cycle through them first
+    if (drafts && drafts.length > 1 && activeDraftIndex < drafts.length - 1) {
+      setIsRegenerating(true);
+      const nextIndex = activeDraftIndex + 1;
       setActiveDraftIndex(nextIndex);
       setReviewText(drafts[nextIndex]?.text || '');
-    } else {
-      handleGenerateDraft(activeLang);
+      setTimeout(() => setIsRegenerating(false), 300);
+      return;
+    }
+
+    // Otherwise, generate fresh new AI review drafts from Gemini
+    setIsRegenerating(true);
+    try {
+      const res = await fetch('/api/public/generate-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: business.slug,
+          selectedServiceIds,
+          sentiment,
+          answers: { experience: experienceText },
+          forceLanguage: activeLang,
+        }),
+      });
+
+      const data = await res.json();
+      if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
+        setDrafts(data.drafts);
+        setActiveDraftIndex(0);
+        setReviewText(data.drafts[0]?.text || '');
+        const isAi = Boolean(data.isAiGenerated || data.drafts.some((d) => d.id?.startsWith('gemini_')));
+        setIsAiDraft(isAi);
+      } else if (drafts && drafts.length > 0) {
+        setActiveDraftIndex(0);
+        setReviewText(drafts[0]?.text || '');
+      }
+    } catch {
+      if (drafts && drafts.length > 0) {
+        setActiveDraftIndex(0);
+        setReviewText(drafts[0]?.text || '');
+      }
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -501,12 +545,22 @@ export default function PublicReviewPageClient({ business }) {
               <div className="pt-2">
                 <button
                   type="button"
+                  disabled={isAiGenerating}
                   onClick={() => handleGenerateDraft()}
-                  className="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 shadow-md transition-all duration-150 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
+                  className="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 shadow-md transition-all duration-150 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer disabled:opacity-75"
                 >
-                  <Sparkles className="w-4 h-4 animate-pulse text-amber-300" />
-                  <span>Generate Review Draft</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {isAiGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Writing with Gemini AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 animate-pulse text-amber-300" />
+                      <span>Generate Review Draft</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
                 <p className="text-center text-[10px] text-slate-400 mt-1.5 font-medium">
                   Takes 5 seconds • Instant Google posting
@@ -538,7 +592,15 @@ export default function PublicReviewPageClient({ business }) {
               {/* Review Section */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-black text-slate-900 text-sm tracking-tight">Review</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-black text-slate-900 text-sm tracking-tight">Review</span>
+                    {isAiDraft && (
+                      <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-blue-600 animate-pulse" />
+                        <span>AI Generated (Gemini)</span>
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10.5px] text-slate-400 font-medium">
                     {reviewText.trim().split(/\s+/).filter(Boolean).length} words
                   </span>
@@ -561,11 +623,12 @@ export default function PublicReviewPageClient({ business }) {
 
                   <button
                     type="button"
+                    disabled={isRegenerating}
                     onClick={handleCycleNextDraft}
-                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0"
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0 disabled:opacity-60"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
-                    <span>Regenerate</span>
+                    <span>{isRegenerating ? 'Writing with Gemini...' : 'Regenerate'}</span>
                   </button>
                 </div>
               </div>
