@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Star,
   Check,
@@ -24,6 +24,22 @@ export default function PublicReviewPageClient({ business }) {
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
   const [sentiment, setSentiment] = useState('exceptional'); // 'exceptional' (5), 'great' (4), 'neutral' (3), 'critical' (2), 'terrible' (1)
   const [experienceText, setExperienceText] = useState('');
+  const experienceTextareaRef = useRef(null);
+
+  // Auto-resize experience textarea as user types or pastes text
+  useEffect(() => {
+    if (experienceTextareaRef.current) {
+      experienceTextareaRef.current.style.height = 'auto';
+      experienceTextareaRef.current.style.height = `${Math.max(44, experienceTextareaRef.current.scrollHeight)}px`;
+    }
+  }, [experienceText]);
+
+  const handleExperienceChange = (e) => {
+    setExperienceText(e.target.value);
+    const target = e.target;
+    target.style.height = 'auto';
+    target.style.height = `${Math.max(44, target.scrollHeight)}px`;
+  };
 
   // Generated review draft states
   const [drafts, setDrafts] = useState([]);
@@ -437,15 +453,16 @@ export default function PublicReviewPageClient({ business }) {
                   </span>
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute top-3 left-3 pointer-events-none text-slate-400">
                     <Sparkles className="w-4 h-4 text-blue-500" />
                   </div>
-                  <input
-                    type="text"
+                  <textarea
+                    ref={experienceTextareaRef}
+                    rows={1}
                     placeholder="e.g. Fast repair, polite staff, reasonable price..."
                     value={experienceText}
-                    onChange={(e) => setExperienceText(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-xs text-slate-800 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white placeholder:text-slate-400 shadow-2xs"
+                    onChange={handleExperienceChange}
+                    className="w-full pl-9 pr-3 py-2.5 text-xs text-slate-800 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white placeholder:text-slate-400 shadow-2xs resize-none overflow-hidden min-h-[44px] leading-relaxed transition-[height] duration-75 block"
                   />
                 </div>
               </div>

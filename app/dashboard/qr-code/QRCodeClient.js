@@ -10,6 +10,8 @@ import {
   Star,
   Info,
   LayoutTemplate,
+  X,
+  Palette,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -17,37 +19,103 @@ const TEMPLATES = [
   {
     id: 'classic',
     name: 'Classic Rankaro',
-    blurb: 'Clean white table tent',
+    tag: 'Clean Minimalist',
+    details:
+      'Clean white tabletop card with crisp Google Blue accents, five gold stars, and authentic review prompt. Specially tailored for checkout desks, reception counters, and standard acrylic stands.',
+    colors: [
+      { name: 'Card White', hex: '#FFFFFF', border: true },
+      { name: 'Google Blue', hex: '#1A73E8' },
+      { name: 'Charcoal Text', hex: '#202124' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Border Gray', hex: '#DADCE0' },
+    ],
   },
   {
     id: 'google-five-star',
     name: 'Google Five Star',
-    blurb: 'Official Google review look',
+    tag: 'Official Google Branding',
+    details:
+      'High-converting Google review display featuring the official 4-color top banner, vibrant G emblem, official Google wordmark, and bold FIVE STAR headline.',
+    colors: [
+      { name: 'Google Blue', hex: '#4285F4' },
+      { name: 'Google Red', hex: '#EA4335' },
+      { name: 'Google Yellow', hex: '#FBBC05' },
+      { name: 'Google Green', hex: '#34A853' },
+      { name: 'Background White', hex: '#FFFFFF', border: true },
+      { name: 'Headline Charcoal', hex: '#202124' },
+    ],
   },
   {
     id: 'google-review',
     name: 'Review on Google',
-    blurb: 'G logo + Google wordmark',
+    tag: 'Modern Google Look',
+    details:
+      'Balanced official Google branding with business name focus, five gold rating stars, and clear "Rate your visit" call-to-action for maximum customer trust.',
+    colors: [
+      { name: 'Google Blue', hex: '#4285F4' },
+      { name: 'Google Red', hex: '#EA4335' },
+      { name: 'Google Yellow', hex: '#FBBC05' },
+      { name: 'Google Green', hex: '#34A853' },
+      { name: 'Card White', hex: '#FFFFFF', border: true },
+      { name: 'Primary Text', hex: '#202124' },
+      { name: 'Muted Gray', hex: '#5F6368' },
+    ],
   },
   {
     id: 'navy-standee',
     name: 'Navy Standee',
-    blurb: 'Dark professional counter card',
+    tag: 'Dark Executive',
+    details:
+      'High-contrast deep midnight navy background with crisp white business typography, vivid gold stars, and ice blue highlights. Ideal for executive offices, modern salons, dental clinics, and cocktail lounges.',
+    colors: [
+      { name: 'Deep Navy', hex: '#0B1F3A' },
+      { name: 'Ice Sky Blue', hex: '#8AB4F8' },
+      { name: 'Crisp White', hex: '#FFFFFF', border: true },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Muted Silver', hex: '#9AA0A6' },
+    ],
   },
   {
     id: 'gold-premium',
     name: 'Gold Premium',
-    blurb: 'Warm luxury poster',
+    tag: 'Luxury Bronze & Gold',
+    details:
+      'Dark obsidian bronze background paired with antique gold trim, warm cream serif typography, and golden review stars. Tailored for fine dining, jewelry boutiques, luxury spas, and hotels.',
+    colors: [
+      { name: 'Dark Bronze', hex: '#1C1408' },
+      { name: 'Antique Gold', hex: '#C9A227' },
+      { name: 'Bright Gold', hex: '#E8C547' },
+      { name: 'Warm Cream', hex: '#F8F1D8' },
+      { name: 'Champagne Gold', hex: '#D4B56A' },
+    ],
   },
   {
     id: 'mint-modern',
     name: 'Mint Modern',
-    blurb: 'Soft green thank-you card',
+    tag: 'Fresh Pastel',
+    details:
+      'Inviting pastel mint green card with calming forest green headings and sage borders. Perfect for cafes, wellness studios, eco-friendly retail shops, and healthcare practices.',
+    colors: [
+      { name: 'Soft Mint', hex: '#F1FBF4' },
+      { name: 'Forest Green', hex: '#137333' },
+      { name: 'Sage Border', hex: '#CEEAD6' },
+      { name: 'Charcoal Text', hex: '#202124' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+    ],
   },
   {
     id: 'bold-counter',
     name: 'Bold Counter',
-    blurb: 'High-contrast desk sign',
+    tag: 'High Contrast POS',
+    details:
+      'Vibrant Google Blue header bar combined with strong charcoal borders for high visibility from across the counter. Best suited for high-volume cash registers and billing desks.',
+    colors: [
+      { name: 'Header Blue', hex: '#1A73E8' },
+      { name: 'Card White', hex: '#FFFFFF', border: true },
+      { name: 'Solid Charcoal', hex: '#202124' },
+      { name: 'Star Gold', hex: '#FBBC04' },
+      { name: 'Border Gray', hex: '#DADCE0' },
+    ],
   },
 ];
 
@@ -307,40 +375,161 @@ function DisplayCard({ templateId, user, dataUrl }) {
   );
 }
 
-function TemplateThumb({ template, selected }) {
-  const swatch = {
-    classic: 'bg-white border-[#dadce0]',
-    'google-five-star': 'bg-white border-[#dadce0]',
-    'google-review': 'bg-white border-[#dadce0]',
-    'navy-standee': 'bg-[#0b1f3a] border-[#0b1f3a]',
-    'gold-premium': 'bg-[#1c1408] border-[#c9a227]',
-    'mint-modern': 'bg-[#f1fbf4] border-[#ceead6]',
-    'bold-counter': 'bg-white border-[#202124]',
-  }[template.id];
+function TemplateModal({ isOpen, onClose, activeId, onSelect }) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
-  const titleColor = ['navy-standee', 'gold-premium'].includes(template.id)
-    ? 'text-white'
-    : 'text-[#202124]';
+  if (!isOpen) return null;
+
+  const currentTemplate = TEMPLATES.find((t) => t.id === activeId) || TEMPLATES[0];
 
   return (
     <div
-      className={`rounded-xl border p-3 h-[132px] flex flex-col items-center justify-center ${swatch} ${
-        selected ? 'ring-2 ring-[#1a73e8] ring-offset-2' : ''
-      }`}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="template-modal-title"
+      onClick={onClose}
     >
-      {template.id === 'google-five-star' || template.id === 'google-review' ? (
-        <GoogleG className="w-6 h-6 mb-1.5" />
-      ) : template.id === 'bold-counter' ? (
-        <div className="w-full h-4 bg-[#1a73e8] rounded-sm mb-2" />
-      ) : null}
-      {(template.id === 'google-five-star' || template.id === 'bold-counter') && (
-        <p className={`text-[10px] font-black tracking-tight ${titleColor} mb-1`}>FIVE STAR</p>
-      )}
-      <FiveStars size="w-3 h-3" className="mb-2" />
-      <div className="w-10 h-10 bg-white border border-[#e8eaed] rounded-sm grid grid-cols-3 gap-px p-1">
-        {Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} className={`${[0, 2, 6, 8].includes(i) ? 'bg-[#202124]' : 'bg-[#e8eaed]'}`} />
-        ))}
+      <div
+        className="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full shadow-2xl border border-[#dadce0] flex flex-col max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-[#f1f3f4] flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center shrink-0">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 id="template-modal-title" className="text-base sm:text-lg font-bold text-[#202124]">
+                Change Display Template
+              </h3>
+              <p className="text-xs text-[#5f6368]">
+                Select a template style for your printable counter card ({TEMPLATES.length} templates)
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 text-[#5f6368] hover:text-[#202124] hover:bg-[#f1f3f4] rounded-full transition-colors"
+            aria-label="Close dialog"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Modal Body: Templates List without preview images, only Name, Details, and Colors */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-3">
+          {TEMPLATES.map((template) => {
+            const isSelected = template.id === activeId;
+            return (
+              <div
+                key={template.id}
+                onClick={() => onSelect(template.id)}
+                className={`cursor-pointer rounded-2xl p-4 sm:p-4.5 transition-all border text-left ${
+                  isSelected
+                    ? 'border-[#1a73e8] bg-[#f8fafd] ring-2 ring-[#1a73e8]/20 shadow-xs'
+                    : 'border-[#dadce0] bg-white hover:border-[#1a73e8]/50 hover:bg-[#fafbfc]'
+                }`}
+              >
+                {/* Top Row: Name, Tag & Radio */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <h4 className="text-sm sm:text-base font-bold text-[#202124]">
+                        {template.name}
+                      </h4>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#f1f3f4] text-[#5f6368]">
+                        {template.tag}
+                      </span>
+                      {isSelected && (
+                        <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-[#1e8e3e] bg-[#e6f4ea] px-2 py-0.5 rounded-full">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                          <span>Active</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Details below name */}
+                    <p className="text-xs text-[#5f6368] leading-relaxed mt-1.5">
+                      {template.details}
+                    </p>
+                  </div>
+
+                  {/* Radio indicator */}
+                  <div className="pt-0.5 shrink-0">
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? 'border-[#1a73e8] bg-[#1a73e8]'
+                          : 'border-[#dadce0] bg-white'
+                      }`}
+                    >
+                      {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Colors Used Section */}
+                <div className="mt-3.5 pt-3 border-t border-[#f1f3f4] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center space-x-1.5 text-[11px] font-semibold text-[#3c4043]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1a73e8]" />
+                    <span>Colors Used:</span>
+                  </div>
+
+                  <div className="flex items-center flex-wrap gap-1.5">
+                    {template.colors.map((color, idx) => (
+                      <div
+                        key={idx}
+                        className="inline-flex items-center space-x-1.5 px-2 py-1 rounded-md bg-[#f8f9fa] border border-[#e8eaed] text-[11px] text-[#3c4043]"
+                        title={`${color.name} (${color.hex})`}
+                      >
+                        <span
+                          className={`w-3 h-3 rounded-full shrink-0 shadow-2xs ${
+                            color.border ? 'border border-[#dadce0]' : ''
+                          }`}
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span className="font-medium text-[10.5px]">{color.name}</span>
+                        <span className="font-mono text-[9.5px] text-[#70757a] uppercase">
+                          {color.hex}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-5 py-3.5 sm:px-6 sm:py-4 bg-[#f8f9fa] border-t border-[#dadce0] flex items-center justify-between shrink-0">
+          <p className="text-xs text-[#5f6368]">
+            Current: <strong className="text-[#202124]">{currentTemplate.name}</strong>
+          </p>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl transition-colors shadow-2xs"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );
