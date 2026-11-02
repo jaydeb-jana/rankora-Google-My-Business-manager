@@ -1041,7 +1041,7 @@ export default function AdminClient({ currentUser }) {
             </div>
           </form>
 
-          {/* CARD 2: SUBSCRIPTION PLAN PRICING */}
+          {/* CARD 2: SUBSCRIPTION PLAN PRICING & FEATURES */}
           <form onSubmit={handleSavePricing} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-6">
             <div className="flex items-start justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center space-x-3">
@@ -1050,15 +1050,15 @@ export default function AdminClient({ currentUser }) {
                 </div>
                 <div>
                   <h2 className="text-base sm:text-lg font-bold text-stone-900">
-                    Subscription Plan Pricing
+                    Subscription Plan Pricing & Features
                   </h2>
                   <p className="text-xs text-stone-500">
-                    Configure live customer pricing displayed on the Plans and Pricing pages
+                    Configure live customer pricing and included feature checklists displayed across the platform
                   </p>
                 </div>
               </div>
               <span className="text-[11px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">
-                Plans & Billing
+                Plans & Features
               </span>
             </div>
 
@@ -1124,6 +1124,30 @@ export default function AdminClient({ currentUser }) {
                       />
                     </div>
                   </div>
+                  <div className="space-y-1.5 pt-2 border-t border-stone-200/60">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-stone-700">Features Included</label>
+                      <span className="text-[10px] text-stone-400">1 per line</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={Array.isArray(settings.pricing?.starter?.features) ? settings.pricing.starter.features.join('\n') : (settings.pricing?.starter?.features || '')}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          pricing: {
+                            ...settings.pricing,
+                            starter: {
+                              ...settings.pricing?.starter,
+                              features: e.target.value.split('\n'),
+                            },
+                          },
+                        })
+                      }
+                      placeholder="Single Business Profile connection&#10;Standard QR Code Stand generation..."
+                      className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-sans leading-relaxed resize-y"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1186,6 +1210,30 @@ export default function AdminClient({ currentUser }) {
                         className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
                       />
                     </div>
+                  </div>
+                  <div className="space-y-1.5 pt-2 border-t border-stone-200/60">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-stone-700">Features Included</label>
+                      <span className="text-[10px] text-stone-400">1 per line</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={Array.isArray(settings.pricing?.pro?.features) ? settings.pricing.pro.features.join('\n') : (settings.pricing?.pro?.features || '')}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          pricing: {
+                            ...settings.pricing,
+                            pro: {
+                              ...settings.pricing?.pro,
+                              features: e.target.value.split('\n'),
+                            },
+                          },
+                        })
+                      }
+                      placeholder="Everything in Starter, plus:&#10;Custom Branded QR Stands..."
+                      className="w-full px-3 py-2 text-xs bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-sans leading-relaxed resize-y"
+                    />
                   </div>
                 </div>
               </div>
@@ -1250,6 +1298,30 @@ export default function AdminClient({ currentUser }) {
                       />
                     </div>
                   </div>
+                  <div className="space-y-1.5 pt-2 border-t border-stone-200/60">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-stone-700">Features Included</label>
+                      <span className="text-[10px] text-stone-400">1 per line</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={Array.isArray(settings.pricing?.enterprise?.features) ? settings.pricing.enterprise.features.join('\n') : (settings.pricing?.enterprise?.features || '')}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          pricing: {
+                            ...settings.pricing,
+                            enterprise: {
+                              ...settings.pricing?.enterprise,
+                              features: e.target.value.split('\n'),
+                            },
+                          },
+                        })
+                      }
+                      placeholder="Everything in Pro, plus:&#10;Multi-location dashboard..."
+                      className="w-full px-3 py-2 text-xs bg-white border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-sans leading-relaxed resize-y"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1258,7 +1330,7 @@ export default function AdminClient({ currentUser }) {
             <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-start space-x-2">
               <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
               <span>
-                <strong>System Notice:</strong> Only the monthly and yearly plan pricing amounts are customizable from this control center. Feature limits, badges, and subscription privileges remain locked to guarantee platform stability.
+                <strong>System Notice:</strong> Plan prices and feature checklists are fully customizable from this control center. Saving updates will immediately synchronize customer-facing plan cards and pricing pages.
               </span>
             </div>
 
@@ -1274,7 +1346,7 @@ export default function AdminClient({ currentUser }) {
                 ) : (
                   <Check className="w-4 h-4" />
                 )}
-                <span>Save Plan Pricing</span>
+                <span>Save Plans & Features</span>
               </button>
             </div>
           </form>
