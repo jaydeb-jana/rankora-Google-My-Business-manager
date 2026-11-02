@@ -1,5 +1,6 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Building2,
   User,
@@ -17,11 +18,13 @@ import {
   Upload,
   Image as ImageIcon,
   Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
 
 export default function ProfileClient({ initialUser }) {
+  const router = useRouter();
   const { showToast } = useToast();
   const [user, setUser] = useState(initialUser);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -29,18 +32,38 @@ export default function ProfileClient({ initialUser }) {
   const [logoUploading, setLogoUploading] = useState(false);
 
   const [formData, setFormData] = useState({
-    businessName: user.businessName || '',
-    ownerName: user.ownerName || '',
-    phone: user.phone || '',
-    googleReviewUrl: user.googleReviewUrl || '',
-    businessCategory: user.businessCategory || 'Professional Services',
-    address: user.address || '',
-    city: user.city || '',
-    website: user.website || '',
-    description: user.description || '',
-    slug: user.slug || '',
-    logoUrl: user.logoUrl || '',
+    businessName: user?.businessName || '',
+    ownerName: user?.ownerName || '',
+    phone: user?.phone || '',
+    googleReviewUrl: user?.googleReviewUrl || '',
+    businessCategory: user?.businessCategory || 'Professional Services',
+    address: user?.address || '',
+    city: user?.city || '',
+    website: user?.website || '',
+    description: user?.description || '',
+    slug: user?.slug || '',
+    logoUrl: user?.logoUrl || '',
   });
+
+  useEffect(() => {
+    if (initialUser) {
+      setUser(initialUser);
+      setFormData((prev) => ({
+        ...prev,
+        businessName: initialUser.businessName || '',
+        ownerName: initialUser.ownerName || '',
+        phone: initialUser.phone || '',
+        googleReviewUrl: initialUser.googleReviewUrl || '',
+        businessCategory: initialUser.businessCategory || prev.businessCategory,
+        address: initialUser.address || '',
+        city: initialUser.city || '',
+        website: initialUser.website || '',
+        description: initialUser.description || '',
+        slug: initialUser.slug || '',
+        logoUrl: initialUser.logoUrl || '',
+      }));
+    }
+  }, [initialUser]);
 
   const [saving, setSaving] = useState(false);
 
@@ -73,9 +96,11 @@ export default function ProfileClient({ initialUser }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to upload logo');
 
-      setFormData((prev) => ({ ...prev, logoUrl: data.logoUrl }));
-      setUser((prev) => ({ ...prev, logoUrl: data.logoUrl }));
+      const newLogoUrl = data.logoUrl;
+      setFormData((prev) => ({ ...prev, logoUrl: newLogoUrl }));
+      setUser((prev) => ({ ...prev, logoUrl: newLogoUrl }));
       showToast('Business logo uploaded successfully!', 'success');
+      router.refresh();
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -96,6 +121,7 @@ export default function ProfileClient({ initialUser }) {
       setFormData((prev) => ({ ...prev, logoUrl: '' }));
       setUser((prev) => ({ ...prev, logoUrl: '' }));
       showToast('Business logo removed.', 'info');
+      router.refresh();
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -123,6 +149,7 @@ export default function ProfileClient({ initialUser }) {
 
       setUser(data.profile);
       showToast('Profile and business details updated successfully!', 'success');
+      router.refresh();
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -132,6 +159,20 @@ export default function ProfileClient({ initialUser }) {
 
   return (
     <div className="space-y-6">
+      {user?.status === 'suspended' && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-900 space-y-1.5 shadow-2xs">
+          <div className="flex items-center space-x-2 font-bold text-sm text-red-950">
+            <AlertTriangle className="w-4 h-4 text-red-600" />
+            <span>Account Status: Suspended by Official Google Partner</span>
+          </div>
+          <p className="text-xs text-red-800 leading-relaxed">
+            {user.suspensionReason
+              ? `Notice from Official Google Partner: "${user.suspensionReason}"`
+              : 'This account has been temporarily restricted by the Official Google Partner compliance desk.'}
+          </p>
+        </div>
+      )}
+
       <div>
         <h2 className="text-xl font-bold text-[#202124]">
           Business Profile &amp; Google Review Link

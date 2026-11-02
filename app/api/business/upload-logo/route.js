@@ -63,15 +63,26 @@ export async function POST(request) {
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     await fs.mkdir(uploadsDir, { recursive: true });
 
+    // Clean up old logo file if it was locally uploaded
+    if (user.logoUrl && user.logoUrl.startsWith('/uploads/')) {
+      try {
+        const oldFilename = path.basename(user.logoUrl);
+        const oldPath = path.join(uploadsDir, oldFilename);
+        await fs.unlink(oldPath).catch(() => {});
+      } catch {
+        // Ignore deletion error of stale file
+      }
+    }
+
     const filePath = path.join(uploadsDir, filename);
     await fs.writeFile(filePath, buffer);
 
     const logoUrl = `/uploads/${filename}`;
-    await userRepo.updateById(user._id, { logoUrl });
+    const updatedUser = await userRepo.updateById(user._id, { logoUrl });
 
     return NextResponse.json({
       success: true,
-      logoUrl,
+      logoUrl: updatedUser?.logoUrl || logoUrl,
       message: 'Business logo uploaded successfully!',
     });
   } catch (error) {
@@ -85,6 +96,17 @@ export async function DELETE() {
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (user.logoUrl && user.logoUrl.startsWith('/uploads/')) {
+      try {
+        const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+        const oldFilename = path.basename(user.logoUrl);
+        const oldPath = path.join(uploadsDir, oldFilename);
+        await fs.unlink(oldPath).catch(() => {});
+      } catch {
+        // Ignore deletion error
+      }
     }
 
     await userRepo.updateById(user._id, { logoUrl: '' });

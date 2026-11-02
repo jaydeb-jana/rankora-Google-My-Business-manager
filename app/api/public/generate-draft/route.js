@@ -22,12 +22,13 @@ export async function POST(request) {
     const allServices = user.services || [];
     const chosenServices = allServices.filter((s) => selectedServiceIds.includes(s.id));
 
-    // Generate natural, authentic review drafts based strictly on customer selections
+    // Generate natural, authentic review drafts based strictly on customer selections & AI knowledge
     const drafts = generateReviewDrafts({
       businessName: user.businessName,
       selectedServices: chosenServices,
       sentiment,
       answers,
+      aiKnowledge: user.aiKnowledge || null,
     });
 
     // Record stats and activity in background

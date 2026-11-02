@@ -64,8 +64,18 @@ export default function Footer() {
                   Frequently Asked Questions
                 </a>
               </li>
+              <li>
+                <a href="/security" className="hover:text-[#1a73e8] transition-colors">
+                  Data Security & Architecture
+                </a>
+              </li>
+              <li>
+                <a href="/contact" className="hover:text-[#1a73e8] transition-colors">
+                  Contact Support Desk
+                </a>
+              </li>
               <li className="text-xs text-[#70757a]">
-                Privacy-first: No tracking cookies or customer phone number storage.
+                Privacy-first: Governed by Arventa Ventures (arventaventures.online).
               </li>
             </ul>
           </div>
@@ -82,7 +92,7 @@ export default function Footer() {
             Rankaro is not affiliated with, endorsed by, certified by, or sponsored by Google LLC or Alphabet Inc. All reviews are submitted directly by verified customers on Google&apos;s official review interfaces.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs text-[#9aa0a6]">
-            <span>© {new Date().getFullYear()} Rankaro. All rights reserved. Free & Open SaaS.</span>
+            <span>© {new Date().getFullYear()} RANKORA. A Product by Arventa Ventures. All rights reserved.</span>
             <span className="mt-2 sm:mt-0 flex items-center space-x-1">
               <Sparkles className="w-3.5 h-3.5 text-[#fbbc04]" />
               <span>Built with precision for authentic customer reputation</span>

@@ -44,7 +44,7 @@ export default function DashboardHeader({ user }) {
               {user.businessName}
             </h1>
             <p className="text-xs text-[#5f6368] hidden sm:block">
-              Rankaro Business Management
+              RANKORA • Google Business Profile Manager
             </p>
           </div>
         </div>
@@ -129,6 +129,27 @@ export default function DashboardHeader({ user }) {
             className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
           >
             Analytics & Logs
+          </a>
+          <a
+            href="/dashboard/plans"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
+          >
+            Plans (Pro / Ultra)
+          </a>
+          <a
+            href="/dashboard/contact"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
+          >
+            Contact Desk
+          </a>
+          <a
+            href="/dashboard/security"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-[#1a73e8] bg-[#f0f4f9] rounded-lg"
+          >
+            Data Security
           </a>
         </div>
       )}

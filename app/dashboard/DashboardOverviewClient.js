@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   QrCode,
   Copy,
@@ -29,9 +29,14 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
   const [googleUrlInput, setGoogleUrlInput] = useState(user.googleReviewUrl || '');
   const [savingGoogleUrl, setSavingGoogleUrl] = useState(false);
 
-  const reviewPageUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/r/${user.slug}`
-    : `/r/${user.slug}`;
+  // Initialize URL state safely to prevent SSR hydration mismatch
+  const [reviewPageUrl, setReviewPageUrl] = useState(`/r/${user.slug}`);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setReviewPageUrl(`${window.location.origin}/r/${user.slug}`);
+    }
+  }, [user.slug]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(reviewPageUrl);
@@ -312,55 +317,6 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
             Update contact info, location address, and your official Google review URL.
           </p>
         </a>
-      </div>
-
-      {/* Recent Activity Feed */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow">
-        <h3 className="text-sm font-semibold text-[#202124] mb-4">
-          Recent Activity & Events
-        </h3>
-
-        {recentActivities && recentActivities.length > 0 ? (
-          <div className="divide-y divide-[#f1f3f4]">
-            {recentActivities.map((act, idx) => {
-              let label = 'Customer visit';
-              let badgeColor = 'bg-[#e8f0fe] text-[#1a73e8]';
-              if (act.type === 'DRAFT_GENERATED') {
-                label = 'Generated review draft';
-                badgeColor = 'bg-[#fef7e0] text-[#b06000]';
-              } else if (act.type === 'COPIED') {
-                label = 'Copied review to clipboard';
-                badgeColor = 'bg-[#e6f4ea] text-[#137333]';
-              } else if (act.type === 'GOOGLE_REDIRECT') {
-                label = 'Proceeded to Google Review page';
-                badgeColor = 'bg-[#e8f0fe] text-[#1a73e8]';
-              }
-
-              return (
-                <div key={act._id || idx} className="py-3 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-3">
-                    <span className={`px-2 py-0.5 rounded-md font-medium text-[11px] ${badgeColor}`}>
-                      {act.type}
-                    </span>
-                    <span className="text-[#3c4043] font-medium">{label}</span>
-                    {act.servicesSelected?.length > 0 && (
-                      <span className="text-[#70757a] hidden sm:inline">
-                        ({act.servicesSelected.join(', ')})
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[#9aa0a6] text-[11px]">
-                    {new Date(act.createdAt).toLocaleDateString()} {new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="py-8 text-center text-xs text-[#70757a]">
-            No activity recorded yet. Share your review link to start seeing live activity.
-          </div>
-        )}
       </div>
 
       {/* Help Modal */}

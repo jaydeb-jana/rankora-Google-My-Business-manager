@@ -65,7 +65,7 @@ export async function POST(request) {
         phone: phone.trim(),
         slug: baseSlug,
         isVerified: false,
-        services: DEFAULT_SERVICES,
+        services: [],
         welcomeHeadline: `How was your experience at ${businessName.trim()}?`,
         instructions:
           'Tap what we helped you with today. We will help draft an authentic review you can review and paste into Google.',

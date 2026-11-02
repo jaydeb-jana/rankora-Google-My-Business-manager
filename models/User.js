@@ -68,6 +68,33 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
+    status: {
+      type: String,
+      enum: ['active', 'suspended'],
+      default: 'active',
+    },
+    suspensionReason: {
+      type: String,
+      default: '',
+    },
+    suspendedAt: {
+      type: Date,
+      default: null,
+    },
+    plan: {
+      type: String,
+      enum: ['free', 'starter', 'pro', 'enterprise'],
+      default: 'free',
+    },
+    planUpdatedAt: {
+      type: Date,
+      default: Date.now,
+    },
     slug: {
       type: String,
       required: true,
@@ -137,5 +164,13 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Ensure schema changes (like logoUrl, aiKnowledge) are always refreshed
+if (mongoose.models && mongoose.models.User) {
+  delete mongoose.models.User;
+}
+if (mongoose.modelSchemas && mongoose.modelSchemas.User) {
+  delete mongoose.modelSchemas.User;
+}
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

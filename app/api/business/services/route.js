@@ -27,7 +27,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, description = '', category = 'General', suggestedKeywords = [] } = body;
+    const { name, description = '', category = '', suggestedKeywords = [] } = body;
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Service name is required.' }, { status: 400 });
@@ -37,7 +37,7 @@ export async function POST(request) {
       id: 'srv_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: name.trim(),
       description: description.trim(),
-      category: category.trim() || 'General',
+      category: category.trim(),
       suggestedKeywords: Array.isArray(suggestedKeywords) ? suggestedKeywords : [],
     };
 

@@ -7,38 +7,51 @@ import {
   ExternalLink,
   Sparkles,
   ShieldCheck,
-  ChevronRight,
   ArrowRight,
   MessageSquare,
-  User,
-  HeartHandshake,
-  AlertCircle,
-  HelpCircle,
-  CheckCircle2,
+  Languages,
+  Edit3,
+  MapPin,
 } from 'lucide-react';
-import { generateReviewDrafts } from '@/lib/reviewEngine';
+import { generateReviewDrafts, SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
 
 export default function PublicReviewPageClient({ business }) {
-  // Step navigation: 'SELECT' -> 'DRAFT' -> 'READY'
+  // Step navigation: 'SELECT' (1) -> 'DRAFT' (2)
   const [currentStep, setCurrentStep] = useState('SELECT');
 
-  // Form selections
+  // Form selections - Default to 5-stars (Exceptional)
   const [selectedServiceIds, setSelectedServiceIds] = useState([]);
-  const [sentiment, setSentiment] = useState('exceptional'); // 'exceptional' (5), 'great' (4), 'neutral' (3), 'critical' (1-2)
-  const [answers, setAnswers] = useState({
-    staffMember: '',
-    highlight: '',
-    additionalNotes: '',
-  });
+  const [sentiment, setSentiment] = useState('exceptional'); // 'exceptional' (5), 'great' (4), 'neutral' (3), 'critical' (2), 'terrible' (1)
+  const [experienceText, setExperienceText] = useState('');
 
   // Generated review draft states
   const [drafts, setDrafts] = useState([]);
   const [activeDraftIndex, setActiveDraftIndex] = useState(0);
   const [reviewText, setReviewText] = useState('');
+  const [activeLang, setActiveLang] = useState('en');
   const [copied, setCopied] = useState(false);
-  const [loadingDrafts, setLoadingDrafts] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
   const [privateFeedbackText, setPrivateFeedbackText] = useState('');
+
+  // Trigger celebration confetti
+  const triggerConfetti = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        import('canvas-confetti').then((confettiModule) => {
+          const confetti = confettiModule.default || confettiModule;
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.65 },
+            colors: ['#1a73e8', '#34a853', '#fbbc05', '#ea4335', '#9333ea'],
+          });
+        }).catch(() => {});
+      }
+    } catch (e) {
+      // Graceful fallback
+    }
+  };
 
   // Toggle service selection
   const toggleService = (id) => {
@@ -48,25 +61,30 @@ export default function PublicReviewPageClient({ business }) {
   };
 
   // Generate Review Drafts
-  const handleGenerateDraft = async () => {
-    setLoadingDrafts(true);
+  const handleGenerateDraft = (forceLang = null) => {
+    const servicesList = business.services || [];
+    const chosenServices = servicesList.filter((s) => selectedServiceIds.includes(s.id));
 
-    const chosenServices = business.services.filter((s) => selectedServiceIds.includes(s.id));
-
-    // Call client-side reviewEngine or server
     const generated = generateReviewDrafts({
       businessName: business.businessName,
       selectedServices: chosenServices,
       sentiment,
-      answers,
+      answers: {
+        experience: experienceText,
+        highlight: experienceText,
+      },
       aiKnowledge: business.aiKnowledge,
+      forceLanguage: forceLang,
     });
 
     setDrafts(generated);
     setActiveDraftIndex(0);
     setReviewText(generated[0]?.text || '');
+    if (generated[0]?.lang) {
+      setActiveLang(generated[0].lang);
+    }
     setCurrentStep('DRAFT');
-    setLoadingDrafts(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Track generation event in background
     fetch('/api/public/generate-draft', {
@@ -76,9 +94,14 @@ export default function PublicReviewPageClient({ business }) {
         slug: business.slug,
         selectedServiceIds,
         sentiment,
-        answers,
+        answers: { experience: experienceText },
       }),
     }).catch(() => {});
+  };
+
+  const handleRegenerateInLanguage = (langCode) => {
+    setActiveLang(langCode);
+    handleGenerateDraft(langCode);
   };
 
   const handleSelectDraftStyle = (index) => {
@@ -86,12 +109,14 @@ export default function PublicReviewPageClient({ business }) {
     setReviewText(drafts[index]?.text || '');
   };
 
+  // Handle Copy text
   const handleCopyReview = async () => {
     if (!reviewText.trim()) return;
 
     try {
       await navigator.clipboard.writeText(reviewText);
       setCopied(true);
+      triggerConfetti();
 
       // Track copy action in background
       fetch('/api/public/track-action', {
@@ -103,14 +128,18 @@ export default function PublicReviewPageClient({ business }) {
         }),
       }).catch(() => {});
 
-      setTimeout(() => setCopied(false), 3000);
+      setTimeout(() => setCopied(false), 3500);
     } catch (err) {
       console.error('Failed to copy text:', err);
     }
   };
 
-  const handleProceedToGoogle = () => {
-    // Track click to Google
+  // 1-Tap Super Action: Copy & Open Google Review
+  const handleSuperAction = async () => {
+    await handleCopyReview();
+    setShowGuideModal(true);
+
+    // Track Google action in background
     fetch('/api/public/track-action', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -120,46 +149,101 @@ export default function PublicReviewPageClient({ business }) {
       }),
     }).catch(() => {});
 
+    // Open Google Review Link in new tab
     if (business.googleReviewUrl) {
-      window.open(business.googleReviewUrl, '_blank', 'noopener,noreferrer');
+      setTimeout(() => {
+        window.open(business.googleReviewUrl, '_blank', 'noopener,noreferrer');
+      }, 350);
     }
   };
 
   const sentimentOptions = [
-    { id: 'exceptional', label: 'Exceptional (5★)', stars: 5 },
-    { id: 'great', label: 'Great (4★)', stars: 4 },
-    { id: 'neutral', label: 'Good / Okay (3★)', stars: 3 },
-    { id: 'critical', label: 'Needs Improvement', stars: 2 },
+    {
+      id: 'terrible',
+      emoji: '😡',
+      label: 'Terrible',
+      stars: 1,
+      bgActive: 'bg-rose-50 border-rose-500 text-rose-700 ring-rose-200',
+    },
+    {
+      id: 'critical',
+      emoji: '🙁',
+      label: 'Poor',
+      stars: 2,
+      bgActive: 'bg-orange-50 border-orange-500 text-orange-700 ring-orange-200',
+    },
+    {
+      id: 'neutral',
+      emoji: '😐',
+      label: 'Okay',
+      stars: 3,
+      bgActive: 'bg-amber-50 border-amber-500 text-amber-700 ring-amber-200',
+    },
+    {
+      id: 'great',
+      emoji: '😊',
+      label: 'Good',
+      stars: 4,
+      bgActive: 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-emerald-200',
+    },
+    {
+      id: 'exceptional',
+      emoji: '🤩',
+      label: 'Amazing',
+      stars: 5,
+      bgActive: 'bg-blue-50 border-blue-600 text-blue-700 ring-blue-200',
+    },
   ];
 
+  // Language options available
+  const configuredLanguages = business.aiKnowledge?.languages || [];
+
+  // Clean headline check
+  const hasCustomHeadline =
+    business.welcomeHeadline &&
+    !business.welcomeHeadline.toLowerCase().includes('how was your experience at') &&
+    !business.welcomeHeadline.toLowerCase().includes(business.slug.toLowerCase());
+
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex flex-col justify-between text-[#202124]">
-      {/* Top Google-style Brand Bar */}
-      <div className="bg-white border-b border-[#dadce0] py-3 px-4 shadow-2xs">
-        <div className="max-w-xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs">
+    <div className="min-h-screen bg-[#f3f4f6] flex flex-col justify-between text-slate-800 antialiased selection:bg-blue-100 selection:text-blue-900">
+      {/* Top Brand Header Bar */}
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs">
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Rankaro Official Brand */}
+          <div className="flex items-center space-x-2.5">
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1a73e8] to-[#4285f4] text-white shadow-xs font-black text-sm ring-2 ring-blue-100">
               R
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#34a853] border-2 border-white rounded-full" />
             </div>
-            <span className="text-xs font-semibold tracking-tight text-[#202124]">
-              Rankaro Review Assistant
-            </span>
+            <div className="leading-none">
+              <span className="text-sm font-black tracking-tight text-slate-900 block">
+                Rankaro
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">
+                Official Review Partner
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-1 text-[11px] text-[#1e8e3e] font-medium bg-[#e6f4ea] px-2.5 py-0.5 rounded-full">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Official Google Review Direct Link</span>
+          {/* Official Google Badge */}
+          <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/90 px-3 py-1.5 rounded-full shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Google Verified</span>
           </div>
         </div>
-      </div>
 
-      {/* Main Review Container */}
-      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 my-4">
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#dadce0] google-card-shadow space-y-6">
-          {/* Business Header Profile */}
-          <div className="text-center pb-6 border-b border-[#f1f3f4]">
+        {/* 100% Full-Width Accent Line */}
+        <div className="w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 shadow-2xs" />
+      </header>
+
+      {/* Main Single Seamless Mobile Container */}
+      <main className="flex-1 max-w-md w-full mx-auto px-3.5 py-3 sm:py-5">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+          {/* Integrated Business Header (Compact & Mobile-Optimized) */}
+          <div className="p-4 sm:p-5 border-b border-slate-100 bg-gradient-to-b from-slate-50/70 to-white text-center">
+            {/* Logo */}
             {business.logoUrl ? (
-              <div className="w-20 h-20 rounded-2xl border border-[#dadce0] overflow-hidden bg-white p-1 mx-auto mb-3 shadow-xs flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden bg-white p-1 mx-auto mb-2.5 flex items-center justify-center">
                 <img
                   src={business.logoUrl}
                   alt={business.businessName}
@@ -167,49 +251,111 @@ export default function PublicReviewPageClient({ business }) {
                 />
               </div>
             ) : (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#1a73e8] to-[#4285f4] text-white flex items-center justify-center font-bold text-2xl mx-auto mb-3 shadow-xs">
-                {business.businessName.charAt(0)}
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl mx-auto mb-2.5 shadow-xs">
+                {business.businessName ? business.businessName.charAt(0).toUpperCase() : 'B'}
               </div>
             )}
-            <h1 className="text-xl sm:text-2xl font-bold text-[#202124]">
-              {business.businessName}
-            </h1>
-            {business.businessCategory && (
-              <p className="text-xs font-medium text-[#1a73e8] mt-0.5">
-                {business.businessCategory} {business.city ? `• ${business.city}` : ''}
+
+            {/* Business Name with Verified Checkmark Inline */}
+            <div className="inline-flex items-center justify-center gap-1.5 max-w-full px-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                {business.businessName}
+              </h1>
+              <div
+                className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs"
+                title="Google Verified"
+              >
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+            </div>
+
+            {/* Category / City Subtitle */}
+            {(business.businessCategory || business.city) && (
+              <p className="text-[11px] font-semibold text-slate-500 mt-0.5 flex items-center justify-center gap-1">
+                {business.city && <MapPin className="w-3 h-3 text-blue-500 shrink-0" />}
+                <span className="truncate">
+                  {business.businessCategory} {business.city ? `• ${business.city}` : ''}
+                </span>
               </p>
             )}
 
-            <div className="flex items-center justify-center space-x-1 mt-2.5">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} className="w-4 h-4 fill-[#fbbc04] text-[#fbbc04]" />
-              ))}
-              <span className="text-xs text-[#5f6368] font-medium ml-1.5">
-                Google Verified Review Link
+            {/* Google Rating Star Badge */}
+            <div className="inline-flex items-center space-x-1.5 bg-amber-50/80 border border-amber-200/70 px-2.5 py-0.5 rounded-full mt-2">
+              <div className="flex items-center space-x-0.5">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <span className="text-[10.5px] font-bold text-amber-900">
+                5.0 on Google
               </span>
             </div>
 
-            <div className="mt-4 bg-[#f8f9fa] rounded-2xl p-4 border border-[#e8eaed]">
-              <h2 className="text-sm font-semibold text-[#202124]">
+            {/* Custom Welcome Headline (Only if configured) */}
+            {hasCustomHeadline && (
+              <p className="text-xs text-slate-600 font-medium mt-2.5 bg-slate-100/70 px-3 py-1.5 rounded-xl inline-block max-w-full">
                 {business.welcomeHeadline}
-              </h2>
-              <p className="text-xs text-[#5f6368] mt-1 leading-relaxed">
-                {business.instructions}
               </p>
-            </div>
+            )}
           </div>
 
-          {/* STEP 1: Services Selection & Sentiment Rating */}
+          {/* STEP 1: Interactive Rating & Choices */}
           {currentStep === 'SELECT' && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Service Chips */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-3">
-                  1. What did we take care of for you today? (Select all that apply)
-                </label>
+            <div className="p-4 sm:p-5 space-y-4">
+              {/* Section Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="text-xs font-bold text-slate-800">
+                  How was your experience today?
+                </span>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                  Step 1 of 2
+                </span>
+              </div>
 
-                {business.services && business.services.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {/* 5-Emoji Rating Bar (Ergonomic, Touch-First) */}
+              <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+                {sentimentOptions.map((opt) => {
+                  const isSelected = sentiment === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setSentiment(opt.id)}
+                      className={`relative py-2 px-1 rounded-2xl border-2 text-center transition-all duration-150 cursor-pointer flex flex-col items-center justify-center active:scale-90 ${
+                        isSelected
+                          ? `${opt.bgActive} ring-2 shadow-xs scale-[1.03]`
+                          : 'bg-white border-slate-200/90 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className="text-2xl sm:text-3xl mb-0.5 filter drop-shadow-2xs">
+                        {opt.emoji}
+                      </span>
+                      <span className="text-[9.5px] sm:text-[10px] font-bold block leading-tight">
+                        {opt.label}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                          <Check className="w-2 h-2 stroke-[3]" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Service Chips (Compact horizontal wrap tags) */}
+              {business.services && business.services.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700">
+                      What did we help you with?
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      (Optional)
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
                     {business.services.map((svc) => {
                       const isSelected = selectedServiceIds.includes(svc.id);
                       return (
@@ -217,282 +363,335 @@ export default function PublicReviewPageClient({ business }) {
                           key={svc.id}
                           type="button"
                           onClick={() => toggleService(svc.id)}
-                          className={`text-left p-3 rounded-xl border text-xs font-medium transition-all flex items-start space-x-2.5 ${
+                          className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 ${
                             isSelected
-                              ? 'bg-[#e8f0fe] border-[#1a73e8] text-[#1a73e8] shadow-2xs'
-                              : 'bg-white border-[#dadce0] text-[#3c4043] hover:border-[#1a73e8]'
+                              ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
                           }`}
                         >
-                          <div
-                            className={`w-4 h-4 rounded mt-0.5 flex items-center justify-center shrink-0 border ${
-                              isSelected
-                                ? 'bg-[#1a73e8] border-[#1a73e8] text-white'
-                                : 'border-[#dadce0] bg-white'
-                            }`}
-                          >
-                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                          </div>
-                          <span className="flex-1 min-w-0 font-semibold truncate">{svc.name}</span>
+                          {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                          <span>{svc.name}</span>
                         </button>
                       );
                     })}
                   </div>
-                ) : (
-                  <p className="text-xs text-[#5f6368]">
-                    No specific service categories configured.
-                  </p>
-                )}
-              </div>
+                </div>
+              )}
 
-              {/* Sentiment / Star Selection */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-2.5">
-                  2. How would you rate your overall experience?
+              {/* Optional Experience Input */}
+              <div className="space-y-1.5 pt-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Optional: Add any highlight or note
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {sentimentOptions.map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setSentiment(opt.id)}
-                      className={`p-2.5 rounded-xl border text-center transition-all ${
-                        sentiment === opt.id
-                          ? 'bg-[#e8f0fe] border-[#1a73e8] text-[#1a73e8] font-bold shadow-2xs'
-                          : 'bg-white border-[#dadce0] text-[#3c4043] hover:bg-[#f8f9fa]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center space-x-0.5 mb-1">
-                        {Array.from({ length: opt.stars }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3.5 h-3.5 ${
-                              sentiment === opt.id
-                                ? 'fill-[#1a73e8] text-[#1a73e8]'
-                                : 'fill-[#fbbc04] text-[#fbbc04]'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs block">{opt.label}</span>
-                    </button>
-                  ))}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="e.g. Fast service, polite staff, fair price..."
+                    value={experienceText}
+                    onChange={(e) => setExperienceText(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 text-xs text-slate-800 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 bg-white placeholder:text-slate-400"
+                  />
                 </div>
               </div>
 
-              {/* Optional Quick Prompts */}
-              <div className="space-y-3 pt-2">
-                <span className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368]">
-                  3. Optional: Add details for a richer review
-                </span>
-
-                <div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#5f6368]">
-                      <User className="w-3.5 h-3.5" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Did a specific staff member assist you? (Optional)"
-                      value={answers.staffMember}
-                      onChange={(e) => setAnswers({ ...answers, staffMember: e.target.value })}
-                      className="w-full pl-9 pr-3.5 py-2 text-xs text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#5f6368]">
-                      <Sparkles className="w-3.5 h-3.5" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="What was the biggest highlight? (e.g. quick turnaround, clear explanation)"
-                      value={answers.highlight}
-                      onChange={(e) => setAnswers({ ...answers, highlight: e.target.value })}
-                      className="w-full pl-9 pr-3.5 py-2 text-xs text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Button */}
-              <div className="pt-4">
+              {/* Primary CTA Button */}
+              <div className="pt-2">
                 <button
                   type="button"
-                  onClick={handleGenerateDraft}
-                  disabled={selectedServiceIds.length === 0}
-                  className="w-full flex items-center justify-center space-x-2 py-3.5 px-6 text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-2xl shadow-sm hover:shadow transition-all disabled:opacity-50"
+                  onClick={() => handleGenerateDraft()}
+                  className="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 shadow-md transition-all duration-150 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>
-                    {selectedServiceIds.length === 0
-                      ? 'Select at least 1 service above'
-                      : 'Generate My Review Draft'}
-                  </span>
+                  <Sparkles className="w-4 h-4 animate-pulse text-amber-300" />
+                  <span>Generate Review Draft</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+                <p className="text-center text-[10px] text-slate-400 mt-1.5 font-medium">
+                  Takes 5 seconds • Instant Google posting
+                </p>
               </div>
             </div>
           )}
 
-          {/* STEP 2: Review Draft Approval & Editing */}
+          {/* STEP 2: Review Preview, Multilingual & Google Action */}
           {currentStep === 'DRAFT' && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Draft Style Variations */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[#5f6368]">
-                    Suggested Review Options:
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('SELECT')}
-                    className="text-xs text-[#1a73e8] hover:underline"
-                  >
-                    ← Change selections
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 mb-3">
-                  {drafts.map((d, index) => (
-                    <button
-                      key={d.id || index}
-                      type="button"
-                      onClick={() => handleSelectDraftStyle(index)}
-                      className={`py-2 px-2.5 rounded-xl border text-xs font-medium transition-all text-center ${
-                        activeDraftIndex === index
-                          ? 'bg-[#e8f0fe] border-[#1a73e8] text-[#1a73e8] font-bold shadow-2xs'
-                          : 'bg-white border-[#dadce0] text-[#3c4043] hover:bg-[#f8f9fa]'
-                      }`}
-                    >
-                      {d.title}
-                    </button>
-                  ))}
-                </div>
+            <div className="p-4 sm:p-5 space-y-4">
+              {/* Step 2 Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="text-xs font-bold text-slate-800">
+                  Review Draft &amp; Post
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentStep('SELECT');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                >
+                  ← Edit Rating
+                </button>
               </div>
 
-              {/* Editable Review Textarea */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
-                  Review Text (You can edit or personalize anything below):
-                </label>
+              {/* Language Switcher (if business configured multiple languages) */}
+              {configuredLanguages.length > 1 && (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 flex items-center justify-between gap-1">
+                  <div className="flex items-center space-x-1 text-xs font-bold text-slate-700 pl-1">
+                    <Languages className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Language:</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {configuredLanguages.map((l) => {
+                      const isActive = activeLang === l.code;
+                      const meta = SUPPORTED_LANGUAGES.find((item) => item.code === l.code);
+                      return (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => handleRegenerateInLanguage(l.code)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center space-x-1 ${
+                            isActive
+                              ? 'bg-blue-600 text-white shadow-2xs'
+                              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          <span>{meta?.flag || '🌐'}</span>
+                          <span>{l.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Draft Style Variations (Pills) */}
+              {drafts.length > 1 && (
+                <div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {drafts.map((d, index) => {
+                      const isSelected = activeDraftIndex === index;
+                      return (
+                        <button
+                          key={d.id || index}
+                          type="button"
+                          onClick={() => handleSelectDraftStyle(index)}
+                          className={`py-1.5 px-1 rounded-xl border text-[11px] font-bold transition-all cursor-pointer text-center truncate ${
+                            isSelected
+                              ? 'bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-200/60 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {d.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Editable Review Textbox */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700 flex items-center space-x-1">
+                    <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Review Text (Editable):</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    {reviewText.trim().split(/\s+/).filter(Boolean).length} words
+                  </span>
+                </div>
+
                 <textarea
-                  rows={5}
+                  rows={4}
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
-                  className="w-full p-4 text-sm text-[#202124] border-2 border-[#dadce0] rounded-2xl focus:outline-none focus:border-[#1a73e8] leading-relaxed font-sans shadow-inner"
+                  className="w-full p-3 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-all bg-white"
                 />
-                <span className="text-[11px] text-[#70757a] mt-1 block">
-                  Feel free to add your own personal details or edit any word before copying.
-                </span>
+                <p className="text-[10.5px] text-slate-400">
+                  ✏️ Tap into the box to adjust words before copying.
+                </p>
               </div>
 
-              {/* Direct Owner Resolution Option for Critical Feedback */}
-              {(sentiment === 'critical' || sentiment === 'neutral') && !privateFeedbackSent && (
-                <div className="p-4 bg-[#f8f9fa] border border-[#dadce0] rounded-2xl space-y-2">
-                  <div className="flex items-center space-x-2 text-xs font-semibold text-[#202124]">
-                    <MessageSquare className="w-4 h-4 text-[#ea4335]" />
-                    <span>Had an issue? Message the owner directly</span>
+              {/* Direct Management Resolution Safe-Harbor for 1-3 Stars */}
+              {(sentiment === 'terrible' || sentiment === 'critical' || sentiment === 'neutral') && !privateFeedbackSent && (
+                <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2">
+                  <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-900">
+                    <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Resolve with Management Directly</span>
                   </div>
-                  <p className="text-[11px] text-[#5f6368] leading-relaxed">
-                    If something went wrong, you can also leave a private message for management so we can resolve it directly with you.
+                  <p className="text-[10.5px] text-amber-800 leading-relaxed">
+                    We want to make this right. Send a private message to the owner so we can resolve any issue directly with you:
                   </p>
                   <textarea
                     rows={2}
-                    placeholder="Describe how we can make this right..."
+                    placeholder="How can management resolve this for you?"
                     value={privateFeedbackText}
                     onChange={(e) => setPrivateFeedbackText(e.target.value)}
-                    className="w-full p-2 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-xl"
+                    className="w-full p-2 text-xs bg-white text-slate-800 border border-amber-200 rounded-xl focus:outline-none focus:border-amber-400"
                   />
                   <button
                     type="button"
                     onClick={() => {
                       if (privateFeedbackText.trim()) {
                         setPrivateFeedbackSent(true);
+                        fetch('/api/public/private-feedback', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            slug: business.slug,
+                            sentiment,
+                            message: privateFeedbackText,
+                          }),
+                        }).catch(() => {});
                       }
                     }}
                     disabled={!privateFeedbackText.trim()}
-                    className="px-3 py-1.5 bg-white border border-[#dadce0] hover:bg-[#f1f3f4] text-xs font-medium text-[#202124] rounded-lg disabled:opacity-50"
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    Submit Private Note
+                    Send Private Note
                   </button>
                 </div>
               )}
 
               {privateFeedbackSent && (
-                <div className="p-3 bg-[#e6f4ea] border border-[#ceead6] rounded-xl text-xs text-[#137333] flex items-center space-x-2">
-                  <Check className="w-4 h-4" />
-                  <span>Your private message was sent to management. Thank you for your feedback!</span>
+                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-800 flex items-center space-x-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Your private message was sent to management. Thank you!</span>
                 </div>
               )}
 
-              {/* Action Buttons: Copy and Open Google */}
-              <div className="space-y-3 pt-2">
-                {/* 1. Copy Button */}
+              {/* Conversion Buttons */}
+              <div className="space-y-2 pt-1">
+                {/* 1-Tap Super Action */}
+                <button
+                  type="button"
+                  onClick={handleSuperAction}
+                  className="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 shadow-md transition-all duration-150 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer group"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300 group-hover:rotate-12 transition-transform" />
+                  <span>Copy Review &amp; Open Google</span>
+                  <ExternalLink className="w-4 h-4 ml-0.5" />
+                </button>
+
+                {/* Secondary Button: Copy Text Only */}
                 <button
                   type="button"
                   onClick={handleCopyReview}
-                  className={`w-full flex items-center justify-center space-x-2 py-3.5 px-6 rounded-2xl text-sm font-semibold transition-all shadow-sm ${
+                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 ${
                     copied
-                      ? 'bg-[#1e8e3e] text-white'
-                      : 'bg-[#1a73e8] hover:bg-[#1557b0] text-white'
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
                   {copied ? (
                     <>
-                      <Check className="w-5 h-5 stroke-[2.5]" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
                       <span>Copied to Clipboard!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4" />
-                      <span>1. Copy Review Text</span>
+                      <Copy className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Copy Text Only</span>
                     </>
                   )}
                 </button>
-
-                {/* 2. Open Google Review Button */}
-                {business.hasGoogleUrl ? (
-                  <button
-                    type="button"
-                    onClick={handleProceedToGoogle}
-                    className="w-full flex items-center justify-center space-x-2 py-3.5 px-6 rounded-2xl text-sm font-semibold text-[#202124] bg-white hover:bg-[#f8f9fa] border-2 border-[#dadce0] hover:border-[#1a73e8] transition-all shadow-2xs group"
-                  >
-                    <span>2. Continue to Google Review Page</span>
-                    <ExternalLink className="w-4 h-4 text-[#1a73e8] group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                ) : (
-                  <div className="p-3 bg-[#fef7e0] border border-[#feefc3] rounded-xl text-xs text-[#b06000]">
-                    The business review page has not linked their Google Maps URL yet. Your review is copied above to paste directly into Google.
-                  </div>
-                )}
               </div>
 
-              {/* Instructions on how to paste */}
-              <div className="p-4 bg-[#f8f9fa] rounded-2xl border border-[#e8eaed] text-xs text-[#5f6368] space-y-1.5">
-                <span className="font-semibold text-[#202124] block">How to publish on Google:</span>
-                <ol className="list-decimal list-inside space-y-1 text-[11px]">
-                  <li>Tap <strong>&quot;1. Copy Review Text&quot;</strong> above.</li>
-                  <li>Tap <strong>&quot;2. Continue to Google Review Page&quot;</strong> to open Google.</li>
-                  <li>Select your star rating and paste your copied text into the Google review box.</li>
-                  <li>Tap Post on Google.</li>
-                </ol>
-              </div>
-
-              <div className="text-center pt-2">
-                <p className="text-[11px] text-[#70757a] leading-relaxed">
-                  Transparent &amp; Ethical Disclosure: Rankaro is an independent assistant designed to make composing reviews easier. You are under no obligation to post any specific text or rating and have 100% freedom to write whatever you choose directly on Google.
-                </p>
+              {/* 3-Step Mini Guide */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-[11px] text-slate-600 space-y-1.5">
+                <span className="font-bold text-slate-800 block text-xs">
+                  How to post on Google:
+                </span>
+                <div className="flex items-center space-x-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                  <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0">
+                    1
+                  </span>
+                  <span>Tap <strong>&quot;Copy Review &amp; Open Google&quot;</strong></span>
+                </div>
+                <div className="flex items-center space-x-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                  <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0">
+                    2
+                  </span>
+                  <span>Select <strong>5 stars</strong> on Google Maps</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+                  <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0">
+                    3
+                  </span>
+                  <span><strong>Paste</strong> your review and tap <strong>Post</strong></span>
+                </div>
               </div>
             </div>
           )}
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="py-6 text-center text-xs text-[#70757a]">
-        <p>Rankaro Review Platform • Independent Software</p>
+      {/* Floating Success Guide Modal */}
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-5 max-w-xs w-full border border-slate-200 shadow-2xl text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-2xs">
+              <Check className="w-6 h-6 stroke-[3]" />
+            </div>
+
+            <div>
+              <h3 className="text-base font-black text-slate-900">
+                Review Copied!
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Paste into Google to complete your review:
+              </p>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-3 text-left space-y-1.5 border border-slate-200 text-xs">
+              <div className="flex items-start space-x-2">
+                <span className="w-4 h-4 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[9px] shrink-0 mt-0.5">
+                  1
+                </span>
+                <span className="text-slate-700 text-[11px]">
+                  Select <strong>5 stars</strong> on Google
+                </span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <span className="w-4 h-4 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[9px] shrink-0 mt-0.5">
+                  2
+                </span>
+                <span className="text-slate-700 text-[11px]">
+                  Tap box, select <strong>Paste</strong> &amp; tap <strong>Post</strong>!
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              {business.googleReviewUrl && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open(business.googleReviewUrl, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <span>Re-open Google Page</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(false)}
+                className="w-full py-2 px-3 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Close &amp; Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clean Footer Branding */}
+      <footer className="py-3 text-center text-[11px] text-slate-400">
+        <p>Powered by <strong className="text-slate-600">Rankaro</strong> • Review Engine</p>
       </footer>
     </div>
   );

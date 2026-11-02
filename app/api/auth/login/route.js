@@ -23,6 +23,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
 
+    // Check if account is suspended
+    if (user.status === 'suspended') {
+      const reasonText = user.suspensionReason
+        ? `Account suspended by Official Google Partner: "${user.suspensionReason}"`
+        : 'Your account has been suspended by the Official Google Partner compliance desk. Please contact support.';
+      return NextResponse.json(
+        {
+          error: reasonText,
+        },
+        { status: 403 }
+      );
+    }
+
     // Check email verification status
     if (!user.isVerified) {
       return NextResponse.json(
