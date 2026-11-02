@@ -64,8 +64,9 @@ export default function LoginPage() {
         }
         throw new Error(data.error || 'Invalid email or password.');
       }
-      setSuccessMsg('Signed in! Opening your dashboard…');
-      router.push('/dashboard');
+      const targetUrl = data.redirectTo || (data.user?.isAdmin ? '/admin' : '/dashboard');
+      setSuccessMsg(data.user?.isAdmin ? 'Signed in as Administrator! Opening Admin Control Center…' : 'Signed in! Opening your dashboard…');
+      router.push(targetUrl);
       router.refresh();
     } catch (err) {
       fail(err.message);

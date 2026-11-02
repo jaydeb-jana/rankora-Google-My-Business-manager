@@ -276,11 +276,11 @@ export default function Navbar() {
             ) : user ? (
               <div className="flex items-center space-x-3">
                 <a
-                  href="/dashboard"
+                  href={user.isAdmin ? "/admin" : "/dashboard"}
                   className="inline-flex items-center space-x-1.5 px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full transition-all"
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>Dashboard</span>
+                  <span>{user.isAdmin ? "Admin Center" : "Dashboard"}</span>
                 </a>
                 <button
                   onClick={handleLogout}
@@ -338,10 +338,10 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center justify-between">
                 <a
-                  href="/dashboard"
+                  href={user.isAdmin ? "/admin" : "/dashboard"}
                   className="flex-1 py-2.5 text-center text-sm font-semibold text-white bg-blue-600 rounded-xl shadow-sm"
                 >
-                  Go to Dashboard
+                  {user.isAdmin ? "Admin Center" : "Go to Dashboard"}
                 </a>
                 <button
                   onClick={handleLogout}

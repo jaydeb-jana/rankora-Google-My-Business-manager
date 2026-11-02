@@ -14,6 +14,12 @@ import {
   Info,
   Sliders,
   Check,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Key,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -45,6 +51,18 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   });
   const [savingKnowledge, setSavingKnowledge] = useState(false);
   const [selectedLangToAdd, setSelectedLangToAdd] = useState('');
+
+  // Gemini API Key States (English & Account Scoped)
+  const [geminiStatus, setGeminiStatus] = useState({
+    hasKey: Boolean(initialAiKnowledge?.hasGeminiKey),
+    isKeyVerified: Boolean(initialAiKnowledge?.isKeyVerified),
+    maskedKey: initialAiKnowledge?.maskedGeminiKey || '',
+  });
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [verifyingKey, setVerifyingKey] = useState(false);
+  const [verificationResult, setVerificationResult] = useState(null);
+  const [removingKey, setRemovingKey] = useState(false);
 
   // Service Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,6 +147,82 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       showToast(err.message, 'error');
     } finally {
       setSavingKnowledge(false);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Gemini API Key Handlers (Account Scoped)
+  // ---------------------------------------------------------------------------
+  const handleVerifyAndSaveGeminiKey = async (e) => {
+    e?.preventDefault();
+    const cleanKey = geminiApiKeyInput.trim();
+    if (!cleanKey) {
+      showToast('Please enter your Gemini API Key.', 'error');
+      return;
+    }
+
+    setVerifyingKey(true);
+    setVerificationResult(null);
+
+    try {
+      const res = await fetch('/api/business/gemini-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: cleanKey }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errMsg = data.error || 'Failed to verify Gemini API Key.';
+        setVerificationResult({
+          success: false,
+          message: errMsg,
+        });
+        showToast(errMsg, 'error');
+        return;
+      }
+
+      setGeminiStatus({
+        hasKey: true,
+        isKeyVerified: true,
+        maskedKey: data.maskedKey,
+      });
+
+      setVerificationResult({
+        success: true,
+        message: data.message || 'Gemini API Key verified and saved successfully!',
+        reply: data.testReply,
+      });
+
+      setGeminiApiKeyInput('');
+      showToast('Gemini API Key verified & saved!', 'success');
+    } catch (err) {
+      const errMsg = err.message || 'Network connection failed during verification.';
+      setVerificationResult({
+        success: false,
+        message: errMsg,
+      });
+      showToast(errMsg, 'error');
+    } finally {
+      setVerifyingKey(false);
+    }
+  };
+
+  const handleRemoveGeminiKey = async () => {
+    if (!confirm('Are you sure you want to disconnect your Gemini API key from this account?')) return;
+    setRemovingKey(true);
+    try {
+      const res = await fetch('/api/business/gemini-key', { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to remove API key');
+      setGeminiStatus({ hasKey: false, isKeyVerified: false, maskedKey: '' });
+      setVerificationResult(null);
+      showToast('Gemini API Key removed.', 'info');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setRemovingKey(false);
     }
   };
 
@@ -236,6 +330,159 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
           )}
           <span>Save AI Knowledge</span>
         </button>
+      </div>
+
+      {/* 0. Gemini API Key Configuration Card (Account Scoped & English) */}
+      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-[#f1f3f4]">
+          <div className="flex items-center space-x-3">
+            <span className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 text-white shadow-xs">
+              <Key className="w-5 h-5" />
+            </span>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base font-bold text-[#202124]">
+                  Google Gemini AI API Key
+                </h3>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  Account-Scoped Only
+                </span>
+              </div>
+              <p className="text-xs text-[#5f6368] mt-0.5">
+                Saved strictly for this account. Used by AI to generate customized, high-quality Google reviews.
+              </p>
+            </div>
+          </div>
+
+          {/* Connection Status Badge */}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {geminiStatus.isKeyVerified ? (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Active &amp; Verified</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                <span>Not Configured</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Current Saved Key Display (if verified) */}
+        {geminiStatus.isKeyVerified && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+            <div className="flex items-center space-x-2.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="text-xs">
+                <span className="text-emerald-900 font-medium">Verified Key: </span>
+                <code className="font-mono text-emerald-800 font-semibold px-2 py-0.5 bg-emerald-100/70 rounded">
+                  {geminiStatus.maskedKey || '••••••••'}
+                </code>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={removingKey}
+              onClick={handleRemoveGeminiKey}
+              className="text-xs font-medium text-red-600 hover:text-red-700 hover:underline inline-flex items-center space-x-1 self-start sm:self-auto cursor-pointer disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{removingKey ? 'Disconnecting...' : 'Disconnect Key'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Verification Success or Error Alert Banner */}
+        {verificationResult && (
+          <div
+            className={`p-4 rounded-xl text-xs space-y-1.5 border transition-all ${
+              verificationResult.success
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                : 'bg-rose-50 border-rose-300 text-rose-900'
+            }`}
+          >
+            <div className="flex items-start space-x-2 font-semibold">
+              {verificationResult.success ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              )}
+              <span>{verificationResult.message}</span>
+            </div>
+
+            {verificationResult.reply && (
+              <div className="mt-2 pt-2 border-t border-emerald-200 text-emerald-800 text-[11px] leading-relaxed">
+                <span className="font-bold">Gemini Response to &quot;Hi&quot;:</span> &quot;{verificationResult.reply}&quot;
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Form to Enter and Verify Gemini API Key */}
+        <form onSubmit={handleVerifyAndSaveGeminiKey} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-[#202124] uppercase tracking-wider">
+              Enter Gemini API Key
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={geminiApiKeyInput}
+                onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                placeholder={
+                  geminiStatus.isKeyVerified
+                    ? 'Enter new key to update (starts with AIzaSy...)'
+                    : 'AIzaSy...'
+                }
+                className="w-full pl-4 pr-11 py-2.5 bg-[#f8fafd] border border-[#dadce0] rounded-xl text-xs text-[#202124] placeholder-[#80868b] focus:bg-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] font-mono transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5f6368] hover:text-[#202124] transition-colors cursor-pointer"
+                aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+              >
+                {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-[11px] text-[#5f6368]">
+              Get a free API key from{' '}
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#1a73e8] font-semibold hover:underline"
+              >
+                Google AI Studio
+              </a>
+              . When you click Verify &amp; Save, a test prompt &quot;Hi&quot; is sent to Gemini to validate the key before saving.
+            </p>
+          </div>
+
+          <div className="pt-1">
+            <button
+              type="submit"
+              disabled={verifyingKey || !geminiApiKeyInput.trim()}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {verifyingKey ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Verifying with Gemini (Sending &apos;Hi&apos;)...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Verify &amp; Save API Key</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* 1. Main AI Knowledge Settings Card (Shop Details & Style) */}

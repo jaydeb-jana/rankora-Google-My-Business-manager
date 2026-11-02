@@ -69,6 +69,10 @@ export default function PublicReviewPageClient({ business }) {
 
     const generated = generateReviewDrafts({
       businessName: business.businessName,
+      businessCategory: business.businessCategory,
+      city: business.city,
+      address: business.address,
+      description: business.description,
       selectedServices: chosenServices,
       sentiment,
       answers: {

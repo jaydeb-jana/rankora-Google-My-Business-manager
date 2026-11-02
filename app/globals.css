@@ -62,32 +62,20 @@ body {
   transform: translateY(-2px);
 }
 
-/* ===================== Rankaro Alive Animation System ===================== */
-@keyframes rk-fade-up {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes rk-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes rk-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes rk-float {
+/* ===================== Universal Animation Keyframes ===================== */
+@keyframes rkFloat {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-12px); }
 }
-@keyframes rk-float-reverse {
+@keyframes rkFloatReverse {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(12px); }
 }
-@keyframes rk-float-slow {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(10px, -14px) rotate(3deg); }
+@keyframes rkMarquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
 }
-@keyframes rk-pulse-glow {
+@keyframes rkPulseGlow {
   0%, 100% {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.2), 0 0 35px rgba(99, 102, 241, 0.1);
   }
@@ -95,48 +83,22 @@ body {
     box-shadow: 0 0 30px rgba(37, 99, 235, 0.45), 0 0 60px rgba(99, 102, 241, 0.25);
   }
 }
-@keyframes rk-spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes rk-radar {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-@keyframes rk-marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-@keyframes rk-gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes rk-shimmer {
-  from { transform: translateX(-120%); }
-  to { transform: translateX(220%); }
+@keyframes rkShimmer {
+  from { transform: translateX(-140%); }
+  to { transform: translateX(240%); }
 }
 
-.rk-fade-up { animation: rk-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.rk-fade-in { animation: rk-fade-in 0.6s ease both; }
-.rk-scale-in { animation: rk-scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.rk-float { animation: rk-float 4.5s ease-in-out infinite; }
-.rk-float-reverse { animation: rk-float-reverse 5s ease-in-out infinite; }
-.rk-float-slow { animation: rk-float-slow 8s ease-in-out infinite; }
-.rk-pulse-glow { animation: rk-pulse-glow 3s ease-in-out infinite; }
-.rk-spin-slow { animation: rk-spin-slow 24s linear infinite; }
-.rk-gradient-shift {
-  background-size: 200% 200%;
-  animation: rk-gradient-shift 8s ease infinite;
-}
+.rk-float { animation: rkFloat 4.5s ease-in-out infinite; }
+.rk-float-reverse { animation: rkFloatReverse 5s ease-in-out infinite; }
+.rk-pulse-glow { animation: rkPulseGlow 3s ease-in-out infinite; }
 
 .rk-marquee-track {
-  display: flex;
-  width: max-content;
-  animation: rk-marquee 28s linear infinite;
+  display: flex !important;
+  width: max-content !important;
+  animation: rkMarquee 30s linear infinite !important;
 }
 .rk-marquee-track:hover {
-  animation-play-state: paused;
+  animation-play-state: paused !important;
 }
 
 /* Shimmering primary button */
@@ -149,67 +111,8 @@ body {
   background: linear-gradient(110deg, transparent, rgba(255,255,255,0.4), transparent);
   transform: translateX(-140%);
 }
-.rk-btn-shine:hover::after { animation: rk-shimmer 0.9s ease; }
-
-/* Floating-label input */
-.rk-field { position: relative; }
-.rk-field input {
-  width: 100%;
-  height: 54px;
-  padding: 20px 44px 6px 44px;
-  font-size: 15px;
-  color: #202124;
-  background: #fff;
-  border: 1.5px solid #dadce0;
-  border-radius: 14px;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s, background .2s;
-}
-.rk-field input:hover { border-color: #bdc1c6; }
-.rk-field input:focus {
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.12);
-}
-.rk-field label {
-  position: absolute;
-  left: 44px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 14px;
-  color: #5f6368;
-  pointer-events: none;
-  transition: all .18s ease;
-}
-.rk-field input:focus + label,
-.rk-field input:not(:placeholder-shown) + label {
-  top: 15px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .02em;
-  color: #1a73e8;
-}
-.rk-field input:not(:focus):not(:placeholder-shown) + label { color: #5f6368; }
-.rk-field .rk-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #80868b;
-  transition: color .2s;
-  pointer-events: none;
-}
-.rk-field input:focus ~ .rk-icon { color: #1a73e8; }
-.rk-field .rk-trailing {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-}
+.rk-btn-shine:hover::after { animation: rkShimmer 0.9s ease; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
+  .rk-marquee-track { animation: none !important; }
 }

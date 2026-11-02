@@ -64,6 +64,7 @@ export default async function PublicReviewPage({ params }) {
     address: user.address,
     city: user.city,
     website: user.website,
+    description: user.description || '',
     welcomeHeadline: user.welcomeHeadline || `How was your experience at ${user.businessName}?`,
     instructions:
       user.instructions ||

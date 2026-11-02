@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { userRepo } from '@/lib/repositories';
-import { verifyPassword, generateToken, COOKIE_NAME } from '@/lib/auth';
+import { verifyPassword, generateToken, COOKIE_NAME, isAdmin } from '@/lib/auth';
 
 export async function POST(request) {
   try {
@@ -68,6 +68,8 @@ export async function POST(request) {
       slug: user.slug,
     });
 
+    const isUserAdmin = isAdmin(user);
+
     const response = NextResponse.json({
       success: true,
       user: {
@@ -76,7 +78,10 @@ export async function POST(request) {
         businessName: user.businessName,
         ownerName: user.ownerName,
         slug: user.slug,
+        isAdmin: isUserAdmin,
+        role: user.role,
       },
+      redirectTo: isUserAdmin ? '/admin' : '/dashboard',
     });
 
     response.cookies.set({

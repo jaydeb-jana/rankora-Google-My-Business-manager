@@ -35,7 +35,9 @@ import {
   ChevronRight,
   ThumbsUp,
   MapPin,
-  RefreshCw
+  RefreshCw,
+  Eye,
+  CheckCheck
 } from 'lucide-react';
 
 export default function LandingClient() {
@@ -92,7 +94,7 @@ export default function LandingClient() {
       ],
       drafts: {
         exceptional:
-          'An absolute 5-star gem! We celebrated our anniversary at Bistro Bella Vista. The handmade truffle pasta was out of this world, perfectly aldente with rich aroma, and our attentive waitstaff made us feel so special. The warm romantic ambience topped off a flawless evening in Chicago!',
+          'An absolute 5-star gem! We celebrated our anniversary at Bistro Bella Vista. The handmade truffle pasta was out of this world, perfectly al dente with rich aroma, and our attentive waitstaff made us feel so special. The warm romantic ambience topped off a flawless evening in Chicago!',
         great:
           'Wonderful dinner at Bistro Bella Vista! The pasta was fresh and flavorful, the cocktails were well-crafted, and our server took great care of us. Will definitely be returning for another date night soon.',
         honest:
@@ -232,38 +234,81 @@ export default function LandingClient() {
   ];
 
   return (
-    <div className="space-y-28 pb-28 overflow-x-hidden">
-      {/* 1. HERO SECTION WITH VIBRANT ALIVE ANIMATIONS */}
-      <section className="relative pt-16 sm:pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Animated Background Glowing Mesh */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-blue-500/15 via-indigo-500/15 to-sky-400/15 blur-3xl -z-10 rounded-full rk-pulse-glow pointer-events-none" />
+    <div className="space-y-20 pb-28 overflow-x-hidden">
+      {/* DIRECT INLINE STYLES FOR GUARANTEED ANIMATIONS ACROSS ALL BROWSERS */}
+      <style>{`
+        @keyframes rkFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
+        }
+        @keyframes rkFloatReverse {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(12px); }
+        }
+        @keyframes rkMarquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes rkPulseGlow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2), 0 0 45px rgba(99, 102, 241, 0.12);
+          }
+          50% {
+            box-shadow: 0 0 35px rgba(37, 99, 235, 0.45), 0 0 70px rgba(99, 102, 241, 0.28);
+          }
+        }
+        .rk-marquee-track {
+          display: flex !important;
+          flex-direction: row !important;
+          flex-wrap: nowrap !important;
+          width: max-content !important;
+          animation: rkMarquee 30s linear infinite !important;
+        }
+        .rk-marquee-track:hover {
+          animation-play-state: paused !important;
+        }
+      `}</style>
 
-        {/* Floating Left Animated Pill (Visible Up/Down Bobbing) */}
-        <div className="hidden xl:flex absolute left-4 top-28 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-xl rk-float items-center space-x-3 text-left max-w-xs z-10">
+      {/* 1. HERO SECTION WITH VIBRANT ALIVE ANIMATIONS */}
+      <section className="relative pt-12 sm:pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        {/* Animated Background Glowing Mesh */}
+        <div
+          style={{ animation: 'rkPulseGlow 3s ease-in-out infinite' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-tr from-blue-500/15 via-indigo-500/15 to-sky-400/15 blur-3xl -z-10 rounded-full pointer-events-none"
+        />
+
+        {/* Floating Left Animated Pill (Visible on Laptops & Desktops) */}
+        <div
+          style={{ animation: 'rkFloat 4.5s ease-in-out infinite' }}
+          className="hidden md:flex absolute left-2 lg:left-6 top-24 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl items-center space-x-3 text-left max-w-[260px] z-10"
+        >
           <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 flex-shrink-0">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
           </div>
           <div>
             <div className="text-xs font-bold text-slate-900">Dr. Ramos • Horizon Dental</div>
-            <div className="text-[11px] text-emerald-600 font-semibold">+430% Review Surge in 60d</div>
-            <div className="text-[10px] text-slate-400">Rank #1 on Google Maps</div>
+            <div className="text-[11px] text-emerald-600 font-bold">+430% Review Surge</div>
+            <div className="text-[10px] text-slate-500">Rank #1 on Google Maps</div>
           </div>
         </div>
 
-        {/* Floating Right Animated Pill (Visible Reverse Floating) */}
-        <div className="hidden xl:flex absolute right-4 top-36 p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-xl rk-float-reverse items-center space-x-3 text-left max-w-xs z-10">
+        {/* Floating Right Animated Pill (Visible on Laptops & Desktops) */}
+        <div
+          style={{ animation: 'rkFloatReverse 5s ease-in-out infinite' }}
+          className="hidden md:flex absolute right-2 lg:right-6 top-32 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl items-center space-x-3 text-left max-w-[260px] z-10"
+        >
           <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 flex-shrink-0">
             <QrCode className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-900">10-Second Scan Conversion</div>
-            <div className="text-[11px] text-blue-600 font-semibold">Zero App Downloads</div>
-            <div className="text-[10px] text-slate-400">34% Checkout Counter Scan Rate</div>
+            <div className="text-xs font-bold text-slate-900">10-Second QR Scan</div>
+            <div className="text-[11px] text-blue-600 font-bold">Zero App Downloads</div>
+            <div className="text-[10px] text-slate-500">34% Checkout Scan Rate</div>
           </div>
         </div>
 
         {/* Top Compliance Pill */}
-        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 mb-8 shadow-sm hover:border-blue-400 transition-colors">
+        <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 mb-6 shadow-sm hover:border-blue-400 transition-colors">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
           <span>Independent Google Review Growth Engine</span>
           <span className="text-slate-300">|</span>
@@ -285,7 +330,7 @@ export default function LandingClient() {
         </p>
 
         {/* Hero CTAs */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/register"
             className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all rk-btn-shine"
@@ -303,45 +348,54 @@ export default function LandingClient() {
         </div>
 
         {/* Metric Badges */}
-        <div className="mt-14 pt-10 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-left">
-          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+        <div className="mt-12 pt-8 border-t border-slate-200/80 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
             <div className="text-2xl sm:text-3xl font-black text-slate-900">12,400+</div>
             <div className="text-xs font-semibold text-slate-500 mt-0.5">Active Storefronts & Clinics</div>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
             <div className="text-2xl sm:text-3xl font-black text-blue-600">3.8M+</div>
             <div className="text-xs font-semibold text-slate-500 mt-0.5">Authentic Reviews Captured</div>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
             <div className="text-2xl sm:text-3xl font-black text-emerald-600">4.9 / 5</div>
             <div className="text-xs font-semibold text-slate-500 mt-0.5 flex items-center space-x-1">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>Merchant Satisfaction</span>
             </div>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-blue-200 transition-colors">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
             <div className="text-2xl sm:text-3xl font-black text-indigo-600">&lt; 15s</div>
             <div className="text-xs font-semibold text-slate-500 mt-0.5">Average Review Time</div>
           </div>
         </div>
       </section>
 
-      {/* 2. INFINITE ANIMATED REAL-TIME SOCIAL PROOF MARQUEE */}
-      <section className="border-y border-slate-200/90 bg-slate-50 py-4 overflow-hidden">
+      {/* 2. INFINITE CONTINUOUS HORIZONTAL REVIEW MARQUEE (100% FIXED) */}
+      <section className="border-y border-slate-200/90 bg-slate-50 py-3.5 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 mb-2 flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Live Review Activity Feed Across Active Merchants</span>
           </span>
-          <span className="hidden sm:inline text-slate-400">Updated in Real-Time</span>
+          <span className="hidden sm:inline text-slate-400">Streaming in Real-Time</span>
         </div>
 
-        <div className="overflow-hidden w-full relative">
-          <div className="rk-marquee-track space-x-4 py-2">
+        {/* Marquee viewport container with edge fade masks */}
+        <div className="relative w-full overflow-hidden">
+          {/* Left and Right Fade Gradients */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-slate-50 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-slate-50 to-transparent z-10" />
+
+          {/* Marquee Track with direct inline styles */}
+          <div
+            className="rk-marquee-track space-x-4 py-1"
+            style={{ display: 'flex', width: 'max-content', animation: 'rkMarquee 30s linear infinite' }}
+          >
             {marqueeItems.concat(marqueeItems).map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-center space-x-3 p-3 px-4 rounded-xl bg-white border border-slate-200 shadow-sm flex-shrink-0 text-xs text-slate-700"
+                className="flex items-center space-x-2.5 p-2.5 px-4 rounded-xl bg-white border border-slate-200 shadow-sm flex-shrink-0 text-xs text-slate-700 whitespace-nowrap"
               >
                 <div className="flex items-center space-x-0.5 text-amber-400">
                   {[...Array(5)].map((_, i) => (
@@ -350,8 +404,8 @@ export default function LandingClient() {
                 </div>
                 <span className="font-bold text-slate-900">{item.business}</span>
                 <span className="text-slate-400">({item.city}):</span>
-                <span className="text-slate-600 italic max-w-xs truncate">{item.text}</span>
-                <span className="text-[10px] text-blue-600 font-semibold">{item.time}</span>
+                <span className="text-slate-600 italic">{item.text}</span>
+                <span className="text-[10px] text-blue-600 font-semibold ml-1">{item.time}</span>
               </div>
             ))}
           </div>
@@ -360,7 +414,10 @@ export default function LandingClient() {
 
       {/* 3. INTERACTIVE LIVE SIMULATOR SECTION */}
       <section id="interactive-simulator" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-24">
-        <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 relative overflow-hidden rk-pulse-glow">
+        <div
+          style={{ animation: 'rkPulseGlow 3.5s ease-in-out infinite' }}
+          className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-slate-800 relative overflow-hidden"
+        >
           {/* Subtle background aura */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -536,7 +593,7 @@ export default function LandingClient() {
         </div>
       </section>
 
-      {/* 4. NEW: THE GOOGLE 3-PACK ALGORITHM BLUEPRINT (SEO VALUE) */}
+      {/* 4. THE GOOGLE 3-PACK ALGORITHM BLUEPRINT */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="rounded-3xl bg-slate-50 border border-slate-200/90 p-8 sm:p-12">
           <div className="max-w-3xl mb-10">
@@ -1073,7 +1130,10 @@ export default function LandingClient() {
 
       {/* 11. BOTTOM CONVERSION CTA BANNER */}
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden rk-pulse-glow">
+        <div
+          style={{ animation: 'rkPulseGlow 3.5s ease-in-out infinite' }}
+          className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 text-white p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden"
+        >
           {/* Subtle background decoration */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 

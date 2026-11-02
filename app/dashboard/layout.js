@@ -14,6 +14,12 @@ export default async function DashboardLayout({ children }) {
     redirect('/login');
   }
 
+  // If user is the Platform Administrator and not in impersonation mode,
+  // redirect directly to the Admin Control Center (/admin)
+  if (user.isAdmin && !user.isImpersonated) {
+    redirect('/admin');
+  }
+
   // If user is suspended and not an admin in impersonation mode
   if (user.status === 'suspended' && !user.isImpersonated) {
     return (

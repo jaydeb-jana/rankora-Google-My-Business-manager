@@ -32,6 +32,8 @@ const AiKnowledgeSchema = new mongoose.Schema(
       type: [AiLanguageSchema],
       default: [{ code: 'en', name: 'English', ratio: 100 }],
     },
+    geminiApiKey: { type: String, default: '', trim: true },
+    isKeyVerified: { type: Boolean, default: false },
   },
   { _id: false }
 );

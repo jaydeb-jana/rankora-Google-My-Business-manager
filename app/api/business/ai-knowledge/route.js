@@ -64,7 +64,11 @@ export async function POST(request) {
       }
     }
 
+    const freshUser = await userRepo.findById(user._id);
+    const existingAiKnowledge = freshUser?.aiKnowledge || {};
+
     const aiKnowledgeUpdate = {
+      ...existingAiKnowledge,
       shopDetails: String(shopDetails).slice(0, 4000),
       reviewStyleRules: String(reviewStyleRules).slice(0, 3000),
       languages: sanitizedLanguages,

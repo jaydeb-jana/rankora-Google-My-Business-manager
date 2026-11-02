@@ -40,7 +40,13 @@ export async function GET(request, { params }) {
         customQuestions: user.customQuestions || [],
         googleReviewUrl: user.googleReviewUrl || '',
         logoUrl: user.logoUrl || '',
-        aiKnowledge: user.aiKnowledge || null,
+        aiKnowledge: user.aiKnowledge
+          ? {
+              shopDetails: user.aiKnowledge.shopDetails || '',
+              reviewStyleRules: user.aiKnowledge.reviewStyleRules || '',
+              languages: user.aiKnowledge.languages || [],
+            }
+          : null,
         hasGoogleUrl: Boolean(user.googleReviewUrl && user.googleReviewUrl.startsWith('http')),
       },
     });
