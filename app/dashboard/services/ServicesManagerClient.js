@@ -28,13 +28,13 @@ import { INDUSTRY_TEMPLATES, DEFAULT_SERVICES } from '@/lib/presets';
 
 const ALL_LANGUAGES = [
   { code: 'en', name: 'English', native: 'English', flag: '🇬🇧' },
-  { code: 'bn', name: 'Bengali', native: 'বাংলা', flag: '🇧🇩' },
-  { code: 'hi', name: 'Hindi', native: 'हिंदी', flag: '🇮🇳' },
-  { code: 'es', name: 'Spanish', native: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', native: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'German', native: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ar', name: 'Arabic', native: 'العربية', flag: '🇸🇦' },
-  { code: 'ur', name: 'Urdu', native: 'اردو', flag: '🇵🇰' },
+  { code: 'es', name: 'Spanish', native: 'Spanish', flag: '🇪🇸' },
+  { code: 'fr', name: 'French', native: 'French', flag: '🇫🇷' },
+  { code: 'de', name: 'German', native: 'German', flag: '🇩🇪' },
+  { code: 'hi', name: 'Hindi', native: 'Hindi', flag: '🇮🇳' },
+  { code: 'bn', name: 'Bengali', native: 'Bengali', flag: '🇧🇩' },
+  { code: 'ar', name: 'Arabic', native: 'Arabic', flag: '🇸🇦' },
+  { code: 'ur', name: 'Urdu', native: 'Urdu', flag: '🇵🇰' },
 ];
 
 export default function ServicesManagerClient({ initialServices, initialAiKnowledge }) {
@@ -65,6 +65,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   const [verificationResult, setVerificationResult] = useState(null);
   const [removingKey, setRemovingKey] = useState(false);
   const [isChangingKey, setIsChangingKey] = useState(false);
+  const [isDisconnectKeyModalOpen, setIsDisconnectKeyModalOpen] = useState(false);
 
   // Service Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,7 +103,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
     setLanguages(newLangs);
     setSelectedLangToAdd('');
-    showToast(`Added ${langObj.name} (${langObj.native})!`, 'success');
+    showToast(`Added ${langObj.name}!`, 'success');
   };
 
   const handleRemoveLanguage = (code) => {
@@ -213,8 +214,12 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
     }
   };
 
-  const handleRemoveGeminiKey = async () => {
-    if (!confirm('Are you sure you want to disconnect your Gemini API key from this account?')) return;
+  const handleRemoveGeminiKey = () => {
+    setIsDisconnectKeyModalOpen(true);
+  };
+
+  const handleConfirmRemoveGeminiKey = async () => {
+    setIsDisconnectKeyModalOpen(false);
     setRemovingKey(true);
     try {
       const res = await fetch('/api/business/gemini-key', { method: 'DELETE' });
@@ -722,7 +727,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                 <option value="">+ Add Language (Max 2)</option>
                 {unaddedLanguages.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.flag} {l.name} ({l.native})
+                    {l.flag} {l.name}
                   </option>
                 ))}
               </select>
@@ -748,10 +753,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                   <span className="text-xl">{meta.flag}</span>
                   <div>
                     <p className="text-xs font-semibold text-[#202124]">
-                      {lang.name}{' '}
-                      <span className="text-[11px] font-normal text-[#5f6368]">
-                        ({meta.native})
-                      </span>
+                      {lang.name}
                     </p>
                     <span className="text-[10px] text-[#1a73e8] font-bold">
                       {languages.length === 1 ? '100% of reviews' : `${lang.ratio}% distribution`}
@@ -981,6 +983,18 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
         danger
         onCancel={() => setServiceToDelete(null)}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* Disconnect Gemini API Key Confirmation */}
+      <ConfirmModal
+        isOpen={isDisconnectKeyModalOpen}
+        title="Disconnect Gemini API Key?"
+        message="Are you sure you want to disconnect your Gemini API key from this account? Review generation will revert to smart template drafts."
+        confirmText="Disconnect"
+        danger
+        loading={removingKey}
+        onCancel={() => setIsDisconnectKeyModalOpen(false)}
+        onConfirm={handleConfirmRemoveGeminiKey}
       />
     </div>
   );

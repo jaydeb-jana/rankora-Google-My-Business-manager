@@ -335,7 +335,7 @@ export default function LandingClient() {
             href="/register"
             className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 rounded-2xl shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all rk-btn-shine"
           >
-            <span>Start Free in 2 Minutes</span>
+            <span>Start in 2 Minutes</span>
             <ArrowRight className="w-5 h-5" />
           </a>
           <a
@@ -887,7 +887,7 @@ export default function LandingClient() {
             {
               title: 'Fitness & Gyms',
               tags: ['Clean Facilities', 'Energetic Coaches', 'Modern Equipment', 'Classes'],
-              stat: '2x Inbound Trial Signups',
+              stat: '2x Customer Inquiries',
               href: '/solutions#fitness',
             },
           ].map((item) => (
@@ -949,7 +949,7 @@ export default function LandingClient() {
               <tbody className="divide-y divide-slate-200">
                 <tr>
                   <td className="py-4 px-4 font-semibold text-slate-800">Monthly Cost</td>
-                  <td className="py-4 px-4 font-bold text-emerald-600 bg-blue-50/40">Free to $29 / month</td>
+                  <td className="py-4 px-4 font-bold text-emerald-600 bg-blue-50/40">From ₹499 / month</td>
                   <td className="py-4 px-4 text-slate-500">$299 - $599 / month</td>
                   <td className="py-4 px-4 text-slate-500">Free (High Staff Time)</td>
                 </tr>
@@ -1152,7 +1152,7 @@ export default function LandingClient() {
                 href="/register"
                 className="w-full sm:w-auto px-8 py-4 bg-white text-blue-600 hover:bg-slate-100 font-extrabold text-base rounded-2xl shadow-xl transition-all rk-btn-shine"
               >
-                Create Free Account Now
+                Create Account Now
               </a>
               <a
                 href="/contact"

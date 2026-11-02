@@ -38,25 +38,25 @@ export default async function PublicReviewPage({ params }) {
           </span>
 
           <h1 className="text-2xl font-black text-[#202124] tracking-tight mb-2">
-            এই রিভিউ লিংকটি বর্তমানে বিদ্যমান নেই
+            This Review Link Is Unavailable
           </h1>
           <p className="text-xs text-[#5f6368] font-mono bg-[#f1f3f4] px-3 py-1.5 rounded-lg inline-block max-w-full truncate mb-4">
             /r/{slug}
           </p>
 
           <p className="text-xs text-[#5f6368] leading-relaxed mb-6">
-            আপনি যে রিভিউ লিংকটি খুঁজছেন তা আমাদের প্ল্যাটফর্মে বর্তমানে সক্রিয় বা বিদ্যমান নেই। লিংকটিতে টাইপিং ভুল থাকতে পারে, অথবা সংশ্লিষ্ট ব্যবসা প্রতিষ্ঠানের নাম পরিবর্তনের কারণে লিংকটি আপডেট হয়ে থাকতে পারে।
+            The review page you are looking for is currently inactive or does not exist. There may be a typo in the URL, or the business owner may have updated their link or business profile.
           </p>
 
           <div className="bg-[#f8f9fa] rounded-2xl p-4 border border-[#e8eaed] text-left text-xs text-[#5f6368] space-y-2 mb-6">
             <p className="font-semibold text-[#202124] flex items-center space-x-1.5">
               <AlertTriangle className="w-4 h-4 text-[#ea8600]" />
-              <span>সম্ভাব্য কারণসমূহ:</span>
+              <span>Possible reasons:</span>
             </p>
             <ul className="list-disc list-inside space-y-1 text-[11px] text-[#5f6368] pl-1">
-              <li>ইউআরএল-এর বানানে কোনো ভুল হয়েছে।</li>
-              <li>ব্যবসাটির নতুন নাম অনুযায়ী লিংকটি আপডেট করা হয়েছে।</li>
-              <li>অ্যাকাউন্টটি এখনো ভেরিফাই হয়নি বা নিষ্ক্রিয় রয়েছে।</li>
+              <li>There is a typo or spelling error in the URL.</li>
+              <li>The business URL slug has been updated.</li>
+              <li>The account has not been verified yet or is inactive.</li>
             </ul>
           </div>
 

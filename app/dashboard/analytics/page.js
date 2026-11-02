@@ -1,5 +1,5 @@
 import { getSessionUser } from '@/lib/auth';
-import { userRepo, activityRepo } from '@/lib/repositories';
+import { userRepo } from '@/lib/repositories';
 import AnalyticsClient from './AnalyticsClient';
 
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 export default async function AnalyticsPage() {
   const user = await getSessionUser();
   const freshUser = await userRepo.findById(user._id);
-  const activities = await activityRepo.getRecentByBusiness(user._id, 50);
 
   const stats = freshUser?.stats || {
     totalVisits: 0,
@@ -19,7 +18,6 @@ export default async function AnalyticsPage() {
   return (
     <AnalyticsClient
       stats={stats}
-      activities={activities || []}
       businessName={freshUser?.businessName || user.businessName}
     />
   );

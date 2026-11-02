@@ -15,77 +15,100 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
-export default function PlansClient({ user }) {
+export default function PlansClient({ user, pricingConfig }) {
   const { showToast } = useToast();
   const [billingCycle, setBillingCycle] = useState('monthly');
 
+  const currency = pricingConfig?.currency || '₹';
+  const starterMonthly = Number(pricingConfig?.starter?.monthly) || 499;
+  const starterYearly = Number(pricingConfig?.starter?.yearly) || 399;
+  const proMonthly = Number(pricingConfig?.pro?.monthly) || 999;
+  const proYearly = Number(pricingConfig?.pro?.yearly) || 849;
+  const entMonthly = Number(pricingConfig?.enterprise?.monthly) || 2499;
+  const entYearly = Number(pricingConfig?.enterprise?.yearly) || 1999;
+
+  const currentPlanId = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
+
+  const starterFeatures =
+    Array.isArray(pricingConfig?.starter?.features) && pricingConfig.starter.features.length > 0
+      ? pricingConfig.starter.features
+      : [
+          'Single Business Profile connection',
+          'Standard QR Code Stand generation',
+          'AI Review Drafts (Powered by Gemini)',
+          'Basic review analytics & activity log',
+          'Direct link to Google review box',
+        ];
+
+  const proFeatures =
+    Array.isArray(pricingConfig?.pro?.features) && pricingConfig.pro.features.length > 0
+      ? pricingConfig.pro.features
+      : [
+          'Everything in Starter, plus:',
+          'Custom Branded QR Stands (Print Ready PDF)',
+          'Unlimited AI Review Draft generations',
+          'AI Knowledge Base customization with custom services',
+          'WhatsApp instant inquiry desk priority',
+          'Custom review landing page branding & colors',
+          'Zero Google review link dropouts',
+        ];
+
+  const entFeatures =
+    Array.isArray(pricingConfig?.enterprise?.features) && pricingConfig.enterprise.features.length > 0
+      ? pricingConfig.enterprise.features
+      : [
+          'Everything in Pro, plus:',
+          'Multi-location dashboard (up to 10 locations)',
+          'Dedicated Technical Account Manager at Arventa Ventures',
+          'Custom REST API & Webhook integration',
+          'Priority SLA support via direct WhatsApp & phone',
+          'Automated monthly Google Business Profile local SEO audits',
+          'Custom domain support for review pages',
+        ];
+
   const plans = [
     {
-      name: 'Starter / Free',
+      id: 'starter',
+      name: 'Starter',
       description: 'Essential local reputation engine for individual storefronts.',
-      priceMonthly: '₹0',
-      priceYearly: '₹0',
-      period: 'Forever free',
+      priceMonthly: `${currency}${starterMonthly.toLocaleString('en-IN')}`,
+      priceYearly: `${currency}${starterYearly.toLocaleString('en-IN')}`,
+      period: 'per month',
       popular: false,
-      badge: 'Current Tier',
-      features: [
-        'Single Business Profile connection',
-        'Standard QR Code Stand generation',
-        'AI Review Drafts (Powered by Gemini)',
-        'Basic review analytics & activity log',
-        'Direct link to Google review box',
-      ],
-      ctaText: 'Current Plan',
-      ctaDisabled: true,
+      badge: 'Starter Tier',
+      features: starterFeatures,
+      tierCode: 'STARTER',
     },
     {
+      id: 'pro',
       name: 'Pro',
       description: 'Ideal for growing businesses looking to dominate local Google search.',
-      priceMonthly: '₹999',
-      priceYearly: '₹849',
+      priceMonthly: `${currency}${proMonthly.toLocaleString('en-IN')}`,
+      priceYearly: `${currency}${proYearly.toLocaleString('en-IN')}`,
       period: 'per month',
       popular: true,
       badge: 'Most Popular',
-      features: [
-        'Everything in Starter, plus:',
-        'Custom Branded QR Stands (Print Ready PDF)',
-        'Unlimited AI Review Draft generations',
-        'AI Knowledge Base customization with custom services',
-        'WhatsApp instant inquiry desk priority',
-        'Custom review landing page branding & colors',
-        'Zero Google review link dropouts',
-      ],
-      ctaText: 'Upgrade to Pro',
-      ctaDisabled: false,
+      features: proFeatures,
       tierCode: 'PRO',
     },
     {
+      id: 'enterprise',
       name: 'Ultra Enterprise',
       description: 'Tailored for agencies, multi-location chains, and high-volume brands.',
-      priceMonthly: '₹2,499',
-      priceYearly: '₹1,999',
+      priceMonthly: `${currency}${entMonthly.toLocaleString('en-IN')}`,
+      priceYearly: `${currency}${entYearly.toLocaleString('en-IN')}`,
       period: 'per month',
       popular: false,
       badge: 'Enterprise Grade',
-      features: [
-        'Everything in Pro, plus:',
-        'Multi-location dashboard (up to 10 locations)',
-        'Dedicated Technical Account Manager at Arventa Ventures',
-        'Custom REST API & Webhook integration',
-        'Priority SLA support via direct WhatsApp & phone',
-        'Automated monthly Google Business Profile local SEO audits',
-        'Custom domain support for review pages',
-      ],
-      ctaText: 'Contact Enterprise Desk',
-      ctaDisabled: false,
+      features: entFeatures,
       tierCode: 'ULTRA',
     },
   ];
 
   const handlePlanClick = (plan) => {
-    if (plan.ctaDisabled) return;
+    if (currentPlanId === plan.id) return;
     const text = encodeURIComponent(
-      `Hello Arventa Ventures Team,\n\nI want to upgrade my business (${user?.businessName || 'Business'}) on RANKORA to the *${plan.name}* plan.\n\nAccount: ${user?.email || 'N/A'}`
+      `Hello Arventa Ventures Team,\n\nI want to subscribe/upgrade my business (${user?.businessName || 'Business'}) on RANKORA to the *${plan.name}* plan.\n\nAccount: ${user?.email || 'N/A'}`
     );
     window.open(`https://wa.me/917872490719?text=${text}`, '_blank');
   };
@@ -98,7 +121,7 @@ export default function PlansClient({ user }) {
           Google Business Profile
         </Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <span className="font-semibold text-[#202124]">Plans (Pro / Ultra)</span>
+        <span className="font-semibold text-[#202124]">Plans (Starter / Pro / Ultra)</span>
       </div>
 
       {/* Header */}
@@ -185,18 +208,24 @@ export default function PlansClient({ user }) {
             <div className="pt-6 mt-6 border-t border-[#f1f3f4]">
               <button
                 type="button"
-                disabled={plan.ctaDisabled}
+                disabled={currentPlanId === plan.id}
                 onClick={() => handlePlanClick(plan)}
                 className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all ${
-                  plan.popular
-                    ? 'bg-[#1a73e8] hover:bg-[#1557b0] text-white shadow-xs'
-                    : plan.ctaDisabled
+                  currentPlanId === plan.id
                     ? 'bg-[#f1f3f4] text-[#70757a] cursor-default'
-                    : 'bg-[#f8f9fa] hover:bg-[#e8f0fe] text-[#1a73e8] border border-[#dadce0]'
+                    : plan.popular
+                    ? 'bg-[#1a73e8] hover:bg-[#1557b0] text-white shadow-xs cursor-pointer'
+                    : 'bg-[#f8f9fa] hover:bg-[#e8f0fe] text-[#1a73e8] border border-[#dadce0] cursor-pointer'
                 }`}
               >
-                <span>{plan.ctaText}</span>
-                {!plan.ctaDisabled && <ArrowRight className="w-3.5 h-3.5" />}
+                <span>
+                  {currentPlanId === plan.id
+                    ? 'Current Plan'
+                    : plan.id === 'enterprise'
+                    ? 'Contact Enterprise Desk'
+                    : `Upgrade to ${plan.name}`}
+                </span>
+                {currentPlanId !== plan.id && <ArrowRight className="w-3.5 h-3.5" />}
               </button>
             </div>
           </div>

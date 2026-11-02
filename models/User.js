@@ -92,8 +92,8 @@ const UserSchema = new mongoose.Schema(
     },
     plan: {
       type: String,
-      enum: ['free', 'starter', 'pro', 'enterprise'],
-      default: 'free',
+      enum: ['starter', 'pro', 'enterprise', 'free'],
+      default: 'starter',
     },
     planUpdatedAt: {
       type: Date,

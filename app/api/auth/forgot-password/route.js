@@ -44,7 +44,7 @@ export async function POST(request) {
         {
           error:
             emailResult?.error ||
-            'সিস্টেমে সমস্যা আছে, অনুগ্রহ করে পরে চেষ্টা করুন। (System issue, please try again later.)',
+            'System issue occurred. Please try again later.',
         },
         { status: 500 }
       );

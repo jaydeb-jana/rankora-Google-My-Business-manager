@@ -302,7 +302,7 @@ export default function Navbar() {
                   href="/register"
                   className="inline-flex items-center space-x-1.5 px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-full shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 transition-all rk-btn-shine"
                 >
-                  <span>Start Free Trial</span>
+                  <span>Get Started</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
@@ -362,7 +362,7 @@ export default function Navbar() {
                   href="/register"
                   className="py-2.5 text-center text-sm font-semibold text-white bg-blue-600 rounded-xl shadow-sm"
                 >
-                  Get Started Free
+                  Get Started
                 </a>
               </div>
             )}

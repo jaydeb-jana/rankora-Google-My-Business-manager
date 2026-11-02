@@ -118,8 +118,8 @@ export default function FaqClient() {
     {
       id: 'bl-1',
       cat: 'billing',
-      q: 'Is the Starter plan truly free forever?',
-      a: 'Yes. Our Starter plan has no monthly fees, no expiration date, and requires no credit card. It includes unlimited scans for 1 business location.',
+      q: 'How does the Starter subscription plan work?',
+      a: 'Our Starter plan provides essential Google review automation for single-location storefronts with transparent pricing and zero contract lock-in. It includes unlimited customer scans and authentic AI-assisted review generation.',
     },
     {
       id: 'bl-2',

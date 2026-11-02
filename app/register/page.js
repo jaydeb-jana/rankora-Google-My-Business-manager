@@ -131,7 +131,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout
-      badge="Free forever · No card required"
+      badge="Instant Setup · Official Business Account"
       badgeIcon={Sparkles}
       title={step === 0 ? 'Create your account' : 'Check your inbox'}
       subtitle={

@@ -33,7 +33,7 @@ export async function POST(request) {
 
     if (!validOtp) {
       return NextResponse.json(
-        { error: 'ভুল বা মেয়াদোত্তীর্ণ ওটিপি কোড (Invalid or expired verification code).' },
+        { error: 'Invalid or expired verification code.' },
         { status: 400 }
       );
     }

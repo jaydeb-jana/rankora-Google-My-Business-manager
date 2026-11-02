@@ -58,9 +58,43 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { smtp, ai, general } = body;
+    const { smtp, ai, general, pricing } = body;
 
     const updates = {};
+
+    const parseFeatures = (input) => {
+      if (Array.isArray(input)) {
+        return input.map((f) => String(f).trim()).filter(Boolean);
+      }
+      if (typeof input === 'string') {
+        return input
+          .split('\n')
+          .map((f) => f.trim())
+          .filter(Boolean);
+      }
+      return undefined;
+    };
+
+    if (pricing) {
+      updates.pricing = {
+        currency: pricing.currency ? pricing.currency.trim() : '₹',
+        starter: {
+          monthly: Math.max(0, Number(pricing.starter?.monthly) || 0),
+          yearly: Math.max(0, Number(pricing.starter?.yearly) || 0),
+          ...(parseFeatures(pricing.starter?.features) ? { features: parseFeatures(pricing.starter?.features) } : {}),
+        },
+        pro: {
+          monthly: Math.max(0, Number(pricing.pro?.monthly) || 0),
+          yearly: Math.max(0, Number(pricing.pro?.yearly) || 0),
+          ...(parseFeatures(pricing.pro?.features) ? { features: parseFeatures(pricing.pro?.features) } : {}),
+        },
+        enterprise: {
+          monthly: Math.max(0, Number(pricing.enterprise?.monthly) || 0),
+          yearly: Math.max(0, Number(pricing.enterprise?.yearly) || 0),
+          ...(parseFeatures(pricing.enterprise?.features) ? { features: parseFeatures(pricing.enterprise?.features) } : {}),
+        },
+      };
+    }
 
     if (smtp) {
       updates.smtp = {

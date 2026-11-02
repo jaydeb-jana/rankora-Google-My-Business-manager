@@ -33,10 +33,10 @@ import {
 import { useToast } from '@/components/Toast';
 
 const PLAN_STYLES = {
-  free: { label: 'Free', bg: 'bg-stone-100', text: 'text-stone-700', border: 'border-stone-200' },
   starter: { label: 'Starter', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
   pro: { label: 'Pro', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
   enterprise: { label: 'Enterprise', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
+  free: { label: 'Starter', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
 };
 
 export default function AdminClient({ currentUser }) {
@@ -85,9 +85,16 @@ export default function AdminClient({ currentUser }) {
       supportEmail: '',
       allowPublicRegistration: true,
     },
+    pricing: {
+      currency: '₹',
+      starter: { monthly: 499, yearly: 399 },
+      pro: { monthly: 999, yearly: 849 },
+      enterprise: { monthly: 2499, yearly: 1999 },
+    },
   });
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [savingPricing, setSavingPricing] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [showAiKey, setShowAiKey] = useState(false);
   const [testEmailRecipient, setTestEmailRecipient] = useState(currentUser?.email || '');
@@ -145,7 +152,25 @@ export default function AdminClient({ currentUser }) {
       const res = await fetch('/api/admin/settings');
       const data = await res.json();
       if (res.ok && data.success && data.settings) {
-        setSettings(data.settings);
+        setSettings((prev) => ({
+          ...prev,
+          ...data.settings,
+          pricing: {
+            currency: data.settings.pricing?.currency || '₹',
+            starter: {
+              monthly: Number(data.settings.pricing?.starter?.monthly) || 499,
+              yearly: Number(data.settings.pricing?.starter?.yearly) || 399,
+            },
+            pro: {
+              monthly: Number(data.settings.pricing?.pro?.monthly ?? 999),
+              yearly: Number(data.settings.pricing?.pro?.yearly ?? 849),
+            },
+            enterprise: {
+              monthly: Number(data.settings.pricing?.enterprise?.monthly ?? 2499),
+              yearly: Number(data.settings.pricing?.enterprise?.yearly ?? 1999),
+            },
+          },
+        }));
       }
     } catch (err) {
       console.error(err);
@@ -324,6 +349,35 @@ export default function AdminClient({ currentUser }) {
       showToast('Error saving settings to server.', 'error');
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  // Save Subscription Plan Pricing
+  const handleSavePricing = async (e) => {
+    e?.preventDefault();
+    setSavingPricing(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pricing: settings.pricing }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.settings?.pricing) {
+          setSettings((prev) => ({
+            ...prev,
+            pricing: data.settings.pricing,
+          }));
+        }
+        showToast('Subscription plan pricing updated successfully!', 'success');
+      } else {
+        showToast(data.error || 'Failed to update plan pricing.', 'error');
+      }
+    } catch (err) {
+      showToast('Error saving pricing to server.', 'error');
+    } finally {
+      setSavingPricing(false);
     }
   };
 
@@ -549,7 +603,6 @@ export default function AdminClient({ currentUser }) {
                   className="text-xs font-medium px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-stone-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
                 >
                   <option value="all">All Plans</option>
-                  <option value="free">Free</option>
                   <option value="starter">Starter</option>
                   <option value="pro">Pro</option>
                   <option value="enterprise">Enterprise</option>
@@ -918,7 +971,245 @@ export default function AdminClient({ currentUser }) {
             </div>
           </form>
 
-          {/* CARD 2: GMAIL API & SMTP CONFIGURATION */}
+          {/* CARD 2: SUBSCRIPTION PLAN PRICING */}
+          <form onSubmit={handleSavePricing} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-6">
+            <div className="flex items-start justify-between border-b border-stone-100 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-stone-900">
+                    Subscription Plan Pricing
+                  </h2>
+                  <p className="text-xs text-stone-500">
+                    Configure live customer pricing displayed on the Plans and Pricing pages
+                  </p>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full border border-purple-200">
+                Plans & Billing
+              </span>
+            </div>
+
+            {/* Price Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Plan 1: Starter */}
+              <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/20 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                    <h3 className="text-sm font-bold text-stone-900">Starter Plan</h3>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200">
+                    Tier 1
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Monthly Price (₹)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.starter?.monthly ?? 499}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              starter: {
+                                ...settings.pricing?.starter,
+                                monthly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Yearly Price (₹/mo)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.starter?.yearly ?? 399}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              starter: {
+                                ...settings.pricing?.starter,
+                                yearly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan 2: Pro */}
+              <div className="p-4 rounded-xl border border-purple-200 bg-purple-50/20 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                    <h3 className="text-sm font-bold text-purple-900">Pro Plan</h3>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200">
+                    Tier 2 (Popular)
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Monthly Price (₹)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.pro?.monthly ?? 999}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              pro: {
+                                ...settings.pricing?.pro,
+                                monthly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Yearly Price (₹/mo)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.pro?.yearly ?? 849}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              pro: {
+                                ...settings.pricing?.pro,
+                                yearly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan 3: Ultra Enterprise */}
+              <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/20 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+                    <h3 className="text-sm font-bold text-amber-900">Ultra Enterprise</h3>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                    Tier 3
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Monthly Price (₹)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.enterprise?.monthly ?? 2499}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              enterprise: {
+                                ...settings.pricing?.enterprise,
+                                monthly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-stone-700">Yearly Price (₹/mo)</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm font-semibold">₹</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.pricing?.enterprise?.yearly ?? 1999}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            pricing: {
+                              ...settings.pricing,
+                              enterprise: {
+                                ...settings.pricing?.enterprise,
+                                yearly: Number(e.target.value),
+                              },
+                            },
+                          })
+                        }
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-white border border-amber-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Informational Callout */}
+            <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-start space-x-2">
+              <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>System Notice:</strong> Only the monthly and yearly plan pricing amounts are customizable from this control center. Feature limits, badges, and subscription privileges remain locked to guarantee platform stability.
+              </span>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-3 border-t border-stone-100 flex items-center justify-end">
+              <button
+                type="submit"
+                disabled={savingPricing}
+                className="inline-flex items-center space-x-2 px-6 py-2.5 text-sm font-semibold text-white bg-purple-700 hover:bg-purple-800 rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
+              >
+                {savingPricing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+                <span>Save Plan Pricing</span>
+              </button>
+            </div>
+          </form>
+
+          {/* CARD 3: GMAIL API & SMTP CONFIGURATION */}
           <form onSubmit={handleSaveSettings} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-5">
             <div className="flex items-start justify-between border-b border-stone-100 pb-4">
               <div className="flex items-center space-x-3">
@@ -1111,8 +1402,8 @@ export default function AdminClient({ currentUser }) {
             </div>
 
             <div className="space-y-2">
-              {['free', 'starter', 'pro', 'enterprise'].map((p) => {
-                const config = PLAN_STYLES[p];
+              {['starter', 'pro', 'enterprise'].map((p) => {
+                const config = PLAN_STYLES[p] || PLAN_STYLES.starter;
                 return (
                   <label
                     key={p}
@@ -1135,7 +1426,6 @@ export default function AdminClient({ currentUser }) {
                           {config.label}
                         </span>
                         <p className="text-[11px] text-stone-500 mt-0.5">
-                          {p === 'free' && 'Basic features with standard review generation quota'}
                           {p === 'starter' && 'Standard QR generation, custom questions, and analytics'}
                           {p === 'pro' && 'Unlimited review drafts, AI multi-language, and priority badges'}
                           {p === 'enterprise' && 'Full platform capabilities with dedicated enterprise support'}

@@ -28,6 +28,59 @@ const SystemSettingSchema = new mongoose.Schema(
       supportEmail: { type: String, default: '' },
       allowPublicRegistration: { type: Boolean, default: true },
     },
+    pricing: {
+      currency: { type: String, default: '₹' },
+      starter: {
+        monthly: { type: Number, default: 499 },
+        yearly: { type: Number, default: 399 },
+        features: {
+          type: [String],
+          default: [
+            'Single Business Profile connection',
+            'Standard QR Code Stand generation',
+            'AI Review Drafts (Powered by Gemini)',
+            'Basic review analytics & activity log',
+            'Direct link to Google review box',
+          ],
+        },
+      },
+      pro: {
+        monthly: { type: Number, default: 999 },
+        yearly: { type: Number, default: 849 },
+        features: {
+          type: [String],
+          default: [
+            'Everything in Starter, plus:',
+            'Custom Branded QR Stands (Print Ready PDF)',
+            'Unlimited AI Review Draft generations',
+            'AI Knowledge Base customization with custom services',
+            'WhatsApp instant inquiry desk priority',
+            'Custom review landing page branding & colors',
+            'Zero Google review link dropouts',
+          ],
+        },
+      },
+      enterprise: {
+        monthly: { type: Number, default: 2499 },
+        yearly: { type: Number, default: 1999 },
+        features: {
+          type: [String],
+          default: [
+            'Everything in Pro, plus:',
+            'Multi-location dashboard (up to 10 locations)',
+            'Dedicated Technical Account Manager at Arventa Ventures',
+            'Custom REST API & Webhook integration',
+            'Priority SLA support via direct WhatsApp & phone',
+            'Automated monthly Google Business Profile local SEO audits',
+            'Custom domain support for review pages',
+          ],
+        },
+      },
+    },
+    famgateway: {
+      enabled: { type: Boolean, default: false },
+      apiKey: { type: String, default: '', trim: true },
+    },
   },
   { timestamps: true }
 );

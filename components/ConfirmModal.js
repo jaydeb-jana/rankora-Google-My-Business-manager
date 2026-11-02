@@ -8,10 +8,14 @@ export default function ConfirmModal({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   isDestructive = false,
+  danger = false,
+  loading = false,
   onConfirm,
   onCancel,
 }) {
   if (!isOpen) return null;
+
+  const isDanger = Boolean(isDestructive || danger);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
@@ -19,7 +23,7 @@ export default function ConfirmModal({
         <div className="flex items-start space-x-3">
           <div
             className={`p-2.5 rounded-full ${
-              isDestructive ? 'bg-[#fce8e6] text-[#d93025]' : 'bg-[#e8f0fe] text-[#1a73e8]'
+              isDanger ? 'bg-[#fce8e6] text-[#d93025]' : 'bg-[#e8f0fe] text-[#1a73e8]'
             }`}
           >
             <AlertTriangle className="w-5 h-5" />
@@ -30,7 +34,8 @@ export default function ConfirmModal({
           </div>
           <button
             onClick={onCancel}
-            className="text-[#5f6368] hover:text-[#202124] p-1 rounded-full hover:bg-[#f1f3f4]"
+            disabled={loading}
+            className="text-[#5f6368] hover:text-[#202124] p-1 rounded-full hover:bg-[#f1f3f4] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -40,20 +45,22 @@ export default function ConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-[#3c4043] bg-white border border-[#dadce0] rounded-lg hover:bg-[#f8f9fa] transition-colors"
+            disabled={loading}
+            className="px-4 py-2 text-sm font-medium text-[#3c4043] bg-white border border-[#dadce0] rounded-lg hover:bg-[#f8f9fa] transition-colors cursor-pointer disabled:opacity-50"
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors ${
-              isDestructive
+            disabled={loading}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors cursor-pointer disabled:opacity-50 ${
+              isDanger
                 ? 'bg-[#d93025] hover:bg-[#c5221f]'
                 : 'bg-[#1a73e8] hover:bg-[#1557b0]'
             }`}
           >
-            {confirmText}
+            {loading ? 'Please wait...' : confirmText}
           </button>
         </div>
       </div>

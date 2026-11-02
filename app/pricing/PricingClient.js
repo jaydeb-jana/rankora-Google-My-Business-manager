@@ -16,18 +16,26 @@ import {
   HeartHandshake
 } from 'lucide-react';
 
-export default function PricingClient() {
+export default function PricingClient({ pricingConfig }) {
   const [annualBilling, setAnnualBilling] = useState(true);
   const [openFaq, setOpenFaq] = useState(0);
+
+  const currency = pricingConfig?.currency || '₹';
+  const starterM = Number(pricingConfig?.starter?.monthly) || 499;
+  const starterY = Number(pricingConfig?.starter?.yearly) || 399;
+  const proM = Number(pricingConfig?.pro?.monthly) || 999;
+  const proY = Number(pricingConfig?.pro?.yearly) || 849;
+  const entM = Number(pricingConfig?.enterprise?.monthly) || 2499;
+  const entY = Number(pricingConfig?.enterprise?.yearly) || 1999;
 
   const tiers = [
     {
       name: 'Starter',
       id: 'starter',
-      badge: 'Free Forever',
+      badge: 'Starter Tier',
       desc: 'Perfect for solo professionals, local food trucks, and single-practitioner clinics starting out.',
-      priceMonthly: 0,
-      priceAnnual: 0,
+      priceMonthly: starterM,
+      priceAnnual: starterY,
       highlight: false,
       features: [
         '1 Physical Business Location',
@@ -47,7 +55,7 @@ export default function PricingClient() {
         'Multi-Location Central Dashboard',
         'Webhook & POS Integrations',
       ],
-      cta: 'Get Started Free',
+      cta: 'Choose Starter',
       ctaHref: '/register?plan=starter',
     },
     {
@@ -55,8 +63,8 @@ export default function PricingClient() {
       id: 'growth-pro',
       badge: 'Most Popular',
       desc: 'Ideal for busy dental practices, auto shops, popular restaurants, and service contractors.',
-      priceMonthly: 29,
-      priceAnnual: 23,
+      priceMonthly: proM,
+      priceAnnual: proY,
       highlight: true,
       features: [
         'Everything in Starter, plus:',
@@ -74,7 +82,7 @@ export default function PricingClient() {
         'Multi-Location Central Dashboard',
         'Dedicated Enterprise Account Manager',
       ],
-      cta: 'Start 14-Day Free Trial',
+      cta: 'Upgrade to Pro',
       ctaHref: '/register?plan=growth',
     },
     {
@@ -82,8 +90,8 @@ export default function PricingClient() {
       id: 'enterprise',
       badge: 'Multi-Location',
       desc: 'Built for franchises, multi-doctor groups, agency resellers, and enterprise chains.',
-      priceMonthly: 79,
-      priceAnnual: 63,
+      priceMonthly: entM,
+      priceAnnual: entY,
       highlight: false,
       features: [
         'Everything in Growth Pro, plus:',
@@ -153,12 +161,12 @@ export default function PricingClient() {
 
   const pricingFaqs = [
     {
-      q: 'Can I truly use Rankaro for free forever?',
-      a: 'Yes. Our Starter plan is 100% free with no expiration, no credit card required, and no hidden trial traps. You get unlimited scans and authentic Google review generation for 1 location indefinitely.',
+      q: 'How does subscription billing work for Rankaro?',
+      a: 'All plans are billed transparently on a monthly or yearly cycle. You receive instant access to your QR stands, AI review synthesis, and dashboard analytics from day one with zero lock-in contracts.',
     },
     {
-      q: 'How does the 14-day free trial on Growth Pro work?',
-      a: 'You can test all Pro features (custom branding, private resolution gate, staff tracking, and vector QR exports) for 14 days without paying a penny. Cancel anytime with a single click in your dashboard.',
+      q: 'Can I upgrade or switch my subscription tier at any time?',
+      a: 'Yes, absolutely. You can seamlessly upgrade or adjust subscription tiers anytime directly from your dashboard or by connecting with our dedicated customer support desk.',
     },
     {
       q: 'What is your 30-day money-back guarantee?',
@@ -262,8 +270,8 @@ export default function PricingClient() {
 
                   {/* Price Block */}
                   <div className="flex items-baseline space-x-2 mb-6 pb-6 border-b border-slate-200/20">
-                    <span className="text-5xl font-black tracking-tight">
-                      ${price}
+                    <span className="text-4xl sm:text-5xl font-black tracking-tight">
+                      {currency}{price.toLocaleString('en-IN')}
                     </span>
                     <span className={`text-xs font-semibold ${tier.highlight ? 'text-slate-400' : 'text-slate-500'}`}>
                       {price === 0 ? 'forever' : '/ month'}
