@@ -20,8 +20,11 @@ export default function PublicReviewPageClient({ business }) {
   // Step navigation: 'SELECT' (1) -> 'DRAFT' (2)
   const [currentStep, setCurrentStep] = useState('SELECT');
 
-  // Form selections - Default to 5-stars (Exceptional)
-  const [selectedServiceIds, setSelectedServiceIds] = useState([]);
+  // Form selections - Pre-select services marked as default by the business owner
+  const [selectedServiceIds, setSelectedServiceIds] = useState(() => {
+    const allServices = business?.services || [];
+    return allServices.filter((s) => Boolean(s.isDefault)).map((s) => s.id);
+  });
   const [sentiment, setSentiment] = useState('exceptional'); // 'exceptional' (5), 'great' (4), 'neutral' (3), 'critical' (2), 'terrible' (1)
   const [experienceText, setExperienceText] = useState('');
   const experienceTextareaRef = useRef(null);

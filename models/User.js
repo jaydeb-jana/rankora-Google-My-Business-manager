@@ -6,6 +6,7 @@ const ServiceSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   category: { type: String, default: 'General' },
   suggestedKeywords: { type: [String], default: [] },
+  isDefault: { type: Boolean, default: false },
 });
 
 const CustomQuestionSchema = new mongoose.Schema({

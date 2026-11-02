@@ -27,7 +27,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { name, description = '', category = '', suggestedKeywords = [] } = body;
+    const { name, description = '', category = '', suggestedKeywords = [], isDefault = false } = body;
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Service name is required.' }, { status: 400 });
@@ -39,6 +39,7 @@ export async function POST(request) {
       description: description.trim(),
       category: category.trim(),
       suggestedKeywords: Array.isArray(suggestedKeywords) ? suggestedKeywords : [],
+      isDefault: Boolean(isDefault),
     };
 
     const currentServices = user.services || [];
@@ -78,7 +79,7 @@ export async function PUT(request) {
     }
 
     // Otherwise updating single service by id
-    const { id, name, description, category, suggestedKeywords } = body;
+    const { id, name, description, category, suggestedKeywords, isDefault } = body;
     if (!id || !name?.trim()) {
       return NextResponse.json({ error: 'Service ID and Name are required.' }, { status: 400 });
     }
@@ -98,6 +99,7 @@ export async function PUT(request) {
       suggestedKeywords: Array.isArray(suggestedKeywords)
         ? suggestedKeywords
         : currentServices[index].suggestedKeywords,
+      isDefault: typeof isDefault === 'boolean' ? isDefault : currentServices[index].isDefault,
     };
 
     const updatedUser = await userRepo.updateById(user._id, { services: currentServices });

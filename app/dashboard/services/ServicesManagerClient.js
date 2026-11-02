@@ -20,6 +20,7 @@ import {
   AlertCircle,
   ShieldCheck,
   Key,
+  Star,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -67,6 +68,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   // Service Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [serviceName, setServiceName] = useState('');
+  const [isDefaultNewService, setIsDefaultNewService] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [isPresetModalOpen, setIsPresetModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -231,7 +233,35 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   // ---------------------------------------------------------------------------
   const openAddModal = () => {
     setServiceName('');
+    setIsDefaultNewService(false);
     setIsModalOpen(true);
+  };
+
+  const handleToggleDefault = async (serviceId) => {
+    const updated = services.map((s) =>
+      s.id === serviceId ? { ...s, isDefault: !Boolean(s.isDefault) } : s
+    );
+    setServices(updated);
+
+    try {
+      const res = await fetch('/api/business/services', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ services: updated }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update service default state');
+
+      const target = updated.find((s) => s.id === serviceId);
+      if (target?.isDefault) {
+        showToast(`"${target.name}" is now pre-selected by default on review page!`, 'success');
+      } else {
+        showToast(`"${target.name}" removed from default selection.`, 'info');
+      }
+    } catch (err) {
+      setServices(services);
+      showToast(err.message, 'error');
+    }
   };
 
   const handleFormSubmit = async (e) => {
@@ -246,7 +276,10 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       const res = await fetch('/api/business/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: serviceName.trim() }),
+        body: JSON.stringify({
+          name: serviceName.trim(),
+          isDefault: isDefaultNewService,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to add service');
@@ -559,25 +592,62 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
         {services.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {services.map((svc) => (
-              <div
-                key={svc.id}
-                className="bg-white p-3.5 rounded-xl border border-[#dadce0] google-card-shadow flex items-center justify-between gap-3 group hover:border-[#1a73e8] transition-all"
-              >
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-[#202124] truncate">{svc.name}</h4>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setServiceToDelete(svc)}
-                  className="p-1.5 text-[#5f6368] hover:text-[#d93025] hover:bg-[#fce8e6] rounded-lg transition-colors cursor-pointer shrink-0"
-                  title="Delete service"
+            {services.map((svc) => {
+              const isDef = Boolean(svc.isDefault);
+              return (
+                <div
+                  key={svc.id}
+                  className={`p-3.5 rounded-xl border google-card-shadow flex items-center justify-between gap-2.5 transition-all ${
+                    isDef
+                      ? 'bg-blue-50/50 border-blue-400 ring-1 ring-blue-400/30 shadow-xs'
+                      : 'bg-white border-[#dadce0] hover:border-slate-300'
+                  }`}
                 >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+                  <div className="flex-1 min-w-0 pr-1">
+                    <div className="flex items-center space-x-1.5">
+                      <h4
+                        className={`text-sm font-semibold truncate ${
+                          isDef ? 'text-blue-950 font-bold' : 'text-[#202124]'
+                        }`}
+                      >
+                        {svc.name}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleDefault(svc.id)}
+                      className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${
+                        isDef
+                          ? 'bg-blue-600 text-white shadow-2xs hover:bg-blue-700'
+                          : 'text-[#5f6368] hover:text-[#1a73e8] hover:bg-[#e8f0fe] border border-transparent hover:border-blue-200'
+                      }`}
+                      title={
+                        isDef
+                          ? 'Pre-selected by default on public review page. Click to uncheck.'
+                          : 'Click to make this pre-selected by default on public review page'
+                      }
+                    >
+                      <Star
+                        className={`w-3 h-3 ${isDef ? 'fill-white text-white' : 'text-[#5f6368]'}`}
+                      />
+                      <span>{isDef ? 'Default' : 'Set Default'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setServiceToDelete(svc)}
+                      className="p-1 text-[#5f6368] hover:text-[#d93025] hover:bg-[#fce8e6] rounded-lg transition-colors cursor-pointer"
+                      title="Delete service"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-2xl p-8 border border-[#dadce0] text-center space-y-3">
@@ -799,6 +869,18 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                   className="w-full px-3.5 py-2 text-xs border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
                 />
               </div>
+
+              <label className="flex items-center space-x-2 pt-0.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={isDefaultNewService}
+                  onChange={(e) => setIsDefaultNewService(e.target.checked)}
+                  className="w-4 h-4 text-[#1a73e8] rounded border-[#dadce0] focus:ring-[#1a73e8]"
+                />
+                <span className="text-xs font-medium text-[#202124]">
+                  Pre-select as default on review page
+                </span>
+              </label>
 
               <div className="flex justify-end space-x-2 pt-2">
                 <button
