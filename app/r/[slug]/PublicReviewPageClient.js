@@ -681,38 +681,22 @@ export default function PublicReviewPageClient({ business }) {
                 </div>
               )}
 
-              {/* Conversion Buttons */}
-              <div className="space-y-2 pt-1">
-                {/* 1-Tap Super Action */}
+              {/* Single Continue Button */}
+              <div className="pt-1">
                 <button
                   type="button"
                   onClick={handleSuperAction}
                   className="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 shadow-md transition-all duration-150 flex items-center justify-center space-x-2 active:scale-95 cursor-pointer group"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300 group-hover:rotate-12 transition-transform" />
-                  <span>Copy Review &amp; Open Google</span>
-                  <ExternalLink className="w-4 h-4 ml-0.5" />
-                </button>
-
-                {/* Secondary Button: Copy Text Only */}
-                <button
-                  type="button"
-                  onClick={handleCopyReview}
-                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 ${
-                    copied
-                      ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
                   {copied ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-                      <span>Copied to Clipboard!</span>
+                      <Check className="w-4 h-4 text-emerald-300 stroke-[3]" />
+                      <span>Copied! Opening Google...</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Copy Text Only</span>
+                      <span>Continue</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
@@ -727,7 +711,7 @@ export default function PublicReviewPageClient({ business }) {
                   <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0">
                     1
                   </span>
-                  <span>Tap <strong>&quot;Copy Review &amp; Open Google&quot;</strong></span>
+                  <span>Tap <strong>&quot;Continue&quot;</strong> (automatically copies your review)</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/80">
                   <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px] shrink-0">
