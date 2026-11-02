@@ -19,6 +19,9 @@ import {
   Image as ImageIcon,
   Trash2,
   AlertTriangle,
+  Lock,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
@@ -28,8 +31,24 @@ export default function ProfileClient({ initialUser }) {
   const { showToast } = useToast();
   const [user, setUser] = useState(initialUser);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [copiedReviewUrl, setCopiedReviewUrl] = useState(false);
+  const [currentOrigin, setCurrentOrigin] = useState('');
   const fileInputRef = useRef(null);
   const [logoUploading, setLogoUploading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentOrigin(window.location.origin);
+    }
+  }, []);
+
+  const handleCopyReviewLink = () => {
+    const link = `${currentOrigin || ''}/r/${user?.slug || ''}`;
+    navigator.clipboard.writeText(link);
+    setCopiedReviewUrl(true);
+    showToast('Review link copied to clipboard!', 'success');
+    setTimeout(() => setCopiedReviewUrl(false), 2000);
+  };
 
   const [formData, setFormData] = useState({
     businessName: user?.businessName || '',

@@ -34,6 +34,7 @@ const AiKnowledgeSchema = new mongoose.Schema(
       default: [{ code: 'en', name: 'English', ratio: 100 }],
     },
     geminiApiKey: { type: String, default: '', trim: true },
+    geminiModel: { type: String, default: 'gemini-3.5-flash' },
     isKeyVerified: { type: Boolean, default: false },
   },
   { _id: false }

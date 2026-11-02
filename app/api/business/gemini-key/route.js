@@ -12,6 +12,7 @@ export async function GET() {
     const freshUser = await userRepo.findById(user._id);
     const key = freshUser?.aiKnowledge?.geminiApiKey || '';
     const isVerified = Boolean(freshUser?.aiKnowledge?.isKeyVerified);
+    const model = freshUser?.aiKnowledge?.geminiModel || 'gemini-3.5-flash';
 
     const maskedKey = key
       ? key.length > 10
@@ -23,6 +24,7 @@ export async function GET() {
       success: true,
       hasKey: Boolean(key),
       isKeyVerified: isVerified,
+      model,
       maskedKey,
     });
   } catch (err) {
@@ -45,61 +47,69 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Please enter a Gemini API Key.' }, { status: 400 });
     }
 
-    // Step 1: Send test prompt "Hi" to Google Gemini REST endpoint
-    // Testing with gemini-1.5-flash or gemini-1.5-pro
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    // Step 1: Send test prompt "Hi" to Google Gemini REST endpoint.
+    // Try modern free models in order: gemini-3.5-flash (flagship, free), gemini-3.5-flash-lite, gemini-2.5-flash, gemini-1.5-flash
+    const CANDIDATE_MODELS = [
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
+    ];
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    let verifiedModel = null;
+    let testReply = '';
+    let lastErrorMsg = '';
 
-    let geminiRes;
-    let geminiData;
-    try {
-      geminiRes = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: 'Hi' }],
+    for (const model of CANDIDATE_MODELS) {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      try {
+        const geminiRes = await fetch(geminiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Hi' }] }],
+            generationConfig: {
+              maxOutputTokens: 60,
+              temperature: 0.7,
             },
-          ],
-          generationConfig: {
-            maxOutputTokens: 60,
-            temperature: 0.7,
-          },
-        }),
-        signal: controller.signal,
-      });
-      geminiData = await geminiRes.json();
-    } catch (netErr) {
-      clearTimeout(timeoutId);
-      const isTimeout = netErr.name === 'AbortError';
-      return NextResponse.json(
-        {
-          error: isTimeout
-            ? 'Verification timed out while contacting Google Gemini API. Please check your internet connection.'
-            : `Network error contacting Gemini API: ${netErr.message}`,
-        },
-        { status: 400 }
-      );
-    } finally {
-      clearTimeout(timeoutId);
+          }),
+          signal: controller.signal,
+        });
+
+        const geminiData = await geminiRes.json();
+        clearTimeout(timeoutId);
+
+        if (geminiRes.ok && geminiData?.candidates?.[0]?.content?.parts?.[0]?.text) {
+          verifiedModel = model;
+          testReply = geminiData.candidates[0].content.parts[0].text.trim();
+          break;
+        }
+
+        // Check if API key itself is fundamentally invalid
+        const errMsg = geminiData?.error?.message || '';
+        lastErrorMsg = errMsg;
+        if (/api key not valid|api_key_invalid|invalid api key/i.test(errMsg)) {
+          return NextResponse.json(
+            { error: 'Invalid Google Gemini API key. Please check the key from Google AI Studio and try again.' },
+            { status: 400 }
+          );
+        }
+      } catch (netErr) {
+        clearTimeout(timeoutId);
+        lastErrorMsg = netErr.message;
+      }
     }
 
-    if (!geminiRes.ok) {
-      const errorMsg =
-        geminiData?.error?.message ||
-        `Gemini returned HTTP ${geminiRes.status} (${geminiRes.statusText || 'Error'})`;
+    if (!verifiedModel) {
       return NextResponse.json(
-        { error: `Gemini verification failed: ${errorMsg}` },
+        { error: `Gemini verification failed: ${lastErrorMsg || 'No supported Gemini model responded. Please verify your API key.'}` },
         { status: 400 }
       );
     }
-
-    const testReply =
-      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-      'Hello! How can I help you today?';
 
     // Step 2: Verification succeeded! Save exclusively for this user account
     const freshUser = await userRepo.findById(user._id);
@@ -108,6 +118,7 @@ export async function POST(request) {
     const updatedAiKnowledge = {
       ...existingAiKnowledge,
       geminiApiKey: apiKey,
+      geminiModel: verifiedModel,
       isKeyVerified: true,
     };
 
@@ -122,7 +133,8 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Gemini API Key verified and saved successfully for your account!',
+      message: `Gemini API Key verified and saved successfully! Connected to Google Gemini (${verifiedModel}).`,
+      verifiedModel,
       testReply,
       maskedKey,
       isKeyVerified: true,

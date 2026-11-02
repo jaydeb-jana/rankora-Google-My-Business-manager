@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { userRepo, otpRepo } from '@/lib/repositories';
-import { hashPassword, generateSlug } from '@/lib/auth';
+import { hashPassword, getUniqueSlug } from '@/lib/auth';
 import { generateOTP, sendOtpEmail } from '@/lib/mail';
 import { DEFAULT_SERVICES } from '@/lib/presets';
 
@@ -37,13 +37,7 @@ export async function POST(request) {
     }
 
     const hashedPassword = await hashPassword(password);
-    let baseSlug = generateSlug(businessName);
-
-    // Ensure slug uniqueness
-    const slugOwner = await userRepo.findBySlug(baseSlug);
-    if (slugOwner && (!existing || slugOwner._id.toString() !== existing._id.toString())) {
-      baseSlug = `${baseSlug}-${Math.floor(100 + Math.random() * 900)}`;
-    }
+    const baseSlug = await getUniqueSlug(businessName, existing?._id);
 
     // Clean up any stale unverified account if present from older versions
     if (existing && !existing.isVerified) {

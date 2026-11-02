@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSessionUser, generateSlug } from '@/lib/auth';
+import { getSessionUser, generateSlug, getUniqueSlug } from '@/lib/auth';
 import { userRepo } from '@/lib/repositories';
 
 export async function GET() {
@@ -68,19 +68,31 @@ export async function PATCH(request) {
       }
     }
 
-    // Slug validation and collision check
-    if (updates.slug) {
-      const cleanSlug = generateSlug(updates.slug);
-      if (cleanSlug !== user.slug) {
-        const existing = await userRepo.findBySlug(cleanSlug);
-        if (existing && existing._id.toString() !== user._id.toString()) {
-          return NextResponse.json(
-            { error: 'This URL handle is already taken. Please choose another.' },
-            { status: 409 }
-          );
-        }
-        updates.slug = cleanSlug;
+    // Validate Google review link: warn if user pastes their internal Rankaro review link
+    if (updates.googleReviewUrl) {
+      const lower = updates.googleReviewUrl.toLowerCase();
+      if (
+        (lower.includes('/r/') && (lower.includes('localhost') || lower.includes('rankaro'))) ||
+        (user.slug && lower.includes(`/r/${user.slug.toLowerCase()}`))
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'You entered your Rankaro review page URL! Please enter your official Google Business Profile review link from Google Maps (e.g. https://g.page/r/.../review).',
+          },
+          { status: 400 }
+        );
       }
+    }
+
+    // Slug is strictly NOT manually editable.
+    // It is automatically generated from businessName (lowercase, symbols removed, random number if collision).
+    delete updates.slug;
+
+    if (updates.businessName && updates.businessName !== user.businessName) {
+      updates.slug = await getUniqueSlug(updates.businessName, user._id);
+    } else if (!user.slug) {
+      updates.slug = await getUniqueSlug(user.businessName, user._id);
     }
 
     const updatedUser = await userRepo.updateById(user._id, updates);
