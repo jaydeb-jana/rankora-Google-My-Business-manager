@@ -55,13 +55,12 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-12">
           {/* Brand Col */}
           <div className="col-span-2 space-y-4">
-            <a href="/" className="flex items-center space-x-2.5">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-lg shadow-md shadow-blue-500/20">
-                R
-              </div>
-              <span className="text-xl font-extrabold text-white tracking-tight">
-                Rankaro
-              </span>
+            <a href="/" className="inline-block group">
+              <img
+                src="/logo-white.png"
+                alt="RANKORA"
+                className="h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              />
             </a>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               The ethical reputation operating system for brick-and-mortar storefronts, healthcare practices, and service professionals worldwide.

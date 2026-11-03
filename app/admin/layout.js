@@ -42,14 +42,15 @@ export default async function AdminLayout({ children }) {
       <header className="h-16 bg-white border-b border-[#dadce0] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-40 shadow-2xs">
         <div className="flex items-center space-x-4">
           <a href="/admin" className="flex items-center space-x-2.5 group">
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white shadow-md shadow-blue-500/20 font-extrabold text-lg shrink-0 group-hover:scale-105 transition-transform">
-              R
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
-            </div>
+            <img
+              src="/logo-icon.png"
+              alt="RANKORA"
+              className="w-9 h-9 object-contain shrink-0 group-hover:scale-105 transition-transform"
+            />
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-lg font-bold tracking-tight text-[#202124] group-hover:text-blue-600 transition-colors">
-                  Rankaro
+                  RANKORA
                 </span>
                 <span className="text-[11px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200">
                   Super Admin

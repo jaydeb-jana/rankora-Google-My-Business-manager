@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, ExternalLink, Menu, X, Share2, Check, Copy } from 'lucide-react';
+import { LogOut, ExternalLink, Menu, X, Share2, Check, Copy, Crown } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
 export default function DashboardHeader({ user }) {
@@ -9,6 +9,23 @@ export default function DashboardHeader({ user }) {
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const rawPlan = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
+  const planName = rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : 'Starter';
+
+  const now = new Date();
+  const planStart = user?.planUpdatedAt
+    ? new Date(user.planUpdatedAt)
+    : user?.createdAt
+    ? new Date(user.createdAt)
+    : now;
+
+  const expiresAt = user?.planExpiresAt
+    ? new Date(user.planExpiresAt)
+    : new Date(planStart.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  const diffMs = expiresAt.getTime() - now.getTime();
+  const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
   const reviewUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/r/${user.slug}`
@@ -51,6 +68,16 @@ export default function DashboardHeader({ user }) {
 
         {/* Right Action buttons */}
         <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Active Plan & Days Remaining Pill */}
+          <a
+            href="/dashboard/plans"
+            className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1a73e8] border border-[#d2e3fc] transition-colors shadow-2xs"
+            title="Subscription details • Click to view plans"
+          >
+            <Crown className="w-3.5 h-3.5 text-[#1a73e8]" />
+            <span>{planName} Plan &bull; {daysLeft > 0 ? `${daysLeft}d left` : 'Renews Today'}</span>
+          </a>
+
           {/* 1-Click Copy Link button */}
           <button
             onClick={handleCopyLink}
@@ -88,6 +115,21 @@ export default function DashboardHeader({ user }) {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-[#dadce0] px-4 py-3 space-y-1">
+          {/* Mobile Plan Badge */}
+          <a
+            href="/dashboard/plans"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between px-3 py-2 text-xs font-bold text-[#1a73e8] bg-[#e8f0fe] rounded-lg mb-2 border border-[#d2e3fc]"
+          >
+            <div className="flex items-center space-x-1.5">
+              <Crown className="w-3.5 h-3.5" />
+              <span>{planName} Plan</span>
+            </div>
+            <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              {daysLeft > 0 ? `${daysLeft} Days Left` : 'Renews Today'}
+            </span>
+          </a>
+
           <a
             href="/dashboard"
             onClick={() => setMobileMenuOpen(false)}

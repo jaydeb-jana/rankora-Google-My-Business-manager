@@ -13,8 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Rankaro - Authentic Google Reviews Platform",
+  title: "RANKORA - Authentic Google Reviews Platform",
   description: "Empower customers to write detailed, genuine Google reviews using guided prompts and scannable QR codes.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

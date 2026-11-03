@@ -757,7 +757,12 @@ export default function PublicReviewPageClient({ business }) {
 
       {/* Clean Footer Branding */}
       <footer className="py-3 text-center text-[11px] text-slate-400">
-        <p>Powered by <strong className="text-slate-600">Rankaro</strong> • Review Engine</p>
+        <p className="inline-flex items-center justify-center space-x-1.5">
+          <span>Powered by</span>
+          <img src="/logo-icon.png" alt="RANKORA" className="w-3.5 h-3.5 object-contain inline" />
+          <strong className="text-slate-700">RANKORA</strong>
+          <span>• Review Engine</span>
+        </p>
       </footer>
     </div>
   );

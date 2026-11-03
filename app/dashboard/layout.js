@@ -28,10 +28,12 @@ export default async function DashboardLayout({ children }) {
           {/* Official Google Partner Trust Header Bar */}
           <div className="bg-[#202124] text-white px-6 py-3.5 flex items-center justify-between border-b border-stone-800">
             <div className="flex items-center space-x-2.5">
-              <div className="w-6 h-6 rounded-md bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                R
-              </div>
-              <span className="font-bold text-sm tracking-tight text-white">Rankaro</span>
+              <img
+                src="/logo-icon.png"
+                alt="RANKORA"
+                className="w-6 h-6 object-contain"
+              />
+              <span className="font-bold text-sm tracking-tight text-white">RANKORA</span>
               <span className="text-[10px] text-stone-500">&bull;</span>
               <span className="text-xs text-stone-300 font-medium">Compliance Desk</span>
             </div>

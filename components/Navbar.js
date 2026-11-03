@@ -104,19 +104,12 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2.5 group">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 text-white shadow-md shadow-blue-500/20 font-extrabold text-xl group-hover:scale-105 transition-transform">
-              R
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-                Rankaro
-              </span>
-              <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase -mt-1">
-                Reputation OS
-              </span>
-            </div>
+          <a href="/" className="flex items-center space-x-2 group">
+            <img
+              src="/logo.png"
+              alt="RANKORA"
+              className="h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </a>
 
           {/* Desktop Navigation */}

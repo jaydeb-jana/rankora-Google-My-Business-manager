@@ -532,14 +532,14 @@ export default function GoogleReviewAnimationGuide({
         <div className="px-3.5 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white flex items-center justify-between shrink-0 shadow-sm">
           <div className="flex items-center space-x-2.5">
             {/* Rankaro Signature Logo Badge */}
-            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-400 via-blue-500 to-indigo-600 text-white shadow-md font-black text-base shrink-0 border border-white/20">
-              R
+            <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md shadow-md shrink-0 border border-white/20 p-1">
+              <img src="/logo-icon.png" alt="RANKORA" className="w-full h-full object-contain" />
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-indigo-700 rounded-full shadow-xs" />
             </div>
 
             <div className="flex flex-col text-left">
               <div className="flex items-center space-x-1.5">
-                <span className="text-sm font-black tracking-tight text-white">Rankaro</span>
+                <span className="text-sm font-black tracking-tight text-white">RANKORA</span>
                 <span className="px-1.5 py-0.5 rounded-md bg-white/20 text-[9px] font-extrabold uppercase tracking-wider text-sky-200 border border-white/10 leading-none">
                   Review Copied!
                 </span>

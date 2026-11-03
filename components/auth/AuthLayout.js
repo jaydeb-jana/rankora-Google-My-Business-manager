@@ -113,10 +113,11 @@ export default function AuthLayout({ children, title, subtitle, badge, badgeIcon
         {/* top brand */}
         <div className="relative z-10 flex items-center justify-between rk-fade-up">
           <a href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-white text-[#1a73e8] flex items-center justify-center font-extrabold text-xl shadow-lg group-hover:rotate-6 transition-transform">
-              R
-            </div>
-            <span className="text-2xl font-bold tracking-tight">Rankaro</span>
+            <img
+              src="/logo-white.png"
+              alt="RANKORA"
+              className="h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
+            />
           </a>
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur text-[11px] font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-[#81c995]" /> Policy-compliant reviews
@@ -171,8 +172,11 @@ export default function AuthLayout({ children, title, subtitle, badge, badgeIcon
 
         <div className="relative z-10 flex items-center justify-between px-5 sm:px-10 pt-6">
           <a href="/" className="flex items-center gap-2 lg:hidden">
-            <div className="w-9 h-9 rounded-xl bg-[#1a73e8] text-white flex items-center justify-center font-extrabold text-lg shadow-md">R</div>
-            <span className="font-bold text-xl text-[#202124]">Rankaro</span>
+            <img
+              src="/logo.png"
+              alt="RANKORA"
+              className="h-8 w-auto object-contain"
+            />
           </a>
           <a
             href="/"
