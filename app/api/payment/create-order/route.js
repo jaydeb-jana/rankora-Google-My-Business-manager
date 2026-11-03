@@ -140,7 +140,7 @@ export async function POST(request) {
         planName,
         billingCycle,
         expiresAtIST: orderData.expires_at_ist,
-        expiresInSeconds: 300,
+        expiresInSeconds: 600,
       },
     });
   } catch (err) {

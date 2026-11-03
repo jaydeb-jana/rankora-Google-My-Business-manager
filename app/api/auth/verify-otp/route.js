@@ -5,7 +5,7 @@ import { generateToken, COOKIE_NAME } from '@/lib/auth';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { email, code, purpose = 'VERIFY_EMAIL' } = body;
+    const { email, code, purpose = 'VERIFY_EMAIL', checkOnly = false } = body;
 
     if (!email || !code) {
       return NextResponse.json({ error: 'Email and verification code are required.' }, { status: 400 });
@@ -28,12 +28,19 @@ export async function POST(request) {
       );
     }
 
-    // Invalidate immediately so OTP cannot be reused
-    if (validOtp._id) {
+    // Invalidate immediately so OTP cannot be reused (unless checking only, or for RESET_PASSWORD which is consumed in reset-password)
+    if (!checkOnly && purpose !== 'RESET_PASSWORD' && validOtp._id) {
       await otpRepo.markUsed(validOtp._id);
     }
 
     if (purpose === 'VERIFY_EMAIL') {
+      if (checkOnly) {
+        return NextResponse.json({
+          success: true,
+          verified: true,
+          message: 'Code verified successfully.',
+        });
+      }
       let user = await userRepo.findByEmail(cleanEmail);
 
       // If user does not exist in DB yet, create it now from the verified registrationData

@@ -63,6 +63,18 @@ body {
 }
 
 /* ===================== Universal Animation Keyframes ===================== */
+@keyframes rk-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rk-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes rk-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 @keyframes rkFloat {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-12px); }
@@ -71,9 +83,9 @@ body {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(12px); }
 }
-@keyframes rkMarquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+@keyframes rk-float-slow {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(10px, -14px) rotate(3deg); }
 }
 @keyframes rkPulseGlow {
   0%, 100% {
@@ -83,14 +95,58 @@ body {
     box-shadow: 0 0 30px rgba(37, 99, 235, 0.45), 0 0 60px rgba(99, 102, 241, 0.25);
   }
 }
+@keyframes rkMarquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
 @keyframes rkShimmer {
   from { transform: translateX(-140%); }
   to { transform: translateX(240%); }
 }
+@keyframes rk-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@keyframes rk-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes rk-blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.08); }
+  66% { transform: translate(-25px, 20px) scale(0.95); }
+}
+@keyframes rk-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
+.animate-in,
+.rk-fade-up { animation: rk-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rk-fade-in { animation: rk-fade-in 0.5s ease both; }
+.rk-scale-in { animation: rk-scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .rk-float { animation: rkFloat 4.5s ease-in-out infinite; }
 .rk-float-reverse { animation: rkFloatReverse 5s ease-in-out infinite; }
+.rk-float-slow { animation: rk-float-slow 8s ease-in-out infinite; }
 .rk-pulse-glow { animation: rkPulseGlow 3s ease-in-out infinite; }
+.rk-blob { animation: rk-blob 14s ease-in-out infinite; }
+.rk-shake { animation: rk-shake 0.4s ease; }
+.rk-pop { animation: rk-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rk-gradient,
+.rk-gradient-shift {
+  background-size: 200% 200%;
+  animation: rk-gradient-shift 8s ease infinite;
+}
+
+.rk-delay-1 { animation-delay: 0.08s; }
+.rk-delay-2 { animation-delay: 0.16s; }
+.rk-delay-3 { animation-delay: 0.24s; }
+.rk-delay-4 { animation-delay: 0.32s; }
+.rk-delay-5 { animation-delay: 0.4s; }
+.rk-delay-6 { animation-delay: 0.48s; }
 
 .rk-marquee-track {
   display: flex !important;
@@ -113,6 +169,102 @@ body {
 }
 .rk-btn-shine:hover::after { animation: rkShimmer 0.9s ease; }
 
+/* ===================== Floating-Label Auth Fields ===================== */
+.rk-field {
+  position: relative;
+  width: 100%;
+}
+.rk-field input {
+  display: block;
+  width: 100%;
+  height: 54px;
+  padding: 20px 44px 6px 44px;
+  font-size: 15px;
+  color: #202124;
+  background-color: #ffffff;
+  border: 1.5px solid #dadce0;
+  border-radius: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
+}
+.rk-field input:hover {
+  border-color: #bdc1c6;
+}
+.rk-field input:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.12);
+}
+.rk-field label {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #5f6368;
+  pointer-events: none;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  line-height: 1;
+}
+.rk-field input:focus + label,
+.rk-field input:not(:placeholder-shown) + label,
+.rk-field input:-webkit-autofill + label {
+  top: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1a73e8;
+}
+.rk-field input:not(:focus):not(:placeholder-shown) + label,
+.rk-field input:not(:focus):-webkit-autofill + label {
+  color: #5f6368;
+}
+.rk-field .rk-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #80868b;
+  transition: color 0.2s ease;
+  pointer-events: none;
+}
+.rk-field input:focus ~ .rk-icon {
+  color: #1a73e8;
+}
+.rk-field .rk-trailing {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.rk-field:not(:has(.rk-icon)) input {
+  padding-left: 16px;
+}
+.rk-field:not(:has(.rk-icon)) label {
+  left: 16px;
+}
+.rk-field:not(:has(.rk-trailing)) input {
+  padding-right: 16px;
+}
+
+/* Chrome/Safari Autofill fix */
+.rk-field input:-webkit-autofill,
+.rk-field input:-webkit-autofill:hover,
+.rk-field input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #202124 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rk-marquee-track { animation: none !important; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

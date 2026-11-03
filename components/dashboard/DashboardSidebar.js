@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Building,
   Building2,
+  SearchCheck,
   QrCode,
   Sparkles,
   Sliders,
@@ -12,11 +13,15 @@ import {
   ShieldCheck,
   ShieldAlert,
   ExternalLink,
+  Zap,
+  Clock,
+  ArrowRight,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { label: 'Home & Overview', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Business Profile', href: '/dashboard/profile', icon: Building },
+  { label: 'Profile Audit', href: '/dashboard/audit', icon: SearchCheck, badge: 'Health' },
   { label: 'Review Link & QR Stand', href: '/dashboard/qr-code', icon: QrCode },
   { label: 'AI Review', href: '/dashboard/services', icon: Sparkles },
   { label: 'Review Page Settings', href: '/dashboard/customizer', icon: Sliders },
@@ -28,6 +33,26 @@ const NAV_ITEMS = [
 
 export default function DashboardSidebar({ user }) {
   const pathname = usePathname();
+
+  const rawPlan = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
+  const planName = rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : 'Starter';
+
+  // Calculate days remaining in active billing cycle
+  const now = new Date();
+  const planStart = user?.planUpdatedAt
+    ? new Date(user.planUpdatedAt)
+    : user?.createdAt
+    ? new Date(user.createdAt)
+    : now;
+
+  const expiresAt = user?.planExpiresAt
+    ? new Date(user.planExpiresAt)
+    : new Date(planStart.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  const diffMs = expiresAt.getTime() - now.getTime();
+  const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  const progressPercent = Math.min(100, Math.max(8, Math.round((daysLeft / 30) * 100)));
+  const isExpiringSoon = daysLeft <= 5;
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#dadce0] shrink-0 sticky top-0 h-screen z-20">

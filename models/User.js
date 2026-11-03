@@ -99,6 +99,10 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    planExpiresAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
     slug: {
       type: String,
       required: true,
@@ -164,6 +168,10 @@ const UserSchema = new mongoose.Schema(
       draftsGenerated: { type: Number, default: 0 },
       reviewsCopied: { type: Number, default: 0 },
       googleClicks: { type: Number, default: 0 },
+    },
+    lastAudit: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
     },
   },
   { timestamps: true }

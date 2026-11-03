@@ -1,6 +1,6 @@
 /**
  * High-Quality Pre-rendered Humanistic Voice Generator
- * Uses Microsoft Edge Neural Speech engine for ultra-realistic studio voices (bn-BD and en-US).
+ * Uses Microsoft Edge Neural Speech engine for ultra-realistic studio voices (bn-IN and en-IN).
  * Output saved to public/audio/review_guide_bn.mp3 and review_guide_en.mp3
  */
 
@@ -10,13 +10,13 @@ const fs = require('fs');
 
 const AUDIO_SCRIPTS = {
   bn: {
-    voice: 'bn-BD-NabanitaNeural',
-    text: 'আপনার জন্য একটি ৫-স্টার রিভিউ স্বয়ংক্রিয়ভাবে কপি করা হয়েছে। এবার গুগলে গিয়ে ফাইভ স্টার দিন, লেখাটি পেস্ট করুন এবং পোস্ট বাটনে ক্লিক করুন।',
+    voice: 'bn-IN-TanishaaNeural',
+    text: 'আপনার জন্য একটি ফাইভ স্টার রিভিউ কপি করা হয়েছে। এবার ফাইভ স্টার সিলেক্ট করুন, লেখাটি পেস্ট করুন এবং Post বাটনে ক্লিক করুন।',
     filename: 'review_guide_bn.mp3',
   },
   en: {
-    voice: 'en-US-AvaNeural',
-    text: 'Your 5-star review has been automatically copied. Now select 5 stars on Google, paste your review, and tap Post!',
+    voice: 'en-IN-NeerjaExpressiveNeural',
+    text: 'Your 5-star review has been automatically copied. Select 5 stars, paste your review, and tap Post!',
     filename: 'review_guide_en.mp3',
   },
 };

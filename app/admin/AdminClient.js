@@ -29,6 +29,8 @@ import {
   Pencil,
   Lock,
   ShieldCheck,
+  QrCode,
+  Zap,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -125,6 +127,10 @@ export default function AdminClient({ currentUser }) {
         ],
       },
     },
+    famgateway: {
+      enabled: false,
+      apiKey: '',
+    },
   });
   const [loadingSettings, setLoadingSettings] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -134,6 +140,13 @@ export default function AdminClient({ currentUser }) {
   const [testEmailRecipient, setTestEmailRecipient] = useState(currentUser?.email || '');
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailResult, setTestEmailResult] = useState(null);
+
+  // FamGateway UPI Gateway State
+  const [savingFamGateway, setSavingFamGateway] = useState(false);
+  const [showFamGatewayKey, setShowFamGatewayKey] = useState(false);
+  const [testingFamGateway, setTestingFamGateway] = useState(false);
+  const [famGatewayTestResult, setFamGatewayTestResult] = useState(null);
+  const [copiedWebhook, setCopiedWebhook] = useState(false);
 
   // Change Admin Password State
   const [pwdForm, setPwdForm] = useState({
@@ -212,6 +225,10 @@ export default function AdminClient({ currentUser }) {
                 ? data.settings.pricing.enterprise.features
                 : prev.pricing?.enterprise?.features || [],
             },
+          },
+          famgateway: {
+            enabled: data.settings.famgateway?.enabled ?? false,
+            apiKey: data.settings.famgateway?.apiKey || '',
           },
         }));
       }
@@ -485,6 +502,72 @@ export default function AdminClient({ currentUser }) {
       showToast('Failed to send test email.', 'error');
     } finally {
       setTestingEmail(false);
+    }
+  };
+
+  // Save FamGateway UPI Payment Gateway Settings
+  const handleSaveFamGateway = async (e) => {
+    e?.preventDefault();
+    setSavingFamGateway(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          famgateway: {
+            enabled: settings.famgateway?.enabled !== false,
+            apiKey: settings.famgateway?.apiKey ? settings.famgateway.apiKey.trim() : '',
+          },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.settings?.famgateway) {
+          setSettings((prev) => ({
+            ...prev,
+            famgateway: data.settings.famgateway,
+          }));
+        }
+        showToast('FamGateway payment gateway credentials saved successfully!', 'success');
+      } else {
+        showToast(data.error || 'Failed to save FamGateway credentials.', 'error');
+      }
+    } catch (err) {
+      showToast('Error saving FamGateway settings to server.', 'error');
+    } finally {
+      setSavingFamGateway(false);
+    }
+  };
+
+  // Test FamGateway API Key Handshake
+  const handleTestFamGateway = async () => {
+    if (!settings.famgateway?.apiKey?.trim()) {
+      showToast('Please enter your FamGateway API Key first.', 'warning');
+      return;
+    }
+    setTestingFamGateway(true);
+    setFamGatewayTestResult(null);
+    try {
+      const res = await fetch('/api/admin/settings/test-famgateway', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: settings.famgateway?.apiKey?.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setFamGatewayTestResult({ success: true, message: data.message });
+        showToast('FamGateway API Key verified successfully!', 'success');
+      } else {
+        setFamGatewayTestResult({ success: false, message: data.error || 'Authentication failed.' });
+        showToast(data.error || 'Failed to verify FamGateway API key.', 'error');
+      }
+    } catch (err) {
+      setFamGatewayTestResult({ success: false, message: 'Network error connecting to FamGateway.' });
+      showToast('Network error while testing FamGateway API key.', 'error');
+    } finally {
+      setTestingFamGateway(false);
     }
   };
 
@@ -1519,6 +1602,240 @@ export default function AdminClient({ currentUser }) {
                   <Check className="w-4 h-4" />
                 )}
                 <span>Save Gmail API Settings</span>
+              </button>
+            </div>
+          </form>
+
+          {/* CARD 4: FAMGATEWAY ZERO-FEE UPI PAYMENT GATEWAY */}
+          <form onSubmit={handleSaveFamGateway} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-2xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between border-b border-stone-100 pb-4 gap-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                  <Zap className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-stone-900 flex items-center space-x-2">
+                    <span>FamGateway UPI Payment Gateway</span>
+                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200 uppercase tracking-wider">
+                      0% Fee Peer-to-Peer
+                    </span>
+                  </h2>
+                  <p className="text-xs text-stone-500">
+                    Automate instant, non-custodial UPI subscription collections with real-time IMAP bank verification
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-200">
+                  Payments Engine
+                </span>
+              </div>
+            </div>
+
+            {/* Active Toggle & Credentials */}
+            <div className="space-y-4">
+              {/* Enable Gateway Toggle */}
+              <div className="flex items-center justify-between p-3.5 bg-stone-50 border border-stone-200 rounded-xl">
+                <div className="space-y-0.5">
+                  <label className="text-xs font-bold text-stone-900">
+                    Enable FamGateway Live Payment Processing
+                  </label>
+                  <p className="text-[11px] text-stone-500">
+                    When enabled, users on the Plans page can pay directly using dynamic UPI QR codes and instant deep links.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.famgateway?.enabled ?? false}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        famgateway: {
+                          ...settings.famgateway,
+                          enabled: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* FamGateway API Key */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-stone-700">
+                    FamGateway Master API Key <span className="text-red-500">*</span>
+                  </label>
+                  <a
+                    href="https://famgateway.in/api-keys.php"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-600 hover:text-blue-700 font-medium inline-flex items-center space-x-1"
+                  >
+                    <span>Get API Key from FamGateway Dashboard</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <div className="relative">
+                  <Key className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showFamGatewayKey ? 'text' : 'password'}
+                    required
+                    value={settings.famgateway?.apiKey || ''}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        famgateway: {
+                          ...settings.famgateway,
+                          apiKey: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="fam_xxxxxxxxxxxxxxxxxxxxxxxx"
+                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-mono text-stone-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowFamGatewayKey(!showFamGatewayKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                  >
+                    {showFamGatewayKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-stone-500">
+                  Your API Key is kept safe and server-isolated. It is also used as the cryptographic secret to verify HMAC-SHA256 signatures for incoming payment webhooks.
+                </p>
+              </div>
+
+              {/* Webhook Configuration Field */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-stone-700">
+                    Your Webhook Listener URL (Instant Server-to-Server Payment Callback)
+                  </label>
+                  <a
+                    href="https://famgateway.in/webhooks.php"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-blue-600 hover:text-blue-700 font-medium inline-flex items-center space-x-1"
+                  >
+                    <span>FamGateway Webhook Settings</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/webhooks/famgateway`}
+                    className="w-full px-3 py-2 text-xs bg-stone-100 border border-stone-200 rounded-lg text-stone-700 font-mono select-all focus:outline-none cursor-default"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/webhooks/famgateway`;
+                      navigator.clipboard.writeText(url);
+                      setCopiedWebhook(true);
+                      showToast('Webhook URL copied to clipboard!', 'success');
+                      setTimeout(() => setCopiedWebhook(false), 2000);
+                    }}
+                    className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold text-stone-700 bg-white hover:bg-stone-50 border border-stone-200 rounded-lg transition shadow-2xs cursor-pointer shrink-0"
+                  >
+                    {copiedWebhook ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-700">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-stone-500" />
+                        <span>Copy URL</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-[11px] text-stone-500">
+                  Register this URL in your FamGateway dashboard with event <code className="bg-stone-100 px-1 py-0.5 rounded text-stone-800">payment.success</code> to receive instant sub-150ms verification callbacks.
+                </p>
+              </div>
+
+              {/* Informational Guidance Callout */}
+              <div className="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl text-xs text-blue-950 space-y-1.5">
+                <div className="font-semibold flex items-center space-x-1.5 text-blue-800">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                  <span>FamGateway UPI Architecture & Advantages:</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-blue-900/90 text-[11px] pt-1">
+                  <div className="flex items-start space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1.5"></span>
+                    <span><strong>100% Non-Custodial:</strong> Customer funds settle instantly into your personal FamPay UPI wallet with zero third-party holding delays.</span>
+                  </div>
+                  <div className="flex items-start space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1.5"></span>
+                    <span><strong>Zero Transaction Cuts (0% MDR):</strong> Keep 100% of your subscription revenue without intermediate percentage fees.</span>
+                  </div>
+                  <div className="flex items-start space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1.5"></span>
+                    <span><strong>Concurrency Engine 2.0 (ACE):</strong> Eliminates collisions through adaptive micro-paisa shield and bank UTR idempotency deduplication.</span>
+                  </div>
+                  <div className="flex items-start space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0 mt-1.5"></span>
+                    <span><strong>Bank-Grade PDF Receipts:</strong> Official GST & MSME certified receipts automatically compile for every customer transaction.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Connection Button & Result Alert */}
+            <div className="pt-2 border-t border-stone-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleTestFamGateway}
+                disabled={testingFamGateway || !settings.famgateway?.apiKey}
+                className="inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 border border-stone-300 rounded-lg transition disabled:opacity-50 cursor-pointer shrink-0"
+              >
+                {testingFamGateway ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                ) : (
+                  <Zap className="w-3.5 h-3.5 text-blue-600" />
+                )}
+                <span>Test Gateway Handshake</span>
+              </button>
+
+              {famGatewayTestResult && (
+                <div
+                  className={`text-xs px-3.5 py-2 rounded-lg border flex items-center space-x-2 ${
+                    famGatewayTestResult.success
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-red-50 text-red-800 border-red-200'
+                  }`}
+                >
+                  {famGatewayTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                  )}
+                  <span className="truncate max-w-md">{famGatewayTestResult.message}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-4 border-t border-stone-100 flex items-center justify-end">
+              <button
+                type="submit"
+                disabled={savingFamGateway}
+                className="inline-flex items-center space-x-2 px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition disabled:opacity-50 cursor-pointer"
+              >
+                {savingFamGateway ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Check className="w-4 h-4" />
+                )}
+                <span>Save FamGateway Credentials</span>
               </button>
             </div>
           </form>

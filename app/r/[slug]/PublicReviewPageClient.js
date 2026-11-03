@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { generateReviewDrafts, SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
 import GoogleReviewAnimationGuide from '@/components/GoogleReviewAnimationGuide';
+import { copyTextToClipboard } from '@/lib/clipboard';
 
 export default function PublicReviewPageClient({ business }) {
   // Step navigation: 'SELECT' (1) -> 'DRAFT' (2)
@@ -188,7 +189,7 @@ export default function PublicReviewPageClient({ business }) {
   };
 
   const handleCycleNextDraft = async () => {
-    // If we have remaining Gemini drafts, cycle through them first
+    // If we have remaining drafts, cycle through them first
     if (drafts && drafts.length > 1 && activeDraftIndex < drafts.length - 1) {
       setIsRegenerating(true);
       const nextIndex = activeDraftIndex + 1;
@@ -198,7 +199,7 @@ export default function PublicReviewPageClient({ business }) {
       return;
     }
 
-    // Otherwise, generate fresh new AI review drafts from Gemini
+    // Otherwise, generate fresh new review drafts
     setIsRegenerating(true);
     try {
       const res = await fetch('/api/public/generate-draft', {
@@ -239,7 +240,7 @@ export default function PublicReviewPageClient({ business }) {
     if (!reviewText.trim()) return;
 
     try {
-      await navigator.clipboard.writeText(reviewText);
+      await copyTextToClipboard(reviewText);
       setCopied(true);
       triggerConfetti();
 
@@ -276,7 +277,11 @@ export default function PublicReviewPageClient({ business }) {
   };
 
   // Open Google Review Link when customer taps the primary button inside animation guide
-  const handleProceedToGoogle = () => {
+  const handleProceedToGoogle = async () => {
+    // Guaranteed final clipboard copy right before launching Google Maps
+    if (reviewText) {
+      await copyTextToClipboard(reviewText);
+    }
     if (business.googleReviewUrl) {
       window.open(business.googleReviewUrl, '_blank', 'noopener,noreferrer');
     }
@@ -561,7 +566,7 @@ export default function PublicReviewPageClient({ business }) {
                   {isAiGenerating ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>Writing with Gemini AI...</span>
+                      <span>Writing review draft...</span>
                     </>
                   ) : (
                     <>
@@ -606,7 +611,7 @@ export default function PublicReviewPageClient({ business }) {
                     {isAiDraft && (
                       <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 shadow-2xs">
                         <Sparkles className="w-3 h-3 text-blue-600 animate-pulse" />
-                        <span>AI Generated (Gemini)</span>
+                        <span>AI Generated</span>
                       </span>
                     )}
                   </div>
@@ -637,7 +642,7 @@ export default function PublicReviewPageClient({ business }) {
                     className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer active:scale-95 shadow-2xs shrink-0 disabled:opacity-60"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
-                    <span>{isRegenerating ? 'Writing with Gemini...' : 'Regenerate'}</span>
+                    <span>{isRegenerating ? 'Regenerating...' : 'Regenerate'}</span>
                   </button>
                 </div>
               </div>
@@ -742,6 +747,7 @@ export default function PublicReviewPageClient({ business }) {
 
       {/* Interactive Video-Like Animated Guide with Voice Guidance */}
       <GoogleReviewAnimationGuide
+        key={showGuideModal ? 'guide-modal-active' : 'guide-modal-idle'}
         isOpen={showGuideModal}
         onClose={() => setShowGuideModal(false)}
         business={business}

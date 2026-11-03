@@ -93,7 +93,21 @@ export default function DashboardHeader({ user }) {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
           >
-            Overview
+            Home & Overview
+          </a>
+          <a
+            href="/dashboard/profile"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-[#3c4043] rounded-lg hover:bg-[#f8f9fa]"
+          >
+            Business Profile
+          </a>
+          <a
+            href="/dashboard/audit"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-[#1a73e8] bg-[#f0f4f9] rounded-lg font-semibold"
+          >
+            Profile Audit (Health Check)
           </a>
           <a
             href="/dashboard/services"

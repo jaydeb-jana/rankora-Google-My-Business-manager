@@ -14,9 +14,9 @@ export default async function DashboardLayout({ children }) {
     redirect('/login');
   }
 
-  // If user is the Platform Administrator and not in impersonation mode,
-  // redirect directly to the Admin Control Center (/admin)
-  if (user.isAdmin && !user.isImpersonated) {
+  // If user is the pure platform administrator account (ceo@arventventures.online)
+  // and not in impersonation mode, redirect directly to the Admin Control Center (/admin)
+  if (user.email === 'ceo@arventventures.online' && !user.isImpersonated) {
     redirect('/admin');
   }
 
