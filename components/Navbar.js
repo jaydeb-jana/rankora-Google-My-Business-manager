@@ -28,7 +28,8 @@ import {
   ChevronRight,
   Building,
   Mail,
-  ExternalLink
+  ExternalLink,
+  SearchCheck,
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -106,6 +107,7 @@ export default function Navbar() {
   };
 
   const productLinks = [
+    { name: 'Google Profile Audit', desc: 'Instant Google Business health & SEO audit', href: '/dashboard/audit', icon: SearchCheck },
     { name: 'Platform Features', desc: 'All tools, AI engine & integrations', href: '/features', icon: Layers },
     { name: 'How It Works', desc: 'The 7-step frictionless customer journey', href: '/how-it-works', icon: Compass },
     { name: 'Industry Solutions', desc: 'Tailored playbooks for 8+ verticals', href: '/solutions', icon: Award },

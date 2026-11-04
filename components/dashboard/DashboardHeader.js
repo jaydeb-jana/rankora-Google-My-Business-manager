@@ -38,12 +38,12 @@ const NAV_ITEMS = [
   { label: 'Data Security', href: '/dashboard/security', icon: ShieldCheck },
 ];
 
-export default function DashboardHeader({ user }) {
+export default function DashboardHeader({ user, onOpenMobileSidebar, mobileSidebarOpen }) {
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
 
   const rawPlan = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
   const planName = rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : 'Starter';
@@ -70,31 +70,28 @@ export default function DashboardHeader({ user }) {
 
   // Close mobile drawer when route changes
   useEffect(() => {
-    setMobileMenuOpen(false);
+    setInternalDrawerOpen(false);
   }, [pathname]);
 
-  // Lock body scroll when drawer is open
+  // Lock body scroll if internal drawer is open
   useEffect(() => {
-    if (mobileMenuOpen) {
+    if (internalDrawerOpen && !onOpenMobileSidebar) {
       document.body.style.overflow = 'hidden';
-    } else {
+    } else if (!mobileSidebarOpen) {
       document.body.style.overflow = '';
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [mobileMenuOpen]);
+  }, [internalDrawerOpen, onOpenMobileSidebar, mobileSidebarOpen]);
 
-  // Close on Escape key press
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const handleToggleMenu = () => {
+    if (onOpenMobileSidebar) {
+      onOpenMobileSidebar();
+    } else {
+      setInternalDrawerOpen(!internalDrawerOpen);
+    }
+  };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(reviewUrl);
@@ -109,21 +106,23 @@ export default function DashboardHeader({ user }) {
     router.refresh();
   };
 
+  const isDrawerActive = onOpenMobileSidebar ? mobileSidebarOpen : internalDrawerOpen;
+
   return (
     <>
       <header className="h-16 bg-white border-b border-[#dadce0] px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
           {/* Mobile menu toggle */}
           <button
-            onClick={() => setMobileMenuOpen(true)}
+            onClick={handleToggleMenu}
             className="md:hidden p-2 text-[#5f6368] hover:text-[#202124] hover:bg-[#f1f3f4] rounded-xl transition-colors shrink-0"
             aria-label="Open navigation menu"
           >
-            <Menu className="w-5 h-5" />
+            {isDrawerActive ? <X className="w-5 h-5 text-[#202124]" /> : <Menu className="w-5 h-5" />}
           </button>
 
           <div className="min-w-0">
-            <h1 className="text-xs sm:text-base font-bold text-[#202124] truncate max-w-[130px] xs:max-w-[170px] sm:max-w-xs md:max-w-md">
+            <h1 className="text-xs sm:text-base font-bold text-[#202124] truncate max-w-[120px] xs:max-w-[170px] sm:max-w-xs md:max-w-md">
               {user?.businessName || 'Business Dashboard'}
             </h1>
             <p className="text-[10px] sm:text-xs text-[#5f6368] hidden sm:block truncate">
@@ -178,23 +177,20 @@ export default function DashboardHeader({ user }) {
         </div>
       </header>
 
-      {/* ===================== WORLD-CLASS MOBILE SLIDE-OVER DRAWER ===================== */}
-      {mobileMenuOpen && (
+      {/* Standalone Fallback Drawer (Only rendered if onOpenMobileSidebar is not provided) */}
+      {!onOpenMobileSidebar && internalDrawerOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {/* Backdrop with blur */}
           <div
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => setInternalDrawerOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Slide-over sheet from left */}
-          <div className="fixed inset-y-0 left-0 w-full max-w-[310px] xs:max-w-xs bg-white flex flex-col shadow-2xl z-50 overflow-hidden animate-in slide-in-from-left duration-300">
-            {/* 1. Drawer Header */}
+          <div className="fixed inset-y-0 left-0 w-full max-w-[310px] bg-white flex flex-col shadow-2xl z-50 overflow-hidden animate-in slide-in-from-left duration-300">
             <div className="h-16 flex items-center justify-between px-4 border-b border-[#f1f3f4] bg-white shrink-0">
               <a
                 href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setInternalDrawerOpen(false)}
                 className="flex items-center space-x-2.5"
               >
                 <img
@@ -213,7 +209,7 @@ export default function DashboardHeader({ user }) {
               </a>
 
               <button
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setInternalDrawerOpen(false)}
                 className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 active:scale-95 transition-all"
                 aria-label="Close menu"
               >
@@ -221,24 +217,12 @@ export default function DashboardHeader({ user }) {
               </button>
             </div>
 
-            {/* 2. Scrollable Body with hidden scrollbar */}
             <div className="flex-1 overflow-y-auto scrollbar-none px-3.5 py-3 space-y-3">
-              {/* Business Identity Card */}
               <div className="px-3 py-2.5 bg-[#f8f9fa] rounded-2xl border border-[#e8eaed]">
                 <div className="flex items-center space-x-2.5">
-                  {user?.logoUrl ? (
-                    <div className="w-8 h-8 rounded-xl border border-[#dadce0] overflow-hidden bg-white p-0.5 shrink-0 flex items-center justify-center">
-                      <img
-                        src={user.logoUrl}
-                        alt={user.businessName}
-                        className="w-full h-full object-contain rounded-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-8 h-8 rounded-xl bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                      {user?.businessName?.charAt(0) || 'B'}
-                    </div>
-                  )}
+                  <div className="w-8 h-8 rounded-xl bg-[#1a73e8] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                    {user?.businessName?.charAt(0) || 'B'}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-[#202124] truncate leading-tight">
                       {user?.businessName}
@@ -250,63 +234,6 @@ export default function DashboardHeader({ user }) {
                 </div>
               </div>
 
-              {/* Plan Status Card */}
-              <div
-                className={`p-3 rounded-2xl border relative overflow-hidden transition-all ${
-                  planName === 'Enterprise'
-                    ? 'bg-gradient-to-br from-amber-50/90 via-purple-50/40 to-white border-amber-200 shadow-2xs'
-                    : planName === 'Pro'
-                    ? 'bg-gradient-to-br from-blue-50/90 via-indigo-50/40 to-white border-blue-200 shadow-2xs'
-                    : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-stone-200 shadow-2xs'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center space-x-1.5">
-                    <div
-                      className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${
-                        planName === 'Enterprise'
-                          ? 'bg-amber-500 text-white'
-                          : planName === 'Pro'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-slate-700 text-white'
-                      }`}
-                    >
-                      <Crown className="w-3 h-3" />
-                    </div>
-                    <span className="text-xs font-bold text-[#202124]">
-                      {planName} Plan
-                    </span>
-                  </div>
-
-                  <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>{daysLeft > 0 ? `${daysLeft}d Left` : 'Renews Today'}</span>
-                  </span>
-                </div>
-
-                {/* Progress bar */}
-                <div className="w-full bg-stone-200/80 rounded-full h-1.5 overflow-hidden my-1.5">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      isExpiringSoon ? 'bg-amber-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600'
-                    }`}
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-[10px] text-[#70757a] pt-0.5">
-                  <span>Cycle: 30 Days</span>
-                  <a
-                    href="/dashboard/plans"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="font-bold text-[#1a73e8] hover:underline"
-                  >
-                    {planName === 'Enterprise' ? 'Manage Plans' : 'Upgrade Plan →'}
-                  </a>
-                </div>
-              </div>
-
-              {/* Navigation Links with colored icon boxes */}
               <nav className="space-y-0.5 pt-1">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
@@ -315,7 +242,7 @@ export default function DashboardHeader({ user }) {
                     <a
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => setInternalDrawerOpen(false)}
                       className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                         isActive
                           ? 'bg-[#f0f4f9] text-[#1a73e8] font-bold shadow-2xs'
@@ -349,47 +276,7 @@ export default function DashboardHeader({ user }) {
                     </a>
                   );
                 })}
-
-                {(user?.isAdmin || user?.role === 'admin') && (
-                  <div className="pt-1.5">
-                    <a
-                      href="/admin"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors border border-purple-200"
-                    >
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-white text-purple-600 shadow-xs">
-                        <ShieldAlert className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="flex-1 truncate">Admin Control Panel</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                )}
               </nav>
-            </div>
-
-            {/* 3. Drawer Bottom Action Footer */}
-            <div className="p-3 border-t border-[#f1f3f4] bg-white space-y-2 shrink-0">
-              <a
-                href={`/r/${user?.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center space-x-1.5 w-full py-2 px-3 text-xs font-bold text-[#1a73e8] bg-[#f8f9fa] hover:bg-[#e8f0fe] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
-              >
-                <span>Preview Review Page</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-
-              <div className="flex items-center justify-between pt-1 text-[10px] text-[#70757a]">
-                <span>Logged in as <strong>{user?.ownerName || user?.businessName}</strong></span>
-                <button
-                  onClick={handleLogout}
-                  className="font-bold text-rose-600 hover:text-rose-700"
-                >
-                  Sign Out
-                </button>
-              </div>
             </div>
           </div>
         </div>

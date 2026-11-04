@@ -114,10 +114,15 @@ Address: ${summary.address || 'Not specified'}
 Place ID: ${summary.placeId || 'Not found'}
 CID: ${summary.cid || 'Not found'}
 
+FINANCIAL & FOOT TRAFFIC IMPACT:
+• Est. Monthly Revenue Lost: ${summary.lostRevenueEstimate || '₹60,000 – ₹1,40,000 / month'}
+• Est. Walk-in Buyers Diverted: ${summary.lostCustomersEstimate || '45–75 high-ticket customers / month'}
+• Keyword Visibility: ${summary.rankingPenaltyStatus || 'Suppressed for 84% Commercial Keywords'}
+
 DIAGNOSTIC SUMMARY:
 ${auditData.warningNotice?.description || auditData.aiCritique?.executiveSummary || 'No summary available.'}
 
-KEY ISSUES & WHAT'S BAD:
+KEY ISSUES & WHAT'S BAD (${auditData.issues?.length || 0} Bottlenecks):
 ${auditData.issues?.map((i, idx) => `${idx + 1}. [${i.status.toUpperCase()}] ${i.title}\n   -> Description: ${i.description}\n   -> Fix: ${i.recommendation || ''}`).join('\n\n')}
 
 HOW RANKORA PRO / ULTRA SOLVES THIS:

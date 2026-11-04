@@ -342,10 +342,6 @@ export default function PlansClient({ user, pricingConfig }) {
 
   // Open Checkout Mode Selection Modal
   const handleInitiateUpgrade = (plan) => {
-    if (currentPlan === plan.id) {
-      showToast(`You are already subscribed to the ${plan.name} plan.`, 'info');
-      return;
-    }
     setPlanToUpgrade(plan);
   };
 
@@ -414,11 +410,6 @@ export default function PlansClient({ user, pricingConfig }) {
 
   // Trigger Plan Upgrade & Create Dynamic Order
   const handlePlanClick = async (plan) => {
-    if (currentPlan === plan.id) {
-      showToast(`You are already subscribed to the ${plan.name} plan.`, 'info');
-      return;
-    }
-
     setInitiatingPlanId(plan.id);
 
     try {
@@ -578,14 +569,16 @@ export default function PlansClient({ user, pricingConfig }) {
               <div className="pt-6 mt-6 border-t border-[#f1f3f4] space-y-2">
                 <button
                   type="button"
-                  disabled={isCurrent || isInitiating}
+                  disabled={isInitiating}
                   onClick={() => handleInitiateUpgrade(plan)}
                   className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
-                    isCurrent
-                      ? 'bg-[#f1f3f4] text-[#70757a] cursor-default'
+                    isInitiating
+                      ? 'bg-slate-100 text-slate-400 cursor-wait'
+                      : isCurrent
+                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs'
                       : plan.popular
                       ? 'bg-[#1a73e8] hover:bg-[#1557b0] text-white shadow-xs'
-                      : 'bg-[#f8f9fa] hover:bg-[#e8f0fe] text-[#1a73e8] border border-[#dadce0]'
+                      : 'bg-[#202124] hover:bg-[#3c4043] text-white'
                   }`}
                 >
                   {isInitiating ? (
@@ -595,8 +588,8 @@ export default function PlansClient({ user, pricingConfig }) {
                     </>
                   ) : (
                     <>
-                      <span>{isCurrent ? 'Current Active Plan' : `Upgrade to ${plan.name}`}</span>
-                      {!isCurrent && <ArrowRight className="w-3.5 h-3.5" />}
+                      <span>{isCurrent ? `Renew / Extend ${plan.name}` : `Upgrade to ${plan.name}`}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>

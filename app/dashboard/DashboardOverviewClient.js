@@ -74,29 +74,29 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 min-w-0 w-full">
       {/* Welcome Banner */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h2 className="text-xl font-bold text-[#202124]">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 min-w-0">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#202124] truncate">
               Welcome, {user.ownerName}
             </h2>
-            <span className="px-2 py-0.5 text-[11px] font-semibold bg-[#e6f4ea] text-[#137333] rounded-full">
+            <span className="px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold bg-[#e6f4ea] text-[#137333] rounded-full shrink-0">
               Account Active
             </span>
           </div>
-          <p className="mt-1 text-sm text-[#5f6368]">
+          <p className="mt-1 text-xs sm:text-sm text-[#5f6368] leading-relaxed">
             Your Rankaro review engine for <strong>{user.businessName}</strong> is ready to capture authentic feedback.
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 w-full md:w-auto">
+        <div className="flex items-center space-x-3 w-full md:w-auto shrink-0">
           <a
             href={`/r/${user.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 md:flex-none inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-xs transition-all"
+            className="w-full md:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <span>Preview Review Page</span>
             <ExternalLink className="w-4 h-4" />
@@ -106,12 +106,12 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
 
       {/* Important: Missing Google Review Link Notification */}
       {(!user.googleReviewUrl || !user.googleReviewUrl.startsWith('http')) && (
-        <div className="bg-[#fef7e0] border border-[#feefc3] rounded-2xl p-5">
-          <div className="flex items-start space-x-3">
+        <div className="bg-[#fef7e0] border border-[#feefc3] rounded-2xl p-4 sm:p-5 min-w-0">
+          <div className="flex items-start space-x-3 min-w-0">
             <div className="p-2 rounded-full bg-[#fce8b2] text-[#b06000] shrink-0 mt-0.5">
               <AlertCircle className="w-5 h-5" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-[#202124]">
                 Action Needed: Connect your Google Review Page Link
               </h3>
@@ -119,29 +119,31 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
                 When customers approve their review draft, Rankaro seamlessly sends them to your Google Business Profile to publish it. Save your Google review URL below so customers can paste their review with one tap.
               </p>
 
-              <form onSubmit={handleSaveGoogleUrl} className="mt-3 flex flex-col sm:flex-row gap-2">
+              <form onSubmit={handleSaveGoogleUrl} className="mt-3 flex flex-col sm:flex-row gap-2 min-w-0 w-full">
                 <input
                   type="text"
                   required
-                  placeholder="Paste your link here (e.g. https://share.google/... or Google Review URL)"
+                  placeholder="Paste your link here (e.g. https://g.page/r/... or Google Review URL)"
                   value={googleUrlInput}
                   onChange={(e) => setGoogleUrlInput(e.target.value)}
-                  className="flex-1 px-3.5 py-2 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                  className="flex-1 w-full min-w-0 px-3.5 py-2 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
                 />
-                <button
-                  type="submit"
-                  disabled={savingGoogleUrl}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-colors whitespace-nowrap"
-                >
-                  {savingGoogleUrl ? 'Saving...' : 'Save Google Link'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowHelpModal(true)}
-                  className="px-3 py-2 text-xs font-medium text-[#1a73e8] hover:underline whitespace-nowrap"
-                >
-                  How to find mine?
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="submit"
+                    disabled={savingGoogleUrl}
+                    className="flex-1 sm:flex-none px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
+                  >
+                    {savingGoogleUrl ? 'Saving...' : 'Save Google Link'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowHelpModal(true)}
+                    className="px-2 py-2 text-xs font-medium text-[#1a73e8] hover:underline whitespace-nowrap cursor-pointer"
+                  >
+                    How to find?
+                  </button>
+                </div>
               </form>
               {googleUrlError && (
                 <p className="mt-2 text-xs font-medium text-[#c5221f]">{googleUrlError}</p>
@@ -153,42 +155,42 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
 
       {/* Connected Google link confirmation */}
       {user.googleReviewUrl && user.googleReviewUrl.startsWith('http') && (
-        <div className="bg-[#e6f4ea] border border-[#ceead6] rounded-2xl px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rk-fade-up">
-          <div className="flex items-center space-x-2 text-xs text-[#137333] font-medium min-w-0">
+        <div className="bg-[#e6f4ea] border border-[#ceead6] rounded-2xl px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rk-fade-up min-w-0">
+          <div className="flex items-center space-x-2 text-xs text-[#137333] font-medium min-w-0 flex-1">
             <ShieldCheck className="w-4 h-4 shrink-0" />
             <span className="shrink-0">Google review link connected:</span>
-            <span className="font-mono truncate text-[#202124]">{user.googleReviewUrl}</span>
+            <span className="font-mono truncate text-[#202124] min-w-0 flex-1">{user.googleReviewUrl}</span>
           </div>
-          <a href="/dashboard/profile" className="text-xs font-semibold text-[#1a73e8] hover:underline shrink-0">
+          <a href="/dashboard/profile" className="text-xs font-semibold text-[#1a73e8] hover:underline shrink-0 self-end sm:self-auto">
             Change
           </a>
         </div>
       )}
 
       {/* Shareable Link & QR Banner */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="space-y-2 flex-1">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow min-w-0">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6 w-full min-w-0">
+          <div className="space-y-2 flex-1 w-full min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="p-1.5 rounded-lg bg-[#e8f0fe] text-[#1a73e8]">
+              <span className="p-1.5 rounded-lg bg-[#e8f0fe] text-[#1a73e8] shrink-0">
                 <QrCode className="w-4 h-4" />
               </span>
               <h3 className="text-sm font-semibold text-[#202124]">
-                Your Unique Customer Review Link & QR Code
+                Your Unique Customer Review Link &amp; QR Code
               </h3>
             </div>
             <p className="text-xs text-[#5f6368] leading-relaxed">
               Share this link via SMS, post-service emails, or display the QR code at your checkout counter, tables, or reception desk.
             </p>
 
-            <div className="flex items-center space-x-2 bg-[#f8f9fa] border border-[#dadce0] p-1.5 rounded-xl max-w-xl">
-              <span className="text-xs font-mono text-[#202124] px-2.5 truncate flex-1">
+            <div className="flex items-center space-x-2 bg-[#f8f9fa] border border-[#dadce0] p-1.5 rounded-xl w-full max-w-xl min-w-0">
+              <span className="text-xs font-mono text-[#202124] px-2 truncate flex-1 min-w-0 select-all">
                 {reviewPageUrl}
               </span>
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors shrink-0"
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors shrink-0 cursor-pointer"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copied' : 'Copy Link'}</span>
@@ -196,10 +198,10 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 shrink-0">
+          <div className="flex items-center space-x-3 w-full sm:w-auto shrink-0">
             <a
               href="/dashboard/qr-code"
-              className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
             >
               <QrCode className="w-4 h-4 text-[#1a73e8]" />
               <span>Download Scannable QR Code</span>
@@ -209,73 +211,73 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
       </div>
 
       {/* Metrics Funnel Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Visits */}
-        <div className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0">
           <div className="flex items-center justify-between text-[#5f6368]">
-            <span className="text-xs font-medium uppercase tracking-wider">Page Visits</span>
-            <div className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
-              <Eye className="w-4 h-4" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Page Visits</span>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
+              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-[#202124]">{initialStats.totalVisits || 0}</p>
-          <p className="mt-1 text-[11px] text-[#70757a]">Customers opened your link</p>
+          <p className="mt-2 sm:mt-3 text-xl sm:text-2xl font-bold text-[#202124]">{initialStats.totalVisits || 0}</p>
+          <p className="mt-1 text-[10px] sm:text-[11px] text-[#70757a] truncate">Customers opened link</p>
         </div>
 
         {/* Drafts Generated */}
-        <div className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0">
           <div className="flex items-center justify-between text-[#5f6368]">
-            <span className="text-xs font-medium uppercase tracking-wider">Drafts Generated</span>
-            <div className="p-2 rounded-xl bg-[#fef7e0] text-[#f29900]">
-              <FileEdit className="w-4 h-4" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Drafts Created</span>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#fef7e0] text-[#f29900] shrink-0">
+              <FileEdit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-[#202124]">{initialStats.draftsGenerated || 0}</p>
-          <p className="mt-1 text-[11px] text-[#70757a]">Selected services & prompted</p>
+          <p className="mt-2 sm:mt-3 text-xl sm:text-2xl font-bold text-[#202124]">{initialStats.draftsGenerated || 0}</p>
+          <p className="mt-1 text-[10px] sm:text-[11px] text-[#70757a] truncate">Selected services &amp; drafted</p>
         </div>
 
         {/* Reviews Copied */}
-        <div className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0">
           <div className="flex items-center justify-between text-[#5f6368]">
-            <span className="text-xs font-medium uppercase tracking-wider">Reviews Copied</span>
-            <div className="p-2 rounded-xl bg-[#e6f4ea] text-[#1e8e3e]">
-              <ClipboardCheck className="w-4 h-4" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Reviews Copied</span>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e6f4ea] text-[#1e8e3e] shrink-0">
+              <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-[#202124]">{initialStats.reviewsCopied || 0}</p>
-          <p className="mt-1 text-[11px] text-[#70757a]">Approved text copied</p>
+          <p className="mt-2 sm:mt-3 text-xl sm:text-2xl font-bold text-[#202124]">{initialStats.reviewsCopied || 0}</p>
+          <p className="mt-1 text-[10px] sm:text-[11px] text-[#70757a] truncate">Approved text copied</p>
         </div>
 
         {/* Google Clicks */}
-        <div className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow">
+        <div className="bg-white rounded-2xl p-3.5 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0">
           <div className="flex items-center justify-between text-[#5f6368]">
-            <span className="text-xs font-medium uppercase tracking-wider">Google Redirects</span>
-            <div className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
-              <MousePointerClick className="w-4 h-4" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider truncate">Google Clicks</span>
+            <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
+              <MousePointerClick className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
           </div>
-          <p className="mt-3 text-2xl font-bold text-[#202124]">{initialStats.googleClicks || 0}</p>
-          <p className="mt-1 text-[11px] text-[#70757a]">Sent to Google review box</p>
+          <p className="mt-2 sm:mt-3 text-xl sm:text-2xl font-bold text-[#202124]">{initialStats.googleClicks || 0}</p>
+          <p className="mt-1 text-[10px] sm:text-[11px] text-[#70757a] truncate">Sent to Google review box</p>
         </div>
       </div>
 
       {/* Quick Setup & Management Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
         {/* Services Card */}
         <a
           href="/dashboard/services"
-          className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block min-w-0"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2.5 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
-              <Layers className="w-5 h-5" />
+          <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+              <Layers className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <ArrowRight className="w-4 h-4 text-[#5f6368] group-hover:text-[#1a73e8] group-hover:translate-x-1 transition-all" />
           </div>
           <h4 className="text-sm font-semibold text-[#202124]">
             AI Knowledge ({user.services?.length || 0})
           </h4>
-          <p className="mt-1 text-xs text-[#5f6368]">
+          <p className="mt-1 text-xs text-[#5f6368] leading-relaxed">
             Add or edit the services, topics, and keywords AI uses when generating customer reviews.
           </p>
         </a>
@@ -283,18 +285,18 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
         {/* Page Customizer Card */}
         <a
           href="/dashboard/customizer"
-          className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block min-w-0"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2.5 rounded-xl bg-[#fef7e0] text-[#f29900]">
-              <Sparkles className="w-5 h-5" />
+          <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-[#fef7e0] text-[#f29900]">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <ArrowRight className="w-4 h-4 text-[#5f6368] group-hover:text-[#1a73e8] group-hover:translate-x-1 transition-all" />
           </div>
           <h4 className="text-sm font-semibold text-[#202124]">
             Review Page Settings
           </h4>
-          <p className="mt-1 text-xs text-[#5f6368]">
+          <p className="mt-1 text-xs text-[#5f6368] leading-relaxed">
             Customize the welcome title, customer instructions, and prompt questions.
           </p>
         </a>
@@ -302,18 +304,18 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
         {/* Profile & Google URL */}
         <a
           href="/dashboard/profile"
-          className="bg-white rounded-2xl p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block"
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow hover:border-[#1a73e8] transition-all group block min-w-0"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2.5 rounded-xl bg-[#e6f4ea] text-[#1e8e3e]">
-              <Settings className="w-5 h-5" />
+          <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-[#e6f4ea] text-[#1e8e3e]">
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <ArrowRight className="w-4 h-4 text-[#5f6368] group-hover:text-[#1a73e8] group-hover:translate-x-1 transition-all" />
           </div>
           <h4 className="text-sm font-semibold text-[#202124]">
-            Business Profile & URL
+            Business Profile &amp; URL
           </h4>
-          <p className="mt-1 text-xs text-[#5f6368]">
+          <p className="mt-1 text-xs text-[#5f6368] leading-relaxed">
             Update contact info, location address, and your official Google review URL.
           </p>
         </a>
