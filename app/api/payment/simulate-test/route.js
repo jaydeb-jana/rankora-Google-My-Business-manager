@@ -85,7 +85,17 @@ export async function POST(request) {
 
     // Direct user subscription update guarantee
     const cycleDays = billingCycle === 'yearly' ? 365 : 30;
-    const planExpiresAt = new Date(Date.now() + cycleDays * 24 * 60 * 60 * 1000);
+    const nowMs = Date.now();
+    let planExpiresAt;
+    if (
+      sessionUser.plan === planId &&
+      sessionUser.planExpiresAt &&
+      new Date(sessionUser.planExpiresAt).getTime() > nowMs
+    ) {
+      planExpiresAt = new Date(new Date(sessionUser.planExpiresAt).getTime() + cycleDays * 24 * 60 * 60 * 1000);
+    } else {
+      planExpiresAt = new Date(nowMs + cycleDays * 24 * 60 * 60 * 1000);
+    }
 
     try {
       if (sessionUser._id) {

@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import PricingClient from './PricingClient';
 import { settingsRepo } from '@/lib/repositories';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Cache at edge, background revalidate every 60s
 
 export const metadata = {
   title: 'Pricing & Plans | Rankaro',

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 import { getSessionUser, isAdmin } from '@/lib/auth';
@@ -133,6 +134,13 @@ export async function PUT(request) {
     }
 
     const updated = await settingsRepo.saveSettings(updates);
+
+    try {
+      revalidatePath('/pricing');
+      revalidatePath('/dashboard/plans');
+    } catch {
+      // ignore
+    }
 
     // Sync appUrl to .env.local if updated
     if (updates.general?.appUrl) {

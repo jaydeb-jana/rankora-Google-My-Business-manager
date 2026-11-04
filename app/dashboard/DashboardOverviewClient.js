@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   Layers,
   Settings,
+  Clock,
+  Award,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
@@ -132,9 +134,16 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
                   <button
                     type="submit"
                     disabled={savingGoogleUrl}
-                    className="flex-1 sm:flex-none px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
                   >
-                    {savingGoogleUrl ? 'Saving...' : 'Save Google Link'}
+                    {savingGoogleUrl ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      'Save Google Link'
+                    )}
                   </button>
                   <button
                     type="button"
@@ -258,6 +267,92 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
           </div>
           <p className="mt-2 sm:mt-3 text-xl sm:text-2xl font-bold text-[#202124]">{initialStats.googleClicks || 0}</p>
           <p className="mt-1 text-[10px] sm:text-[11px] text-[#70757a] truncate">Sent to Google review box</p>
+        </div>
+      </div>
+
+      {/* Admin-Controlled Performance & Response Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
+        {/* Profile Health Score */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-[#5f6368]">
+              <div className="flex items-center space-x-1.5 min-w-0">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#5f6368] truncate">
+                  Profile Score
+                </span>
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#e6f4ea] text-[#1e8e3e] shrink-0">
+                  {Number(user.profileScore ?? 94) >= 90 ? 'Top Tier' : Number(user.profileScore ?? 94) >= 75 ? 'Optimal' : 'Needs Action'}
+                </span>
+              </div>
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e6f4ea] text-[#1e8e3e] shrink-0">
+                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+
+            <div className="mt-2.5 sm:mt-3 flex items-baseline space-x-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
+                {user.profileScore !== undefined && user.profileScore !== null ? user.profileScore : 94}
+              </span>
+              <span className="text-sm font-semibold text-[#70757a]">/ 100</span>
+              <span className="text-xs font-medium text-[#1e8e3e] ml-auto">
+                {Number(user.profileScore ?? 94) >= 90 ? 'High Ranking Tier' : Number(user.profileScore ?? 94) >= 75 ? 'Good Performance' : 'Optimization Required'}
+              </span>
+            </div>
+
+            {/* Meter Progress Bar */}
+            <div className="mt-3 w-full bg-[#f1f3f4] h-2 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  Number(user.profileScore ?? 94) >= 90
+                    ? 'bg-[#1e8e3e]'
+                    : Number(user.profileScore ?? 94) >= 75
+                    ? 'bg-[#1a73e8]'
+                    : 'bg-[#f29900]'
+                }`}
+                style={{ width: `${Math.min(100, Math.max(5, Number(user.profileScore ?? 94)))}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 text-[11px] text-[#70757a] flex items-center justify-between pt-2 border-t border-[#f1f3f4]">
+            <span>Google Local 3-Pack Optimization</span>
+            <span className="font-medium text-[#202124]">Live Ranking</span>
+          </div>
+        </div>
+
+        {/* Average Reply Time */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-[#5f6368]">
+              <div className="flex items-center space-x-1.5 min-w-0">
+                <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#5f6368] truncate">
+                  Average Reply Time
+                </span>
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#e8f0fe] text-[#1a73e8] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#1a73e8] animate-pulse"></span>
+                  <span>Active SLA</span>
+                </span>
+              </div>
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+
+            <div className="mt-2.5 sm:mt-3 flex items-baseline space-x-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
+                {user.replyTime || 'Under 2 Hours'}
+              </span>
+            </div>
+
+            <p className="mt-2 text-xs text-[#5f6368] leading-relaxed">
+              Target response speed for customer reviews and inquiries on Google Maps.
+            </p>
+          </div>
+
+          <div className="mt-3 text-[11px] text-[#70757a] flex items-center justify-between pt-2 border-t border-[#f1f3f4]">
+            <span>Customer Response Velocity</span>
+            <span className="font-semibold text-[#1e8e3e]">Optimal Speed</span>
+          </div>
         </div>
       </div>
 

@@ -28,6 +28,43 @@ export default function PricingClient({ pricingConfig }) {
   const entM = Number(pricingConfig?.enterprise?.monthly) || 2499;
   const entY = Number(pricingConfig?.enterprise?.yearly) || 1999;
 
+  const starterFeatures =
+    Array.isArray(pricingConfig?.starter?.features) && pricingConfig.starter.features.length > 0
+      ? pricingConfig.starter.features
+      : [
+          'Single Business Profile connection',
+          'Standard QR Code Stand generation',
+          'AI Review Drafts (Powered by Gemini)',
+          'Basic review analytics & activity log',
+          'Direct link to Google review box',
+        ];
+
+  const proFeatures =
+    Array.isArray(pricingConfig?.pro?.features) && pricingConfig.pro.features.length > 0
+      ? pricingConfig.pro.features
+      : [
+          'Everything in Starter, plus:',
+          'Custom Branded QR Stands (Print Ready PDF)',
+          'Unlimited AI Review Draft generations',
+          'AI Knowledge Base customization with custom services',
+          'WhatsApp instant inquiry desk priority',
+          'Custom review landing page branding & colors',
+          'Zero Google review link dropouts',
+        ];
+
+  const entFeatures =
+    Array.isArray(pricingConfig?.enterprise?.features) && pricingConfig.enterprise.features.length > 0
+      ? pricingConfig.enterprise.features
+      : [
+          'Everything in Pro, plus:',
+          'Multi-location dashboard (up to 10 locations)',
+          'Dedicated Technical Account Manager at Arventa Ventures',
+          'Custom REST API & Webhook integration',
+          'Priority SLA support via direct WhatsApp & phone',
+          'Automated monthly Google Business Profile local SEO audits',
+          'Custom domain support for review pages',
+        ];
+
   const tiers = [
     {
       name: 'Starter',
@@ -37,23 +74,13 @@ export default function PricingClient({ pricingConfig }) {
       priceMonthly: starterM,
       priceAnnual: starterY,
       highlight: false,
-      features: [
-        '1 Physical Business Location',
-        'Unlimited Customer QR Scans',
-        'Up to 6 Custom Service Chips',
-        'Standard AI Review Formulation',
-        'Direct Google Maps Review Link',
-        'Basic Sentiment Analytics',
-        'Standard Print-Ready PDF Templates',
-        'Email Support',
-      ],
+      features: starterFeatures,
       notIncluded: [
-        'NFC Tap Card Integration',
-        'Private Unresolved Complaint Channel',
-        'Staff Attribution Leaderboards',
-        'Custom Brand Logo & Hex Color Matching',
+        'Custom Branded QR Stands (Print Ready PDF)',
+        'Unlimited AI Review Draft generations',
+        'WhatsApp instant inquiry desk priority',
         'Multi-Location Central Dashboard',
-        'Webhook & POS Integrations',
+        'Custom REST API & Webhook integration',
       ],
       cta: 'Choose Starter',
       ctaHref: '/register?plan=starter',
@@ -66,24 +93,14 @@ export default function PricingClient({ pricingConfig }) {
       priceMonthly: proM,
       priceAnnual: proY,
       highlight: true,
-      features: [
-        'Everything in Starter, plus:',
-        'Unlimited Custom Service Chips',
-        'Advanced Context-Aware AI Engine',
-        'Private Direct Resolution Grievance Channel',
-        'Full Brand Customizer (Logo, Colors, Taglines)',
-        'Staff Attribution & Employee Tracking',
-        'High-Resolution Vector SVG Print Exports',
-        'NFC Tap Card Programming Data',
-        'Real-Time Weekly Velocity Reports',
-        'Priority 1-Hour Ticket Support',
-      ],
+      features: proFeatures,
       notIncluded: [
         'Multi-Location Central Dashboard',
         'Dedicated Enterprise Account Manager',
+        'Custom REST API & Webhook integration',
       ],
       cta: 'Upgrade to Pro',
-      ctaHref: '/register?plan=growth',
+      ctaHref: '/register?plan=pro',
     },
     {
       name: 'Agency / Enterprise',
@@ -93,20 +110,10 @@ export default function PricingClient({ pricingConfig }) {
       priceMonthly: entM,
       priceAnnual: entY,
       highlight: false,
-      features: [
-        'Everything in Growth Pro, plus:',
-        'Up to 10 Physical Locations (Expandable)',
-        'Unified Multi-Location Rollup Dashboard',
-        'Role-Based Staff Access (Admin / Manager)',
-        'Custom POS & Webhook Integrations (Square, Toast)',
-        'Cross-Store Benchmark Leaderboards',
-        'Dedicated Customer Success Architect',
-        'Custom Invoicing & SLA Guarantee',
-        'Phone & WhatsApp Emergency Support Desk',
-      ],
+      features: entFeatures,
       notIncluded: [],
       cta: 'Launch Enterprise Suite',
-      ctaHref: '/register?plan=agency',
+      ctaHref: '/register?plan=enterprise',
     },
   ];
 

@@ -59,6 +59,9 @@ export default function Footer() {
               <img
                 src="/logo-white.png"
                 alt="RANKORA"
+                width={180}
+                height={36}
+                loading="lazy"
                 className="h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
               />
             </a>

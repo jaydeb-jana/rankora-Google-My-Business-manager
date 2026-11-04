@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { userRepo, activityRepo } from '@/lib/repositories';
+import { userRepo, activityRepo, settingsRepo } from '@/lib/repositories';
 import { generateReviewDraftsWithAi } from '@/lib/reviewEngine';
 
 export async function POST(request) {
@@ -8,22 +8,42 @@ export async function POST(request) {
     const { slug, selectedServiceIds = [], sentiment = 'exceptional', answers = {}, forceLanguage = null } = body;
 
     if (!slug) {
-      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Slug is required' }, { status: 400 });
     }
 
     const cleanSlug = slug.toLowerCase().trim();
     const user = await userRepo.findBySlug(cleanSlug);
 
     if (!user) {
-      return NextResponse.json({ error: 'Business not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Business not found' }, { status: 404 });
     }
 
     // Filter to only the services that the customer actually selected
     const allServices = user.services || [];
     const chosenServices = allServices.filter((s) => selectedServiceIds.includes(s.id));
 
-    // Generate authentic review drafts with account-specific Gemini API (or template fallback)
-    const drafts = await generateReviewDraftsWithAi({
+    // Resolve Gemini API key from account level -> system settings -> environment variables
+    const settings = await settingsRepo.getSettings().catch(() => null);
+    const effectiveApiKey =
+      user.aiKnowledge?.geminiApiKey ||
+      settings?.ai?.apiKey ||
+      process.env.GEMINI_API_KEY ||
+      '';
+
+    if (!effectiveApiKey) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'System Error: Google Gemini API key is missing or not configured. AI review generation is unavailable.',
+          drafts: [],
+        },
+        { status: 503 }
+      );
+    }
+
+    // Strictly generate authentic review drafts with live Google Gemini API (NO TEMPLATES)
+    const result = await generateReviewDraftsWithAi({
+      apiKey: effectiveApiKey,
       businessName: user.businessName,
       businessCategory: user.businessCategory,
       city: user.city,
@@ -36,27 +56,45 @@ export async function POST(request) {
       forceLanguage,
     });
 
+    if (!result?.success || !Array.isArray(result?.drafts) || result.drafts.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result?.error || 'System Error: Google Gemini AI failed to respond. Please try again.',
+          drafts: [],
+        },
+        { status: 500 }
+      );
+    }
+
     // Record stats and activity in background
     userRepo.incrementStats(user.slug, 'draftsGenerated').catch(() => {});
-    activityRepo.recordActivity({
-      businessId: user._id,
-      slug: user.slug,
-      type: 'DRAFT_GENERATED',
-      servicesSelected: chosenServices.map((s) => s.name),
-      sentiment,
-    }).catch(() => {});
-
-    const isAiGenerated = Boolean(drafts?.[0]?.id?.startsWith('gemini_'));
+    activityRepo
+      .recordActivity({
+        businessId: user._id,
+        slug: user.slug,
+        type: 'DRAFT_GENERATED',
+        servicesSelected: chosenServices.map((s) => s.name),
+        sentiment,
+      })
+      .catch(() => {});
 
     return NextResponse.json({
       success: true,
       businessName: user.businessName,
       googleReviewUrl: user.googleReviewUrl || '',
-      isAiGenerated,
-      drafts,
+      isAiGenerated: true,
+      drafts: result.drafts,
     });
   } catch (err) {
     console.error('[Generate Draft Error]:', err);
-    return NextResponse.json({ error: 'Failed to generate review draft' }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'System Error: An unexpected error occurred while generating the review.',
+        drafts: [],
+      },
+      { status: 500 }
+    );
   }
 }

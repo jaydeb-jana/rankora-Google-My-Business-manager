@@ -14,8 +14,8 @@ import {
   Smartphone,
   Radio,
   MapPin,
-  Scissors,
   Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -26,7 +26,7 @@ const TEMPLATES = [
     category: 'Official Google',
     tag: 'Official Google Partner Kit',
     details:
-      'Authentic Google Business Profile standee featuring the iconic Google 4-color top bar, official G emblem, Google wordmark, 5.0 Google rating badge, Google Maps verification pin, and contactless NFC tap guide. Sized perfectly for 4x6" and 5x7" acrylic counter stands.',
+      'Authentic Google Business Profile standee featuring the iconic Google 4-color top bar, official G emblem, Google wordmark, 5.0 Google rating badge, Google Maps verification pin, and contactless NFC tap guide. Sized perfectly for standard A4 counter stands, desktop acrylic holders, and retail display framing.',
     colors: [
       { name: 'Google Blue', hex: '#4285F4' },
       { name: 'Google Red', hex: '#EA4335' },
@@ -285,13 +285,13 @@ function QrViewfinder({
   );
 }
 
-function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
+function DisplayCard({ templateId, user, dataUrl, cardSize = 'a4' }) {
   const cardWidth =
     cardSize === '5x7'
       ? 'w-full max-w-[430px]'
       : cardSize === 'fold'
       ? 'w-full max-w-[390px]'
-      : 'w-full max-w-[370px]';
+      : 'w-full max-w-[420px]';
 
   // 1. Google Official Partner Kit (The Flagship Masterpiece)
   if (templateId === 'google-official' || templateId === 'google-review') {
@@ -328,7 +328,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
               className="mb-2"
               variant="light"
             />
-            <h2 className="text-xl sm:text-2xl font-black text-[#202124] tracking-tight max-w-[90%] truncate">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black text-[#202124] tracking-tight max-w-full px-2 break-words leading-tight">
               {user.businessName}
             </h2>
           </div>
@@ -420,7 +420,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
               className="mb-1.5"
               variant="light"
             />
-            <h3 className="text-base sm:text-lg font-bold text-[#1A73E8] max-w-[90%] truncate">
+            <h3 className="text-base sm:text-lg font-bold text-[#1A73E8] max-w-full px-2 break-words leading-tight">
               {user.businessName}
             </h3>
           </div>
@@ -469,7 +469,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
           <span>Review us on Google</span>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold text-[#202124] tracking-tight mb-2 max-w-[90%] truncate">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#202124] tracking-tight mb-2 max-w-full px-2 break-words leading-tight">
           {user.businessName}
         </h2>
 
@@ -520,7 +520,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
           variant="dark"
         />
 
-        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1 max-w-[90%] truncate">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight mb-1 max-w-full px-2 break-words leading-tight">
           {user.businessName}
         </h2>
         <p className="text-xs text-[#94A3B8] mb-2.5">Share your experience on Google</p>
@@ -571,7 +571,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
           variant="gold"
         />
 
-        <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#F8F1D8] tracking-wide mb-1 max-w-[90%] truncate">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-[#F8F1D8] tracking-wide mb-1 max-w-full px-2 break-words leading-tight">
           {user.businessName}
         </h2>
         <p className="text-xs text-[#D4AF37] mb-2.5 font-serif italic">
@@ -625,7 +625,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-[#6EE7B7]">
               Thank You For Visiting
             </p>
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight truncate">
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight break-words leading-tight">
               {user.businessName}
             </h2>
           </div>
@@ -681,7 +681,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/80">
               RATE YOUR EXPERIENCE
             </p>
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight break-words leading-tight">
               {user.businessName}
             </h2>
           </div>
@@ -737,7 +737,7 @@ function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
             <GoogleG className="w-4 h-4" />
             <GoogleWordmark className="text-sm" />
           </div>
-          <h3 className="text-base sm:text-lg font-bold text-[#202124] max-w-[90%] truncate">
+          <h3 className="text-base sm:text-lg font-bold text-[#202124] max-w-full px-2 break-words leading-tight">
             {user.businessName}
           </h3>
           <p className="text-[11px] text-[#5F6368] mt-0.5">
@@ -992,8 +992,9 @@ export default function QRCodeClient({ user }) {
   const [svgString, setSvgString] = useState('');
   const [copied, setCopied] = useState(false);
   const [templateId, setTemplateId] = useState('google-official');
-  const [cardSize, setCardSize] = useState('4x6'); // '4x6' | '5x7' | 'fold'
-  const [showCropMarks, setShowCropMarks] = useState(true);
+  const cardSize = 'a4';
+  const showCropMarks = false;
+  const [downloadingStand, setDownloadingStand] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(`/r/${user.slug}`);
   const printCardRef = useRef(null);
@@ -1074,6 +1075,31 @@ export default function QRCodeClient({ user }) {
     window.print();
   };
 
+  const handleDownloadStand = async () => {
+    if (!printCardRef.current) return;
+    setDownloadingStand(true);
+    try {
+      const { toPng } = await import('html-to-image');
+      const dataUrl = await toPng(printCardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2.5,
+        backgroundColor: '#ffffff',
+      });
+      const link = document.createElement('a');
+      link.download = `rankaro-${user.slug}-a4-qr-stand.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('A4 QR Code Stand downloaded successfully!', 'success');
+    } catch (err) {
+      console.error('Failed to download stand image:', err);
+      showToast('Failed to generate stand image. Please use Print Stand instead.', 'error');
+    } finally {
+      setDownloadingStand(false);
+    }
+  };
+
   const handleSelectTemplate = (id) => {
     setTemplateId(id);
     try {
@@ -1130,7 +1156,7 @@ export default function QRCodeClient({ user }) {
                 size="w-7 h-7"
                 className="rounded-lg"
               />
-              <p className="text-xs text-[#202124] font-bold truncate">
+              <p className="text-xs text-[#202124] font-bold break-words leading-tight">
                 {user.businessName}
               </p>
             </div>
@@ -1206,85 +1232,15 @@ export default function QRCodeClient({ user }) {
             <div className="mb-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-sm font-bold text-[#202124]">
-                  Printable Table Tent / Counter Stand
+                  Printable Table Tent / Counter Stand (A4 Size)
                 </h3>
                 <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full shrink-0">
-                  Standard Acrylic Stand Size
+                  Standard A4 Size (210 × 297 mm)
                 </span>
               </div>
               <p className="text-xs text-[#5f6368] mt-0.5">
-                Engineered for physical 4x6" and 5x7" tabletop acrylic holders. Fits retail checkout desks and dining tables.
+                Engineered for physical A4 counter stands, desktop acrylic holders, and retail display framing.
               </p>
-            </div>
-
-            {/* Print Sizing & Options Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#f8f9fa] p-2.5 rounded-xl border border-[#dadce0] mb-4">
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                <span className="text-[11px] font-bold text-[#3c4043]">Size:</span>
-                <div className="inline-flex p-0.5 bg-white border border-[#dadce0] rounded-lg text-xs font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => setCardSize('4x6')}
-                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                      cardSize === '4x6'
-                        ? 'bg-[#1a73e8] text-white shadow-2xs'
-                        : 'text-[#5f6368] hover:text-[#202124]'
-                    }`}
-                  >
-                    <span className="hidden sm:inline">4" × 6" Acrylic Stand</span>
-                    <span className="sm:hidden">4" × 6"</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCardSize('5x7')}
-                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                      cardSize === '5x7'
-                        ? 'bg-[#1a73e8] text-white shadow-2xs'
-                        : 'text-[#5f6368] hover:text-[#202124]'
-                    }`}
-                  >
-                    <span className="hidden sm:inline">5" × 7" Counter</span>
-                    <span className="sm:hidden">5" × 7"</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCardSize('fold')}
-                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                      cardSize === 'fold'
-                        ? 'bg-[#1a73e8] text-white shadow-2xs'
-                        : 'text-[#5f6368] hover:text-[#202124]'
-                    }`}
-                  >
-                    <span className="hidden sm:inline">Foldable Tent</span>
-                    <span className="sm:hidden">Fold Tent</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCropMarks((prev) => !prev)}
-                  className={`text-[11px] px-2 py-1 rounded-lg border flex items-center space-x-1 font-medium transition-colors cursor-pointer ${
-                    showCropMarks
-                      ? 'bg-[#e8f0fe] text-[#1a73e8] border-[#d2e3fc]'
-                      : 'bg-white text-[#5f6368] border-[#dadce0]'
-                  }`}
-                  title="Toggle scissor cut guides for physical cutting"
-                >
-                  <Scissors className="w-3 h-3" />
-                  <span>Cut Guides: {showCropMarks ? 'ON' : 'OFF'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Print Card</span>
-                </button>
-              </div>
             </div>
 
             {/* Printable Mount Point */}
@@ -1295,13 +1251,7 @@ export default function QRCodeClient({ user }) {
               {/* Print Cut Guide Header (only visible on print sheet) */}
               <div className="hidden print:flex items-center justify-between w-full mb-3 text-[9px] font-mono text-slate-400 border-b border-dashed border-slate-300 pb-1">
                 <span>
-                  ✂ CUT ALONG GUIDE TO FIT{' '}
-                  {cardSize === '5x7'
-                    ? '5"×7"'
-                    : cardSize === 'fold'
-                    ? 'A-FRAME TENT'
-                    : '4"×6"'}{' '}
-                  ACRYLIC STAND
+                  STANDARD A4 COUNTER STAND • 210 × 297 MM
                 </span>
                 <span>300 DPI OPTIMAL PRINT • RANKARO DISPLAY KIT</span>
               </div>
@@ -1309,13 +1259,7 @@ export default function QRCodeClient({ user }) {
               <div
                 ref={printCardRef}
                 id="printable-display-card"
-                className={`relative ${
-                  cardSize === '5x7'
-                    ? 'print-card-5x7'
-                    : cardSize === 'fold'
-                    ? 'print-card-fold'
-                    : 'print-card-4x6'
-                }`}
+                className="relative print-card-a4 w-full flex justify-center"
               >
                 {/* Physical Scissor Corner Markers (for printing) */}
                 {showCropMarks && (
@@ -1331,26 +1275,61 @@ export default function QRCodeClient({ user }) {
                   templateId={templateId}
                   user={user}
                   dataUrl={dataUrl}
-                  cardSize={cardSize}
+                  cardSize="a4"
                 />
               </div>
             </div>
 
-            {/* Change Template Action */}
-            <div className="mt-5 flex flex-col items-center">
-              <button
-                type="button"
-                onClick={() => setPickerOpen(true)}
-                className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl shadow-2xs transition-colors"
-                aria-expanded={pickerOpen}
-              >
-                <LayoutTemplate className="w-3.5 h-3.5" />
-                <span>Change Template</span>
-                <span className="ml-1 px-1.5 py-0.5 rounded-md bg-[#e8f0fe] text-[10px]">
-                  {activeTemplate.name}
+            {/* Change Template, Download Stand & Print Stand Actions */}
+            <div className="mt-5 flex flex-col items-center space-y-3">
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleDownloadStand}
+                  disabled={downloadingStand}
+                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-bold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-60"
+                >
+                  {downloadingStand ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Generating A4 Stand...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download A4 Stand (PNG)</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Stand (A4)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl shadow-2xs transition-colors cursor-pointer"
+                  aria-expanded={pickerOpen}
+                >
+                  <LayoutTemplate className="w-3.5 h-3.5" />
+                  <span>Change Template</span>
+                  <span className="ml-1 px-1.5 py-0.5 rounded-md bg-[#e8f0fe] text-[10px]">
+                    {activeTemplate.name}
+                  </span>
+                </button>
+              </div>
+
+              <p className="text-[11px] text-[#5f6368] flex items-center space-x-1">
+                <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  ✓ Standard A4 Print Ready (210 × 297 mm)
                 </span>
-              </button>
-              <p className="text-[11px] text-[#5f6368] mt-2 flex items-center space-x-1">
+                <span className="text-[#dadce0]">•</span>
                 <span>Active:</span>
                 <span className="font-bold text-[#202124]">
                   {activeTemplate.name}
@@ -1377,8 +1356,8 @@ export default function QRCodeClient({ user }) {
       <style jsx global>{`
         @media print {
           @page {
-            size: auto;
-            margin: 8mm;
+            size: A4 portrait;
+            margin: 10mm;
           }
           html,
           body {
@@ -1406,6 +1385,12 @@ export default function QRCodeClient({ user }) {
             box-shadow: none !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          .print-card-a4 {
+            width: 190mm !important;
+            max-width: 190mm !important;
+            margin: 0 auto !important;
+            box-shadow: none !important;
           }
           .print-card-4x6 {
             width: 4in !important;

@@ -55,9 +55,9 @@ export default function CustomizerClient({ user }) {
       ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 min-w-0 w-full">
       <div>
-        <h2 className="text-xl font-bold text-[#202124]">
+        <h2 className="text-lg sm:text-xl font-bold text-[#202124]">
           Customer Review Page Settings
         </h2>
         <p className="text-xs text-[#5f6368] mt-1">
@@ -65,10 +65,10 @@ export default function CustomizerClient({ user }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start min-w-0">
         {/* Left Column: Form Settings */}
-        <div className="lg:col-span-6 space-y-4">
-          <form onSubmit={handleSave} className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
+        <div className="lg:col-span-6 space-y-4 min-w-0">
+          <form onSubmit={handleSave} className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 min-w-0">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
                 Welcome Headline
@@ -79,7 +79,7 @@ export default function CustomizerClient({ user }) {
                 value={formData.welcomeHeadline}
                 onChange={(e) => setFormData({ ...formData, welcomeHeadline: e.target.value })}
                 placeholder="e.g. How was your experience with us?"
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
               <span className="text-[11px] text-[#70757a] mt-1 block">
                 The primary friendly greeting at the top of the customer review page.
@@ -96,19 +96,19 @@ export default function CustomizerClient({ user }) {
                 value={formData.instructions}
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 placeholder="e.g. Select what we helped you with today..."
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
               <span className="text-[11px] text-[#70757a] mt-1 block">
                 Clear, reassuring explanation of the simple 2-step process.
               </span>
             </div>
 
-            <div className="pt-3 border-t border-[#f1f3f4] flex items-center justify-between">
+            <div className="pt-3 border-t border-[#f1f3f4] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
               <a
                 href={`/r/${user.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1 text-xs text-[#1a73e8] hover:underline font-medium"
+                className="inline-flex items-center space-x-1 text-xs text-[#1a73e8] hover:underline font-medium self-center sm:self-auto"
               >
                 <span>Open in new tab</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -117,7 +117,7 @@ export default function CustomizerClient({ user }) {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center space-x-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -142,14 +142,14 @@ export default function CustomizerClient({ user }) {
         </div>
 
         {/* Right Column: Live Mobile Device Mockup */}
-        <div className="lg:col-span-6 flex flex-col items-center">
+        <div className="lg:col-span-6 flex flex-col items-center min-w-0 w-full">
           <div className="flex items-center space-x-2 text-xs font-semibold text-[#5f6368] mb-3">
             <Smartphone className="w-4 h-4 text-[#1a73e8]" />
             <span>Interactive Live Customer Mobile Preview</span>
           </div>
 
           {/* Smartphone Frame */}
-          <div className="w-full max-w-[340px] bg-[#202124] p-3 rounded-[36px] shadow-2xl border-4 border-[#dadce0]">
+          <div className="w-full max-w-[320px] sm:max-w-[340px] bg-[#202124] p-2.5 sm:p-3 rounded-[32px] sm:rounded-[36px] shadow-2xl border-4 border-[#dadce0]">
             <div className="bg-white rounded-[26px] overflow-hidden min-h-[540px] flex flex-col">
               {/* Phone Status Notch */}
               <div className="h-6 bg-[#f8f9fa] border-b border-[#f1f3f4] flex items-center justify-between px-6 text-[10px] text-[#70757a]">

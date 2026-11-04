@@ -11,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const orders = await orderRepo.findByUser(sessionUser._id, 15);
+    const orders = await orderRepo.findByUser(sessionUser._id, 20, sessionUser.email);
 
     const formatted = orders.map((o) => ({
       orderId: o.orderId,

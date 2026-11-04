@@ -13,8 +13,9 @@ import {
   MapPin,
   RefreshCw,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react';
-import { generateReviewDrafts, SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
+import { SUPPORTED_LANGUAGES } from '@/lib/reviewEngine';
 import GoogleReviewAnimationGuide from '@/components/GoogleReviewAnimationGuide';
 import { copyTextToClipboard } from '@/lib/clipboard';
 
@@ -42,6 +43,8 @@ export default function PublicReviewPageClient({ business }) {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
   const [privateFeedbackText, setPrivateFeedbackText] = useState('');
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  const [systemError, setSystemError] = useState(null);
 
   const experienceTextareaRef = useRef(null);
   const reviewTextareaRef = useRef(null);
@@ -116,26 +119,7 @@ export default function PublicReviewPageClient({ business }) {
   // Generate Review Drafts
   const handleGenerateDraft = async (forceLang = null) => {
     setIsAiGenerating(true);
-
-    const servicesList = business.services || [];
-    const chosenServices = servicesList.filter((s) => selectedServiceIds.includes(s.id));
-
-    // Fallback template drafts in case of offline / network issue
-    const fallbackTemplate = generateReviewDrafts({
-      businessName: business.businessName,
-      businessCategory: business.businessCategory,
-      city: business.city,
-      address: business.address,
-      description: business.description,
-      selectedServices: chosenServices,
-      sentiment,
-      answers: {
-        experience: experienceText,
-        highlight: experienceText,
-      },
-      aiKnowledge: business.aiKnowledge,
-      forceLanguage: forceLang,
-    });
+    setSystemError(null);
 
     try {
       const res = await fetch('/api/public/generate-draft', {
@@ -151,30 +135,27 @@ export default function PublicReviewPageClient({ business }) {
       });
 
       const data = await res.json();
-      if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
+      if (res.ok && data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
         setDrafts(data.drafts);
         setActiveDraftIndex(0);
         setReviewText(data.drafts[0]?.text || '');
-        const isAi = Boolean(data.isAiGenerated || data.drafts.some((d) => d.id?.startsWith('gemini_')));
-        setIsAiDraft(isAi);
+        setIsAiDraft(true);
         if (data.drafts[0]?.lang) {
           setActiveLang(data.drafts[0].lang);
         }
+        setCurrentStep('DRAFT');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        setDrafts(fallbackTemplate);
-        setActiveDraftIndex(0);
-        setReviewText(fallbackTemplate[0]?.text || '');
-        setIsAiDraft(false);
+        const errorMsg =
+          data?.error || 'System Error: Unable to generate AI review. Please verify the Gemini API key or try again.';
+        setSystemError(errorMsg);
+        setDrafts([]);
       }
     } catch {
-      setDrafts(fallbackTemplate);
-      setActiveDraftIndex(0);
-      setReviewText(fallbackTemplate[0]?.text || '');
-      setIsAiDraft(false);
+      setSystemError('System Error: Network connection failed while reaching review generator.');
+      setDrafts([]);
     } finally {
       setIsAiGenerating(false);
-      setCurrentStep('DRAFT');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -189,7 +170,7 @@ export default function PublicReviewPageClient({ business }) {
   };
 
   const handleCycleNextDraft = async () => {
-    // If we have remaining drafts, cycle through them first
+    // If we have remaining drafts from the current Gemini response, cycle through them first
     if (drafts && drafts.length > 1 && activeDraftIndex < drafts.length - 1) {
       setIsRegenerating(true);
       const nextIndex = activeDraftIndex + 1;
@@ -199,8 +180,9 @@ export default function PublicReviewPageClient({ business }) {
       return;
     }
 
-    // Otherwise, generate fresh new review drafts
+    // Otherwise, generate fresh new review drafts directly via Google Gemini API
     setIsRegenerating(true);
+    setSystemError(null);
     try {
       const res = await fetch('/api/public/generate-draft', {
         method: 'POST',
@@ -215,21 +197,18 @@ export default function PublicReviewPageClient({ business }) {
       });
 
       const data = await res.json();
-      if (data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
+      if (res.ok && data?.success && Array.isArray(data?.drafts) && data.drafts.length > 0) {
         setDrafts(data.drafts);
         setActiveDraftIndex(0);
         setReviewText(data.drafts[0]?.text || '');
-        const isAi = Boolean(data.isAiGenerated || data.drafts.some((d) => d.id?.startsWith('gemini_')));
-        setIsAiDraft(isAi);
-      } else if (drafts && drafts.length > 0) {
-        setActiveDraftIndex(0);
-        setReviewText(drafts[0]?.text || '');
+        setIsAiDraft(true);
+      } else {
+        const errorMsg =
+          data?.error || 'System Error: Failed to generate fresh alternative style. Please check your Gemini API key.';
+        setSystemError(errorMsg);
       }
     } catch {
-      if (drafts && drafts.length > 0) {
-        setActiveDraftIndex(0);
-        setReviewText(drafts[0]?.text || '');
-      }
+      setSystemError('System Error: Network connection failed during review regeneration.');
     } finally {
       setIsRegenerating(false);
     }
@@ -555,6 +534,33 @@ export default function PublicReviewPageClient({ business }) {
                 </div>
               </div>
 
+              {/* System Error Banner */}
+              {systemError && (
+                <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-900 space-y-2.5 animate-in fade-in duration-150 shadow-2xs">
+                  <div className="flex items-start space-x-2.5">
+                    <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="space-y-1 flex-1">
+                      <h4 className="text-xs font-black tracking-tight text-rose-900 uppercase">
+                        System Error Encountered
+                      </h4>
+                      <p className="text-xs font-semibold text-rose-700 leading-relaxed">
+                        {systemError}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateDraft()}
+                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Try Again</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Primary CTA Button */}
               <div className="pt-2">
                 <button
@@ -603,6 +609,24 @@ export default function PublicReviewPageClient({ business }) {
                 </button>
               </div>
 
+              {/* System Error Alert in Step 2 */}
+              {systemError && (
+                <div className="p-3.5 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-900 flex items-start space-x-2.5 animate-in fade-in duration-150 shadow-2xs">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 text-xs">
+                    <p className="font-bold text-rose-900">System Error</p>
+                    <p className="text-rose-700 font-medium leading-relaxed">{systemError}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSystemError(null)}
+                    className="text-rose-400 hover:text-rose-700 text-xs font-bold px-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               {/* Review Section */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
@@ -620,13 +644,23 @@ export default function PublicReviewPageClient({ business }) {
                   </span>
                 </div>
 
-                <textarea
-                  ref={reviewTextareaRef}
-                  value={reviewText}
-                  onChange={handleReviewTextChange}
-                  className="w-full p-3.5 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-[height] duration-75 bg-white resize-none overflow-hidden block min-h-[90px]"
-                  placeholder="Your review draft..."
-                />
+                <div className="relative">
+                  <textarea
+                    ref={reviewTextareaRef}
+                    value={reviewText}
+                    onChange={handleReviewTextChange}
+                    className="w-full p-3.5 text-xs sm:text-sm text-slate-900 border-2 border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 leading-relaxed font-sans shadow-inner transition-[height] duration-75 bg-white resize-none overflow-hidden block min-h-[90px]"
+                    placeholder="Your review draft..."
+                  />
+                  {isRegenerating && (
+                    <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px] rounded-2xl flex flex-col items-center justify-center space-y-2 animate-in fade-in duration-150 z-10">
+                      <div className="flex items-center space-x-2 text-blue-600 font-bold text-xs bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full shadow-2xs">
+                        <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                        <span>Generating fresh alternative style...</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Regenerate Button & Tap Hint */}
                 <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -666,24 +700,38 @@ export default function PublicReviewPageClient({ business }) {
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      if (privateFeedbackText.trim()) {
-                        setPrivateFeedbackSent(true);
-                        fetch('/api/public/private-feedback', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            slug: business.slug,
-                            sentiment,
-                            message: privateFeedbackText,
-                          }),
-                        }).catch(() => {});
+                    onClick={async () => {
+                      if (privateFeedbackText.trim() && !isSendingFeedback) {
+                        setIsSendingFeedback(true);
+                        try {
+                          await fetch('/api/public/private-feedback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              slug: business.slug,
+                              sentiment,
+                              message: privateFeedbackText,
+                            }),
+                          });
+                          setPrivateFeedbackSent(true);
+                        } catch (err) {
+                          console.error('Failed to send private feedback:', err);
+                        } finally {
+                          setIsSendingFeedback(false);
+                        }
                       }
                     }}
-                    disabled={!privateFeedbackText.trim()}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+                    disabled={!privateFeedbackText.trim() || isSendingFeedback}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center space-x-1 shrink-0"
                   >
-                    Send Private Note
+                    {isSendingFeedback ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <span>Send Private Note</span>
+                    )}
                   </button>
                 </div>
               )}
@@ -754,6 +802,49 @@ export default function PublicReviewPageClient({ business }) {
         reviewText={reviewText}
         onProceedToGoogle={handleProceedToGoogle}
       />
+
+      {/* Full-Screen AI Draft Generation Loading Modal */}
+      {isAiGenerating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-200 relative overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Top Multi-Color Accent Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 flex">
+              <div className="h-full w-1/4 bg-[#4285F4]" />
+              <div className="h-full w-1/4 bg-[#EA4335]" />
+              <div className="h-full w-1/4 bg-[#FBBC05]" />
+              <div className="h-full w-1/4 bg-[#34A853]" />
+            </div>
+
+            {/* Glowing Gemini AI Orb */}
+            <div className="relative w-20 h-20 mx-auto my-3 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-amber-400 opacity-25 blur-lg animate-pulse" />
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <Sparkles className="w-8 h-8 animate-spin" style={{ animationDuration: '4s' }} />
+              </div>
+            </div>
+
+            <h3 className="text-base font-black text-slate-900 tracking-tight">
+              Generating Review Draft...
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Crafting an authentic, keyword-rich 5-star review tailored for <strong className="text-slate-800">{business.businessName}</strong>.
+            </p>
+
+            {/* Animated Skeleton Lines */}
+            <div className="mt-4 p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+              <div className="h-3 bg-slate-200/80 rounded-full w-5/6 mx-auto animate-pulse" />
+              <div className="h-3 bg-slate-200/80 rounded-full w-full mx-auto animate-pulse delay-75" />
+              <div className="h-3 bg-slate-200/80 rounded-full w-4/6 mx-auto animate-pulse delay-150" />
+            </div>
+
+            {/* Live Status Pill */}
+            <div className="mt-4 inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-[11px] font-bold text-blue-700">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Personalizing with Gemini AI</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Clean Footer Branding */}
       <footer className="py-3 text-center text-[11px] text-slate-400">

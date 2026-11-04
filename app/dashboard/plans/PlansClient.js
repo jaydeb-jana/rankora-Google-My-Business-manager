@@ -410,6 +410,11 @@ export default function PlansClient({ user, pricingConfig }) {
 
   // Trigger Plan Upgrade & Create Dynamic Order
   const handlePlanClick = async (plan) => {
+    if (currentPlan === plan.id) {
+      showToast(`You are already subscribed to the ${plan.name} plan.`, 'info');
+      return;
+    }
+
     setInitiatingPlanId(plan.id);
 
     try {
@@ -504,6 +509,24 @@ export default function PlansClient({ user, pricingConfig }) {
         </div>
       </div>
 
+      {/* Active Subscription Rule Notice */}
+      <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/70 to-emerald-50/80 border border-blue-200/90 rounded-2xl p-4 sm:p-5 flex items-start space-x-3.5 shadow-2xs">
+        <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+          <Zap className="w-4 h-4" />
+        </div>
+        <div className="space-y-1 text-xs">
+          <h4 className="font-bold text-slate-900 flex flex-wrap items-center gap-1.5">
+            <span>Single Active Subscription Policy</span>
+            <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+              Instant Replacement
+            </span>
+          </h4>
+          <p className="text-slate-600 leading-relaxed">
+            Whenever you activate any subscription (monthly or yearly, whether smaller or larger), any previous subscription is immediately cancelled. Your new subscription begins fresh today for the full duration ({billingCycle === 'yearly' ? '365 days' : '30 days'}).
+          </p>
+        </div>
+      </div>
+
       {/* Pricing Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
         {plans.map((plan) => {
@@ -572,13 +595,11 @@ export default function PlansClient({ user, pricingConfig }) {
                   disabled={isInitiating}
                   onClick={() => handleInitiateUpgrade(plan)}
                   className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
-                    isInitiating
-                      ? 'bg-slate-100 text-slate-400 cursor-wait'
-                      : isCurrent
-                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs'
-                      : plan.popular
+                    plan.popular
                       ? 'bg-[#1a73e8] hover:bg-[#1557b0] text-white shadow-xs'
-                      : 'bg-[#202124] hover:bg-[#3c4043] text-white'
+                      : isCurrent
+                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-[#f8f9fa] hover:bg-[#e8f0fe] text-[#1a73e8] border border-[#dadce0]'
                   }`}
                 >
                   {isInitiating ? (

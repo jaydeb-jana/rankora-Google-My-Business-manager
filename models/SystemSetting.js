@@ -81,6 +81,24 @@ const SystemSettingSchema = new mongoose.Schema(
       enabled: { type: Boolean, default: false },
       apiKey: { type: String, default: '', trim: true },
     },
+    adminNotes: {
+      type: String,
+      default: '',
+    },
+    notepad: {
+      type: [
+        {
+          id: { type: String, required: true },
+          title: { type: String, default: '' },
+          content: { type: String, default: '' },
+          category: { type: String, default: 'General' },
+          isPinned: { type: Boolean, default: false },
+          createdAt: { type: Date, default: Date.now },
+          updatedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

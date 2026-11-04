@@ -55,6 +55,23 @@ export async function PATCH(request, context) {
       updates.isVerified = isVerified;
     }
 
+    if (action === 'update_metrics' || body.profileScore !== undefined || body.replyTime !== undefined) {
+      if (body.profileScore !== undefined) {
+        const scoreNum = Number(body.profileScore);
+        if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
+          return NextResponse.json({ error: 'Profile score must be a number between 0 and 100.' }, { status: 400 });
+        }
+        updates.profileScore = Math.round(scoreNum);
+      }
+      if (body.replyTime !== undefined) {
+        const replyStr = String(body.replyTime).trim();
+        if (!replyStr) {
+          return NextResponse.json({ error: 'Reply time cannot be empty.' }, { status: 400 });
+        }
+        updates.replyTime = replyStr;
+      }
+    }
+
     const updatedUser = await userRepo.updateById(id, updates);
 
     return NextResponse.json({
@@ -67,6 +84,8 @@ export async function PATCH(request, context) {
         plan: updatedUser.plan || 'free',
         role: updatedUser.role || 'user',
         isVerified: updatedUser.isVerified,
+        profileScore: updatedUser.profileScore !== undefined ? updatedUser.profileScore : 94,
+        replyTime: updatedUser.replyTime || 'Under 2 Hours',
       },
       message: 'User updated successfully.',
     });

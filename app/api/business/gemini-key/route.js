@@ -12,7 +12,10 @@ export async function GET() {
     const freshUser = await userRepo.findById(user._id);
     const key = freshUser?.aiKnowledge?.geminiApiKey || '';
     const isVerified = Boolean(freshUser?.aiKnowledge?.isKeyVerified);
-    const model = freshUser?.aiKnowledge?.geminiModel || 'gemini-3.5-flash';
+    let model = freshUser?.aiKnowledge?.geminiModel || 'gemini-1.5-flash';
+    if (model.includes('3.5') || model.includes('2.5')) {
+      model = 'gemini-1.5-flash';
+    }
 
     const maskedKey = key
       ? key.length > 10
@@ -48,12 +51,11 @@ export async function POST(request) {
     }
 
     // Step 1: Send test prompt "Hi" to Google Gemini REST endpoint.
-    // Try modern free models in order: gemini-3.5-flash (flagship, free), gemini-3.5-flash-lite, gemini-2.5-flash, gemini-1.5-flash
+    // Try official Google models in order: gemini-1.5-flash (fast, standard free tier), gemini-2.0-flash, gemini-1.5-pro
     const CANDIDATE_MODELS = [
-      'gemini-3.5-flash',
-      'gemini-3.5-flash-lite',
-      'gemini-2.5-flash',
       'gemini-1.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-pro',
     ];
 
     let verifiedModel = null;

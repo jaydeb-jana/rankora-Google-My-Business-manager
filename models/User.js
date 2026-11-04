@@ -34,7 +34,7 @@ const AiKnowledgeSchema = new mongoose.Schema(
       default: [{ code: 'en', name: 'English', ratio: 100 }],
     },
     geminiApiKey: { type: String, default: '', trim: true },
-    geminiModel: { type: String, default: 'gemini-3.5-flash' },
+    geminiModel: { type: String, default: 'gemini-1.5-flash' },
     isKeyVerified: { type: Boolean, default: false },
   },
   { _id: false }
@@ -172,6 +172,17 @@ const UserSchema = new mongoose.Schema(
     lastAudit: {
       type: mongoose.Schema.Types.Mixed,
       default: null,
+    },
+    profileScore: {
+      type: Number,
+      default: 94,
+      min: 0,
+      max: 100,
+    },
+    replyTime: {
+      type: String,
+      default: 'Under 2 Hours',
+      trim: true,
     },
   },
   { timestamps: true }

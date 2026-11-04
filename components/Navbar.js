@@ -32,9 +32,12 @@ import {
   SearchCheck,
 } from 'lucide-react';
 
+let memoryUserCache = null;
+let memoryUserChecked = false;
+
 export default function Navbar() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(memoryUserCache);
+  const [loading, setLoading] = useState(!memoryUserChecked);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileSection, setMobileSection] = useState('all'); // 'all' or collapsible
@@ -47,13 +50,16 @@ export default function Navbar() {
     fetch('/api/auth/me')
       .then((res) => (res.ok ? res.json() : { authenticated: false }))
       .then((data) => {
-        if (data.authenticated && data.user) {
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
+        const u = data.authenticated && data.user ? data.user : null;
+        memoryUserCache = u;
+        memoryUserChecked = true;
+        setUser(u);
       })
-      .catch(() => setUser(null))
+      .catch(() => {
+        memoryUserCache = null;
+        memoryUserChecked = true;
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, [pathname]);
 
@@ -100,6 +106,8 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     setMobileMenuOpen(false);
+    memoryUserCache = null;
+    memoryUserChecked = true;
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
     router.push('/login');
@@ -141,6 +149,9 @@ export default function Navbar() {
             <img
               src="/logo.png"
               alt="RANKORA"
+              width={180}
+              height={36}
+              fetchPriority="high"
               className="h-9 w-auto object-contain group-hover:opacity-90 transition-opacity"
             />
           </a>
@@ -380,6 +391,9 @@ export default function Navbar() {
                 <img
                   src="/logo.png"
                   alt="RANKORA"
+                  width={160}
+                  height={32}
+                  loading="lazy"
                   className="h-8 w-auto object-contain"
                 />
               </a>

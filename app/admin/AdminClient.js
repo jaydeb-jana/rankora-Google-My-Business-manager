@@ -31,8 +31,19 @@ import {
   ShieldCheck,
   QrCode,
   Zap,
+  Clock,
+  Sliders,
+  Award,
+  FileText,
+  StickyNote,
+  Pin,
+  Plus,
+  Download,
+  Tag,
+  Save,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
+import ConfirmModal from '@/components/ConfirmModal';
 
 const PLAN_STYLES = {
   starter: { label: 'Starter', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
@@ -64,6 +75,9 @@ export default function AdminClient({ currentUser }) {
   const [suspendModalUser, setSuspendModalUser] = useState(null);
   const [suspensionReasonInput, setSuspensionReasonInput] = useState('');
   const [copiedSlug, setCopiedSlug] = useState(null);
+  const [metricsModalUser, setMetricsModalUser] = useState(null);
+  const [scoreInput, setScoreInput] = useState(94);
+  const [replyTimeInput, setReplyTimeInput] = useState('Under 2 Hours');
 
   // Settings State
   const [settings, setSettings] = useState({
@@ -160,8 +174,29 @@ export default function AdminClient({ currentUser }) {
   const [updatingPwd, setUpdatingPwd] = useState(false);
   const [pwdMsg, setPwdMsg] = useState(null);
 
+  // Admin Notepad State
+  const [notes, setNotes] = useState([]);
+  const [loadingNotes, setLoadingNotes] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
+  const [noteForm, setNoteForm] = useState({
+    id: '',
+    title: '',
+    content: '',
+    category: 'General',
+    isPinned: false,
+  });
+  const [scratchpad, setScratchpad] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+  const [savingScratchpad, setSavingScratchpad] = useState(false);
+  const [scratchpadSavedNotice, setScratchpadSavedNotice] = useState(false);
+  const [noteSearch, setNoteSearch] = useState('');
+  const [noteCategoryFilter, setNoteCategoryFilter] = useState('All');
+  const [deleteNoteModal, setDeleteNoteModal] = useState({ isOpen: false, noteId: null, noteTitle: '' });
+  const [copiedNoteId, setCopiedNoteId] = useState(null);
+
   // Fetch users with filters
   const fetchUsers = useCallback(async () => {
+    await Promise.resolve();
     setLoadingUsers(true);
     try {
       const params = new URLSearchParams({
@@ -189,7 +224,10 @@ export default function AdminClient({ currentUser }) {
   }, [search, statusFilter, planFilter, page, showToast]);
 
   useEffect(() => {
-    fetchUsers();
+    const timer = setTimeout(() => {
+      fetchUsers();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchUsers]);
 
   // Fetch settings
@@ -241,9 +279,218 @@ export default function AdminClient({ currentUser }) {
 
   useEffect(() => {
     if (activeTab === 'settings') {
-      fetchSettings();
+      const timer = setTimeout(() => {
+        fetchSettings();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [activeTab, fetchSettings]);
+
+  // Fetch Admin Notes
+  const fetchNotes = useCallback(async () => {
+    setLoadingNotes(true);
+    try {
+      const res = await fetch('/api/admin/notes');
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const fetchedNotes = Array.isArray(data.notes) ? data.notes : [];
+        setNotes(fetchedNotes);
+        setScratchpad(typeof data.scratchpad === 'string' ? data.scratchpad : '');
+        if (fetchedNotes.length > 0) {
+          setSelectedNoteId((prevId) => {
+            const found = fetchedNotes.find((n) => n.id === prevId);
+            const active = found || fetchedNotes[0];
+            setNoteForm({
+              id: active.id,
+              title: active.title || '',
+              content: active.content || '',
+              category: active.category || 'General',
+              isPinned: Boolean(active.isPinned),
+            });
+            return active.id;
+          });
+        }
+      } else {
+        showToast(data.error || 'Failed to load notes.', 'error');
+      }
+    } catch {
+      showToast('Could not load notes from database.', 'error');
+    } finally {
+      setLoadingNotes(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    if (activeTab === 'notepad') {
+      const timer = setTimeout(() => {
+        fetchNotes();
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, fetchNotes]);
+
+  const handleSelectNote = (note) => {
+    setSelectedNoteId(note.id);
+    setNoteForm({
+      id: note.id,
+      title: note.title || '',
+      content: note.content || '',
+      category: note.category || 'General',
+      isPinned: Boolean(note.isPinned),
+    });
+  };
+
+  const handleNewNote = () => {
+    const newId = `note_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    setSelectedNoteId(newId);
+    setNoteForm({
+      id: newId,
+      title: '',
+      content: '',
+      category: 'General',
+      isPinned: false,
+    });
+  };
+
+  const handleSaveNote = async () => {
+    if (!noteForm.title.trim() && !noteForm.content.trim()) {
+      showToast('Please enter a note title or content before saving.', 'error');
+      return;
+    }
+    setSavingNote(true);
+    try {
+      const noteToSave = {
+        ...noteForm,
+        id: noteForm.id || `note_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        title: noteForm.title.trim() || 'Untitled Note',
+      };
+      const res = await fetch('/api/admin/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save_note', note: noteToSave }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotes(data.notes || []);
+        setSelectedNoteId(data.note.id);
+        setNoteForm({
+          id: data.note.id,
+          title: data.note.title,
+          content: data.note.content,
+          category: data.note.category,
+          isPinned: data.note.isPinned,
+        });
+        showToast('Note saved to database successfully.', 'success');
+      } else {
+        showToast(data.error || 'Failed to save note.', 'error');
+      }
+    } catch {
+      showToast('Error saving note.', 'error');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const handleTogglePinNote = async (noteId, e) => {
+    if (e) e.stopPropagation();
+    try {
+      const res = await fetch('/api/admin/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_pin', noteId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotes(data.notes || []);
+        if (noteForm.id === noteId) {
+          setNoteForm((prev) => ({ ...prev, isPinned: !prev.isPinned }));
+        }
+      }
+    } catch {
+      showToast('Error updating pin status.', 'error');
+    }
+  };
+
+  const handleDeleteNoteConfirm = async () => {
+    if (!deleteNoteModal.noteId) return;
+    setActionLoadingId('delete_note');
+    try {
+      const res = await fetch('/api/admin/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_note', noteId: deleteNoteModal.noteId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const remaining = data.notes || [];
+        setNotes(remaining);
+        showToast('Note permanently deleted.', 'success');
+        if (selectedNoteId === deleteNoteModal.noteId) {
+          if (remaining.length > 0) {
+            handleSelectNote(remaining[0]);
+          } else {
+            handleNewNote();
+          }
+        }
+        setDeleteNoteModal({ isOpen: false, noteId: null, noteTitle: '' });
+      } else {
+        showToast(data.error || 'Failed to delete note.', 'error');
+      }
+    } catch {
+      showToast('Error deleting note.', 'error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleSaveScratchpad = async () => {
+    setSavingScratchpad(true);
+    try {
+      const res = await fetch('/api/admin/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save_scratchpad', scratchpad }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setScratchpadSavedNotice(true);
+        setTimeout(() => setScratchpadSavedNotice(false), 2500);
+        showToast('Scratchpad saved successfully.', 'success');
+      } else {
+        showToast(data.error || 'Failed to save scratchpad.', 'error');
+      }
+    } catch {
+      showToast('Failed to save scratchpad.', 'error');
+    } finally {
+      setSavingScratchpad(false);
+    }
+  };
+
+  const handleCopyNoteText = (text, id) => {
+    if (!text) {
+      showToast('Note is empty.', 'info');
+      return;
+    }
+    navigator.clipboard.writeText(text);
+    setCopiedNoteId(id);
+    setTimeout(() => setCopiedNoteId(null), 2000);
+    showToast('Copied to clipboard!', 'success');
+  };
+
+  const handleDownloadNoteFile = (note) => {
+    const title = (note.title || 'Note').replace(/[^a-z0-9_\-\s]/gi, '_');
+    const content = `Title: ${note.title || 'Untitled'}\nCategory: ${note.category || 'General'}\nDate: ${new Date().toLocaleString()}\n----------------------------------------\n\n${note.content || ''}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Note downloaded as text file.', 'success');
+  };
 
   // 1-Click Login (Impersonation)
   const handleImpersonate = async (targetUser) => {
@@ -383,6 +630,49 @@ export default function AdminClient({ currentUser }) {
       }
     } catch (err) {
       showToast('Error deleting account.', 'error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // Update Profile Score & Reply Time (Admin Controlled)
+  const handleUpdateMetrics = async (e) => {
+    e?.preventDefault();
+    if (!metricsModalUser) return;
+    const scoreNum = Math.min(100, Math.max(0, parseInt(scoreInput, 10) || 0));
+    const cleanReply = String(replyTimeInput || '').trim();
+    if (!cleanReply) {
+      showToast('Reply time cannot be empty.', 'error');
+      return;
+    }
+
+    setActionLoadingId(`metrics_${metricsModalUser._id}`);
+    try {
+      const res = await fetch(`/api/admin/users/${metricsModalUser._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_metrics',
+          profileScore: scoreNum,
+          replyTime: cleanReply,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u._id === metricsModalUser._id
+              ? { ...u, profileScore: scoreNum, replyTime: cleanReply }
+              : u
+          )
+        );
+        showToast(`Score & reply time updated for ${metricsModalUser.businessName}!`, 'success');
+        setMetricsModalUser(null);
+      } else {
+        showToast(data.error || 'Failed to update metrics.', 'error');
+      }
+    } catch (err) {
+      showToast('Error updating metrics.', 'error');
     } finally {
       setActionLoadingId(null);
     }
@@ -620,6 +910,26 @@ export default function AdminClient({ currentUser }) {
     setTimeout(() => setCopiedSlug(null), 2000);
   };
 
+  const filteredNotes = notes
+    .filter((n) => {
+      const q = noteSearch.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        (n.title && n.title.toLowerCase().includes(q)) ||
+        (n.content && n.content.toLowerCase().includes(q));
+      const matchesCategory =
+        noteCategoryFilter === 'All' || (n.category || 'General') === noteCategoryFilter;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+    });
+
+  const wordCount = (noteForm.content || '').trim() ? (noteForm.content || '').trim().split(/\s+/).length : 0;
+  const charCount = (noteForm.content || '').length;
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Title */}
@@ -656,6 +966,17 @@ export default function AdminClient({ currentUser }) {
           >
             <Settings className="w-4 h-4 text-purple-600" />
             <span>Settings</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('notepad')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer ${
+              activeTab === 'notepad'
+                ? 'bg-white text-stone-900 shadow-xs'
+                : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            <FileText className="w-4 h-4 text-purple-600" />
+            <span>Notepad</span>
           </button>
         </div>
       </div>
@@ -796,6 +1117,7 @@ export default function AdminClient({ currentUser }) {
                       <th className="py-3 px-4">Plan</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4">Activity</th>
+                      <th className="py-3 px-4">Score & SLA</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -927,9 +1249,50 @@ export default function AdminClient({ currentUser }) {
                             </div>
                           </td>
 
+                          {/* Score & Reply SLA (Admin Controlled) */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center space-x-2">
+                              <div>
+                                <div className="flex items-center space-x-1.5">
+                                  <span className="inline-flex items-center text-xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    {u.profileScore !== undefined && u.profileScore !== null ? u.profileScore : 94}/100
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-stone-500 flex items-center space-x-1 mt-1 font-medium">
+                                  <Clock className="w-3 h-3 text-stone-400 shrink-0" />
+                                  <span className="truncate max-w-[130px]">{u.replyTime || 'Under 2 Hours'}</span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setMetricsModalUser(u);
+                                  setScoreInput(u.profileScore !== undefined && u.profileScore !== null ? u.profileScore : 94);
+                                  setReplyTimeInput(u.replyTime || 'Under 2 Hours');
+                                }}
+                                className="inline-flex items-center p-1.5 text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition shadow-2xs cursor-pointer"
+                                title="Update Score & Reply Time"
+                              >
+                                <Sliders className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+
                           {/* Action Buttons */}
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end space-x-1.5">
+                              {/* Edit Score & Reply Time SLA */}
+                              <button
+                                onClick={() => {
+                                  setMetricsModalUser(u);
+                                  setScoreInput(u.profileScore !== undefined && u.profileScore !== null ? u.profileScore : 94);
+                                  setReplyTimeInput(u.replyTime || 'Under 2 Hours');
+                                }}
+                                className="p-1.5 rounded-lg border border-stone-200 bg-stone-50 text-stone-600 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition cursor-pointer"
+                                title="Edit Profile Score & Reply Time SLA"
+                              >
+                                <Sliders className="w-3.5 h-3.5" />
+                              </button>
+
                               {/* 1-Click Login (Impersonation) */}
                               <button
                                 onClick={() => handleImpersonate(u)}
@@ -1842,6 +2205,390 @@ export default function AdminClient({ currentUser }) {
         </div>
       )}
 
+      {/* TAB 3: ADMIN NOTEPAD */}
+      {activeTab === 'notepad' && (
+        <div className="space-y-6">
+          {/* Notepad Header Card */}
+          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold shrink-0">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-stone-900 flex items-center gap-2">
+                  <span>Administrative Notepad</span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                    {notes.length} {notes.length === 1 ? 'Note' : 'Notes'}
+                  </span>
+                </h2>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Securely store credentials, client remarks, system tokens, tasks, and administrative scratch records synced with the database.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={handleNewNote}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-2 px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-xl shadow-xs transition cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create New Note</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Main Dual-Pane Workspace */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Note Directory (5 Cols on LG) */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs space-y-3">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={noteSearch}
+                    onChange={(e) => setNoteSearch(e.target.value)}
+                    placeholder="Search notes by title or content..."
+                    className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition"
+                  />
+                  {noteSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setNoteSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 text-xs cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                {/* Category Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                  {['All', 'General', 'Credentials', 'Tasks', 'Customer Notes', 'Ideas'].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setNoteCategoryFilter(cat)}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition whitespace-nowrap cursor-pointer ${
+                        noteCategoryFilter === cat
+                          ? 'bg-purple-600 text-white shadow-xs'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes List */}
+              <div className="space-y-2.5 max-h-[620px] overflow-y-auto pr-1">
+                {loadingNotes ? (
+                  <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center space-y-3">
+                    <Loader2 className="w-6 h-6 animate-spin text-purple-600 mx-auto" />
+                    <p className="text-xs text-stone-500 font-medium">Loading saved notes from database...</p>
+                  </div>
+                ) : filteredNotes.length === 0 ? (
+                  <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
+                      <StickyNote className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-stone-800">No notes found</h4>
+                      <p className="text-xs text-stone-500 mt-1 max-w-xs mx-auto">
+                        {noteSearch || noteCategoryFilter !== 'All'
+                          ? 'No notes match your active search or category filters.'
+                          : 'Your admin notepad is currently empty. Start drafting your first note.'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleNewNote}
+                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Create First Note</span>
+                    </button>
+                  </div>
+                ) : (
+                  filteredNotes.map((item) => {
+                    const isSelected = selectedNoteId === item.id;
+                    const previewText = (item.content || '').replace(/\s+/g, ' ').trim();
+                    const categoryColors = {
+                      General: 'bg-stone-100 text-stone-700 border-stone-200',
+                      Credentials: 'bg-rose-50 text-rose-700 border-rose-200',
+                      Tasks: 'bg-blue-50 text-blue-700 border-blue-200',
+                      'Customer Notes': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                      Ideas: 'bg-amber-50 text-amber-700 border-amber-200',
+                    };
+                    const badgeClass = categoryColors[item.category] || categoryColors.General;
+
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => handleSelectNote(item)}
+                        className={`p-3.5 rounded-xl border transition-all cursor-pointer relative group ${
+                          isSelected
+                            ? 'bg-purple-50/60 border-purple-400 shadow-sm ring-1 ring-purple-300'
+                            : 'bg-white border-stone-200 hover:border-purple-200 hover:bg-stone-50/60'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center space-x-2 min-w-0">
+                            {item.isPinned && (
+                              <Pin className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                            )}
+                            <h4 className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                              {item.title || 'Untitled Note'}
+                            </h4>
+                          </div>
+
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border shrink-0 ${badgeClass}`}>
+                            {item.category || 'General'}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-stone-500 line-clamp-2 mt-1.5 leading-relaxed font-normal">
+                          {previewText || <span className="italic text-stone-400">Empty note body</span>}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-stone-100 text-[11px] text-stone-400">
+                          <span>
+                            {item.updatedAt
+                              ? new Date(item.updatedAt).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })
+                              : 'Recently'}
+                          </span>
+
+                          <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={(e) => handleTogglePinNote(item.id, e)}
+                              className={`p-1 rounded hover:bg-stone-200 transition cursor-pointer ${
+                                item.isPinned ? 'text-amber-500' : 'text-stone-400 hover:text-stone-600'
+                              }`}
+                              title={item.isPinned ? 'Unpin note' : 'Pin note to top'}
+                            >
+                              <Pin className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyNoteText(item.content, item.id)}
+                              className="p-1 rounded text-stone-400 hover:text-stone-600 hover:bg-stone-200 transition cursor-pointer"
+                              title="Copy content"
+                            >
+                              {copiedNoteId === item.id ? (
+                                <Check className="w-3 h-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setDeleteNoteModal({
+                                  isOpen: true,
+                                  noteId: item.id,
+                                  noteTitle: item.title || 'Untitled Note',
+                                })
+                              }
+                              className="p-1 rounded text-stone-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                              title="Delete note"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Note Editor Workspace (7 Cols on LG) */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs space-y-4">
+                {/* Note Editor Header */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-stone-100 pb-3.5">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={noteForm.title}
+                      onChange={(e) => setNoteForm((prev) => ({ ...prev, title: e.target.value }))}
+                      placeholder="Note Title (e.g. Server Access Keys, Client Meeting Details)..."
+                      className="w-full text-base sm:text-lg font-bold text-stone-900 placeholder:text-stone-300 focus:outline-none focus:ring-0 border-none p-0 bg-transparent"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <select
+                      value={noteForm.category}
+                      onChange={(e) => setNoteForm((prev) => ({ ...prev, category: e.target.value }))}
+                      className="px-2.5 py-1.5 text-xs font-semibold bg-stone-50 border border-stone-200 rounded-lg text-stone-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                    >
+                      <option value="General">General</option>
+                      <option value="Credentials">Credentials</option>
+                      <option value="Tasks">Tasks</option>
+                      <option value="Customer Notes">Customer Notes</option>
+                      <option value="Ideas">Ideas</option>
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={() => setNoteForm((prev) => ({ ...prev, isPinned: !prev.isPinned }))}
+                      className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                        noteForm.isPinned
+                          ? 'bg-amber-50 text-amber-600 border-amber-200'
+                          : 'bg-stone-50 text-stone-400 border-stone-200 hover:text-stone-700'
+                      }`}
+                      title={noteForm.isPinned ? 'Note is pinned to top' : 'Pin note to top'}
+                    >
+                      <Pin className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveNote}
+                      disabled={savingNote}
+                      className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition cursor-pointer disabled:opacity-50"
+                    >
+                      {savingNote ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Save className="w-3.5 h-3.5" />
+                      )}
+                      <span>{savingNote ? 'Saving...' : 'Save Note'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Textarea Editor */}
+                <div className="relative">
+                  <textarea
+                    rows={15}
+                    value={noteForm.content}
+                    onChange={(e) => setNoteForm((prev) => ({ ...prev, content: e.target.value }))}
+                    placeholder="Type or paste your notes here... You can store confidential passwords, API tokens, customer follow-up notes, to-do lists, or draft messages."
+                    className="w-full p-3.5 text-xs sm:text-sm text-stone-800 bg-stone-50/70 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition leading-relaxed resize-y font-mono sm:font-sans"
+                  />
+                </div>
+
+                {/* Editor Bottom Status & Action Toolbar */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 text-xs text-stone-500 border-t border-stone-100">
+                  <div className="flex items-center space-x-4">
+                    <span>
+                      <strong>{wordCount}</strong> {wordCount === 1 ? 'word' : 'words'}
+                    </span>
+                    <span>
+                      <strong>{charCount}</strong> characters
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2 self-end sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyNoteText(noteForm.content, noteForm.id || 'editor')}
+                      className="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-lg transition cursor-pointer"
+                      title="Copy note content"
+                    >
+                      {copiedNoteId === (noteForm.id || 'editor') ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                      <span>Copy</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadNoteFile(noteForm)}
+                      className="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-lg transition cursor-pointer"
+                      title="Download as text file (.txt)"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download .txt</span>
+                    </button>
+
+                    {noteForm.id && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDeleteNoteModal({
+                            isOpen: true,
+                            noteId: noteForm.id,
+                            noteTitle: noteForm.title || 'Untitled Note',
+                          })
+                        }
+                        className="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition cursor-pointer"
+                        title="Delete note"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Instant Scratchpad Card */}
+              <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <StickyNote className="w-4 h-4 text-amber-600" />
+                    <h3 className="text-xs sm:text-sm font-bold text-amber-950">
+                      Instant Cloud Scratchpad
+                    </h3>
+                  </div>
+                  {scratchpadSavedNotice && (
+                    <span className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
+                      <Check className="w-3 h-3" /> Saved to Database
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-amber-800/80">
+                  Quick scratch workspace for rapid notes, one-liners, temporary links, or transient info without creating a formal document.
+                </p>
+
+                <textarea
+                  rows={4}
+                  value={scratchpad}
+                  onChange={(e) => setScratchpad(e.target.value)}
+                  placeholder="Type temporary scratch notes here..."
+                  className="w-full p-3 text-xs sm:text-sm bg-white border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none font-mono text-stone-800"
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-amber-800/70">
+                    Auto-saved to cloud when you click Save Scratchpad
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSaveScratchpad}
+                    disabled={savingScratchpad}
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-xs transition cursor-pointer disabled:opacity-50"
+                  >
+                    {savingScratchpad ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    <span>{savingScratchpad ? 'Saving...' : 'Save Scratchpad'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PLAN CHANGE MODAL */}
       {planModalUser && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
@@ -2022,6 +2769,204 @@ export default function AdminClient({ currentUser }) {
           </div>
         </div>
       )}
+
+      {/* METRICS & SLA MODAL (SCORE & REPLY TIME) */}
+      {metricsModalUser && (
+        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-stone-200 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center space-x-3 border-b border-stone-100 pb-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold shrink-0">
+                <Sliders className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-stone-900 text-base">
+                  Update Profile Score &amp; Reply Time
+                </h3>
+                <p className="text-xs text-stone-500 truncate">
+                  {metricsModalUser.businessName} ({metricsModalUser.email})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMetricsModalUser(null)}
+                className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleUpdateMetrics} className="space-y-4">
+              {/* Profile Score (0-100) */}
+              <div className="space-y-2 bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-stone-800 flex items-center space-x-1.5">
+                    <Award className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Profile Performance Score (0 – 100)</span>
+                  </label>
+                  <div className="flex items-center space-x-1.5">
+                    <span
+                      className={`text-xs font-bold px-2 py-0.5 rounded border ${
+                        Number(scoreInput) >= 90
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : Number(scoreInput) >= 75
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : Number(scoreInput) >= 50
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-red-50 text-red-700 border-red-200'
+                      }`}
+                    >
+                      {Number(scoreInput) >= 90
+                        ? 'Excellent (Top 5%)'
+                        : Number(scoreInput) >= 75
+                        ? 'Optimal Ranking'
+                        : Number(scoreInput) >= 50
+                        ? 'Average'
+                        : 'Needs Attention'}
+                    </span>
+                    <span className="text-sm font-extrabold text-stone-900 bg-white px-2.5 py-0.5 rounded-lg border border-stone-300">
+                      {scoreInput} / 100
+                    </span>
+                  </div>
+                </div>
+
+                {/* Range Slider and Number Input */}
+                <div className="flex items-center space-x-3 pt-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={scoreInput}
+                    onChange={(e) => setScoreInput(Number(e.target.value))}
+                    className="flex-1 accent-purple-600 cursor-pointer h-2 bg-stone-200 rounded-lg"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={scoreInput}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      if (isNaN(val)) setScoreInput(0);
+                      else setScoreInput(Math.min(100, Math.max(0, val)));
+                    }}
+                    className="w-16 px-2.5 py-1 text-center font-bold text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                {/* Quick Score Presets */}
+                <div className="flex items-center flex-wrap gap-1.5 pt-1">
+                  <span className="text-[11px] text-stone-500 font-medium mr-1">Presets:</span>
+                  {[85, 90, 94, 96, 98, 100].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setScoreInput(val)}
+                      className={`text-[11px] font-semibold px-2 py-0.5 rounded transition cursor-pointer ${
+                        Number(scoreInput) === val
+                          ? 'bg-purple-600 text-white shadow-2xs'
+                          : 'bg-white text-stone-600 hover:bg-stone-200 border border-stone-200'
+                      }`}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Average Reply Time SLA */}
+              <div className="space-y-2 bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-stone-800 flex items-center space-x-1.5">
+                    <Clock className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Average Reply Time SLA</span>
+                  </label>
+                  <span className="text-[11px] text-stone-500">Google Recommended</span>
+                </div>
+
+                <input
+                  type="text"
+                  required
+                  value={replyTimeInput}
+                  onChange={(e) => setReplyTimeInput(e.target.value)}
+                  placeholder="e.g. Under 15 Mins, Under 1 Hour, Under 2 Hours"
+                  className="w-full px-3 py-2 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+
+                {/* Quick Reply Time Presets */}
+                <div className="flex items-center flex-wrap gap-1.5 pt-1">
+                  <span className="text-[11px] text-stone-500 font-medium mr-1">Quick Select:</span>
+                  {[
+                    'Under 15 Mins',
+                    'Under 30 Mins',
+                    'Under 1 Hour',
+                    'Under 2 Hours',
+                    'Within 4 Hours',
+                    'Same Day (< 24h)',
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setReplyTimeInput(preset)}
+                      className={`text-[11px] font-medium px-2 py-0.5 rounded transition cursor-pointer ${
+                        replyTimeInput === preset
+                          ? 'bg-blue-600 text-white shadow-2xs font-semibold'
+                          : 'bg-white text-stone-600 hover:bg-stone-200 border border-stone-200'
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Informational SLA Hint */}
+              <div className="p-3 bg-purple-50/60 border border-purple-100 rounded-xl text-[11px] text-purple-900 leading-relaxed flex items-start space-x-2">
+                <Zap className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                <span>
+                  These values are controlled strictly by administrators and displayed directly on the user&apos;s live dashboard under <strong>Performance &amp; Response Metrics</strong>.
+                </span>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={() => setMetricsModalUser(null)}
+                  className="px-4 py-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoadingId === `metrics_${metricsModalUser._id}`}
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition cursor-pointer"
+                >
+                  {actionLoadingId === `metrics_${metricsModalUser._id}` && (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  )}
+                  <span>Save Business Metrics</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE NOTE CONFIRM MODAL */}
+      <ConfirmModal
+        isOpen={deleteNoteModal.isOpen}
+        title="Delete Administrative Note?"
+        message={`Are you sure you want to permanently delete "${deleteNoteModal.noteTitle || 'this note'}"? This action cannot be reversed.`}
+        confirmText="Delete Note"
+        cancelText="Cancel"
+        isDestructive={true}
+        loading={actionLoadingId === 'delete_note'}
+        onConfirm={handleDeleteNoteConfirm}
+        onCancel={() => setDeleteNoteModal({ isOpen: false, noteId: null, noteTitle: '' })}
+      />
     </div>
   );
 }
