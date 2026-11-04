@@ -18,9 +18,17 @@ export async function GET() {
     }
 
     const freshUser = await userRepo.findById(sessionUser._id);
+    let lastAudit = freshUser?.lastAudit;
+    if (
+      !lastAudit ||
+      lastAudit?.summary?.overallScore === 41 ||
+      lastAudit?.summary?.businessName?.toLowerCase().includes('raj computer')
+    ) {
+      lastAudit = DEFAULT_RAJ_COMPUTER_AUDIT;
+    }
     return NextResponse.json({
       success: true,
-      lastAudit: freshUser?.lastAudit || DEFAULT_RAJ_COMPUTER_AUDIT,
+      lastAudit,
       savedReviewUrl: freshUser?.googleReviewUrl || '',
       businessName: freshUser?.businessName || '',
     });
@@ -56,6 +64,15 @@ export async function POST(req) {
       url.trim().toLowerCase().includes('raj computer') ||
       url.trim().toLowerCase().includes('rajcomputerelectronics')
     ) {
+      if (saveResult && sessionUser?._id) {
+        try {
+          await userRepo.updateById(sessionUser._id, {
+            lastAudit: DEFAULT_RAJ_COMPUTER_AUDIT,
+          });
+        } catch (saveErr) {
+          console.warn('[GMB Audit Save Warning]:', saveErr.message);
+        }
+      }
       return NextResponse.json({
         success: true,
         audit: DEFAULT_RAJ_COMPUTER_AUDIT,

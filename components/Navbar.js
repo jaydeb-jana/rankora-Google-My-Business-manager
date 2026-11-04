@@ -132,9 +132,10 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <>
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <a href="/" className="flex items-center space-x-2 group">
             <img
@@ -355,8 +356,9 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+    </header>
 
-      {/* ===================== WORLD-CLASS MOBILE SLIDE-OVER DRAWER ===================== */}
+    {/* ===================== WORLD-CLASS MOBILE SLIDE-OVER DRAWER ===================== */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           {/* Backdrop with blur */}
@@ -467,6 +469,27 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+
+              {/* Profile Audit Spotlight Card */}
+              <a
+                href="/dashboard/audit"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 shadow-2xs hover:border-blue-400 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 rounded-xl bg-blue-600 text-white group-hover:scale-105 transition-transform shadow-xs">
+                    <SearchCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 flex items-center space-x-1.5">
+                      <span>Google Profile Audit</span>
+                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-600 text-white">NEW</span>
+                    </div>
+                    <div className="text-[11px] text-slate-600">Inspect review health score &amp; ranking issues</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-blue-500 group-hover:translate-x-0.5 transition-all" />
+              </a>
 
               {/* Quick Navigation Pills: Pricing & Solutions */}
               <div className="grid grid-cols-2 gap-2">
@@ -666,6 +689,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

@@ -177,7 +177,7 @@ export default function ProfileClient({ initialUser }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 min-w-0 w-full">
       {user?.status === 'suspended' && (
         <div className="p-4 rounded-2xl bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 text-red-900 space-y-1.5 shadow-2xs">
           <div className="flex items-center space-x-2 font-bold text-sm text-red-950">
@@ -193,7 +193,7 @@ export default function ProfileClient({ initialUser }) {
       )}
 
       <div>
-        <h2 className="text-xl font-bold text-[#202124]">
+        <h2 className="text-lg sm:text-xl font-bold text-[#202124]">
           Business Profile &amp; Google Review Link
         </h2>
         <p className="text-xs text-[#5f6368] mt-1">
@@ -201,42 +201,42 @@ export default function ProfileClient({ initialUser }) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 min-w-0">
         {/* Permanent Public Review Link Card (Auto-Generated, Read-Only) */}
-        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-3 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center space-x-2 min-w-0">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
                 <Globe className="w-5 h-5" />
               </span>
-              <div>
-                <div className="flex items-center space-x-2">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <h3 className="text-sm font-semibold text-[#202124]">
                     Your Permanent Review Link
                   </h3>
-                  <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-[#188038] bg-[#e6f4ea] px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center space-x-1 text-[10px] font-semibold text-[#188038] bg-[#e6f4ea] px-2 py-0.5 rounded-full shrink-0">
                     <Lock className="w-3 h-3" />
-                    <span>Auto-Generated from Business Name</span>
+                    <span>Auto-Generated</span>
                   </span>
                 </div>
-                <p className="text-xs text-[#5f6368]">
-                  This is the link your customers visit or scan to create their 5-star review draft.
+                <p className="text-xs text-[#5f6368] truncate">
+                  Share with customers or print onto stands.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
-            <div className="flex-1 flex items-center px-3.5 py-2.5 bg-[#f8f9fa] border border-[#dadce0] rounded-xl text-sm font-mono text-[#202124] select-all overflow-x-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1 w-full min-w-0">
+            <div className="flex-1 flex items-center px-3 sm:px-3.5 py-2.5 bg-[#f8f9fa] border border-[#dadce0] rounded-xl text-xs sm:text-sm font-mono text-[#202124] select-all overflow-x-auto min-w-0">
               <span className="text-[#5f6368] shrink-0">{currentOrigin || ''}/r/</span>
-              <span className="font-bold text-[#1a73e8]">{user?.slug || formData.slug || 'generating...'}</span>
+              <span className="font-bold text-[#1a73e8] truncate">{user?.slug || formData.slug || 'generating...'}</span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={handleCopyReviewLink}
-                className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#1a73e8] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs cursor-pointer"
               >
                 {copiedReviewUrl ? (
                   <>
@@ -255,7 +255,7 @@ export default function ProfileClient({ initialUser }) {
                 href={`/r/${user?.slug || formData.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 px-3.5 py-2.5 text-xs font-semibold text-[#3c4043] bg-white hover:bg-[#f8f9fa] border border-[#dadce0] rounded-xl transition-colors shadow-2xs"
               >
                 <span>Visit Page</span>
                 <ExternalLink className="w-3.5 h-3.5 text-[#5f6368]" />
@@ -269,18 +269,18 @@ export default function ProfileClient({ initialUser }) {
         </div>
 
         {/* Google Review URL Card */}
-        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 min-w-0">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
                 <LinkIcon className="w-5 h-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-[#202124]">
                   Official Google Review URL *
                 </h3>
-                <p className="text-xs text-[#5f6368]">
-                  This is the link your customers are redirected to once they copy their review draft.
+                <p className="text-xs text-[#5f6368] truncate">
+                  Link customers are sent to after approving their draft.
                 </p>
               </div>
             </div>
@@ -288,7 +288,7 @@ export default function ProfileClient({ initialUser }) {
             <button
               type="button"
               onClick={() => setShowHelpModal(true)}
-              className="inline-flex items-center space-x-1 text-xs text-[#1a73e8] hover:underline font-medium"
+              className="inline-flex items-center space-x-1 text-xs text-[#1a73e8] hover:underline font-medium self-start sm:self-auto shrink-0 cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>How to find this?</span>
@@ -301,13 +301,13 @@ export default function ProfileClient({ initialUser }) {
               name="googleReviewUrl"
               value={formData.googleReviewUrl}
               onChange={handleChange}
-              placeholder="Paste your link here (e.g. https://share.google/... or Google Review URL)"
-              className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+              placeholder="Paste your link here (e.g. https://g.page/r/... or Google Review URL)"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
             />
           </div>
 
           {formData.googleReviewUrl && (
-            <div className="flex items-center space-x-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <a
                 href={formData.googleReviewUrl}
                 target="_blank"
@@ -317,7 +317,7 @@ export default function ProfileClient({ initialUser }) {
                 <span>Open Google link in new tab</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <span className="text-[#9aa0a6]">•</span>
+              <span className="text-[#9aa0a6] hidden sm:inline">•</span>
               <span className="text-[#137333] flex items-center space-x-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Link configured</span>
@@ -327,31 +327,31 @@ export default function ProfileClient({ initialUser }) {
         </div>
 
         {/* Business Brand & Logo Card */}
-        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-2.5">
-              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
                 <ImageIcon className="w-5 h-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-[#202124]">
                   Business Logo
                 </h3>
-                <p className="text-xs text-[#5f6368] mt-0.5">
-                  Your logo appears on the customer review page, sidebar, and print materials.
+                <p className="text-xs text-[#5f6368] mt-0.5 truncate">
+                  Appears on customer review page, sidebar, and print materials.
                 </p>
               </div>
             </div>
-            <span className="text-[11px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2.5 py-1 rounded-full shrink-0">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2.5 py-1 rounded-full shrink-0">
               Max 5 MB
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pt-1">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 pt-1">
             {/* Logo Preview Avatar */}
             <div className="relative group shrink-0">
               {formData.logoUrl ? (
-                <div className="w-24 h-24 rounded-2xl border-2 border-[#dadce0] overflow-hidden bg-white p-1.5 shadow-xs flex items-center justify-center">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 border-[#dadce0] overflow-hidden bg-white p-1.5 shadow-xs flex items-center justify-center">
                   <img
                     src={formData.logoUrl}
                     alt={formData.businessName || 'Business Logo'}
@@ -359,7 +359,7 @@ export default function ProfileClient({ initialUser }) {
                   />
                 </div>
               ) : (
-                <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-[#dadce0] bg-[#f8f9fa] flex flex-col items-center justify-center text-[#5f6368] hover:border-[#1a73e8] transition-colors">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 border-dashed border-[#dadce0] bg-[#f8f9fa] flex flex-col items-center justify-center text-[#5f6368] hover:border-[#1a73e8] transition-colors">
                   <span className="text-2xl font-bold text-[#1a73e8]">
                     {formData.businessName?.charAt(0) || 'B'}
                   </span>
@@ -375,8 +375,8 @@ export default function ProfileClient({ initialUser }) {
             </div>
 
             {/* Actions & Guidelines */}
-            <div className="flex-1 text-center sm:text-left space-y-3">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+            <div className="flex-1 text-center sm:text-left space-y-2.5 w-full">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -388,7 +388,7 @@ export default function ProfileClient({ initialUser }) {
                   type="button"
                   disabled={logoUploading}
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {logoUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
                   <span>{formData.logoUrl ? 'Change Logo' : 'Upload Logo'}</span>
@@ -399,7 +399,7 @@ export default function ProfileClient({ initialUser }) {
                     type="button"
                     disabled={logoUploading}
                     onClick={handleRemoveLogo}
-                    className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-medium text-[#d93025] hover:bg-[#fce8e6] border border-[#fad2cf] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3 py-2 text-xs font-medium text-[#d93025] hover:bg-[#fce8e6] border border-[#fad2cf] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Remove</span>
@@ -407,12 +407,10 @@ export default function ProfileClient({ initialUser }) {
                 )}
               </div>
 
-              <div className="text-xs text-[#5f6368] space-y-1">
-                <p>
-                  Recommended size: Square ratio (e.g. 500 × 500 px).
-                </p>
+              <div className="text-xs text-[#5f6368] space-y-0.5">
+                <p>Recommended size: Square ratio (e.g. 500 × 500 px).</p>
                 <p className="text-[11px] text-[#70757a]">
-                  Supported formats: <strong>PNG, JPG, WEBP, SVG</strong> · Max size: <strong>5 MB</strong>
+                  Supported: <strong>PNG, JPG, WEBP, SVG</strong> · Max <strong>5 MB</strong>
                 </p>
               </div>
             </div>
@@ -420,12 +418,12 @@ export default function ProfileClient({ initialUser }) {
         </div>
 
         {/* Core Business Information */}
-        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 min-w-0">
           <h3 className="text-sm font-semibold text-[#202124]">
             Business Information
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
                 Business Name *
@@ -436,7 +434,7 @@ export default function ProfileClient({ initialUser }) {
                 required
                 value={formData.businessName}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
 
@@ -450,7 +448,7 @@ export default function ProfileClient({ initialUser }) {
                 required
                 value={formData.ownerName}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
 
@@ -464,7 +462,7 @@ export default function ProfileClient({ initialUser }) {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
 
@@ -476,7 +474,7 @@ export default function ProfileClient({ initialUser }) {
                 name="businessCategory"
                 value={formData.businessCategory}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8] bg-white"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8] bg-white cursor-pointer"
               >
                 <option value="Healthcare & Dental">Healthcare & Dental</option>
                 <option value="Home Services & Contracting">Home Services & Contracting</option>
@@ -500,7 +498,7 @@ export default function ProfileClient({ initialUser }) {
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="e.g. 742 Evergreen Terrace"
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
 
@@ -514,11 +512,11 @@ export default function ProfileClient({ initialUser }) {
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="e.g. Seattle, WA"
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#5f6368] mb-1.5">
                 Website
               </label>
@@ -528,23 +526,23 @@ export default function ProfileClient({ initialUser }) {
                 value={formData.website}
                 onChange={handleChange}
                 placeholder="https://yourwebsite.com"
-                className="w-full px-3.5 py-2.5 text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
+                className="w-full px-3.5 py-2.5 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
               />
             </div>
           </div>
         </div>
 
         {/* Account Info (Read Only) */}
-        <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow min-w-0">
           <h3 className="text-sm font-semibold text-[#202124] mb-3">
             Account Credentials
           </h3>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div>
+            <div className="min-w-0">
               <span className="text-[#5f6368] block">Registered Email Address:</span>
-              <span className="font-semibold text-[#202124]">{user.email}</span>
+              <span className="font-semibold text-[#202124] truncate block">{user.email}</span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 shrink-0">
               <span className="px-2.5 py-1 rounded-full bg-[#e6f4ea] text-[#137333] font-semibold flex items-center space-x-1">
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Verified Account</span>
@@ -554,18 +552,23 @@ export default function ProfileClient({ initialUser }) {
         </div>
 
         {/* Save Bar */}
-        <div className="flex items-center justify-end space-x-3">
+        <div className="flex items-center justify-end">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center space-x-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-xs transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-3 text-xs sm:text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Saving Profile...</span>
+              </>
             ) : (
-              <Save className="w-4 h-4" />
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save All Changes</span>
+              </>
             )}
-            <span>Save Profile Changes</span>
           </button>
         </div>
       </form>

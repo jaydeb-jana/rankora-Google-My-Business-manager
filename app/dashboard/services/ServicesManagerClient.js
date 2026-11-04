@@ -343,17 +343,17 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 min-w-0 w-full">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
           <div className="flex items-center space-x-2">
-            <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+            <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
               <Sparkles className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold text-[#202124]">AI Knowledge &amp; Context</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-[#202124] truncate">AI Knowledge &amp; Context</h2>
           </div>
-          <p className="text-xs text-[#5f6368] mt-1.5 leading-relaxed">
+          <p className="text-xs text-[#5f6368] mt-1 leading-relaxed">
             Configure store context, review style rules, and multilingual distribution so AI writes hyper-authentic customer reviews.
           </p>
         </div>
@@ -362,7 +362,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
           type="button"
           disabled={savingKnowledge}
           onClick={handleSaveKnowledge}
-          className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50 shrink-0"
         >
           {savingKnowledge ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -374,29 +374,29 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       </div>
 
       {/* 0. Gemini API Key Configuration Card (Account Scoped & English) */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-[#f1f3f4]">
-          <div className="flex items-center space-x-3">
-            <span className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 text-white shadow-xs">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 sm:space-y-5 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 sm:pb-4 border-b border-[#f1f3f4]">
+          <div className="flex items-start sm:items-center space-x-3 min-w-0">
+            <span className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 text-white shadow-xs shrink-0">
               <Key className="w-5 h-5" />
             </span>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className="text-base font-bold text-[#202124]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <h3 className="text-sm sm:text-base font-bold text-[#202124]">
                   Google Gemini AI API Key
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
                   Account-Scoped Only
                 </span>
               </div>
-              <p className="text-xs text-[#5f6368] mt-0.5">
-                Saved strictly for this account. Used by AI to generate customized, high-quality Google reviews.
+              <p className="text-xs text-[#5f6368] mt-0.5 truncate">
+                Saved strictly for this account to generate quality reviews.
               </p>
             </div>
           </div>
 
           {/* Connection Status Badge */}
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
             {geminiStatus.isKeyVerified ? (
               <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -413,18 +413,18 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
         {/* Current Saved Key Display (if verified) */}
         {geminiStatus.isKeyVerified && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-            <div className="flex items-center space-x-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 sm:p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 min-w-0">
+            <div className="flex items-center space-x-2.5 min-w-0 flex-1">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <div className="text-xs">
+              <div className="text-xs min-w-0">
                 <span className="text-emerald-900 font-medium">Verified Key: </span>
-                <code className="font-mono text-emerald-800 font-semibold px-2 py-0.5 bg-emerald-100/70 rounded">
+                <code className="font-mono text-emerald-800 font-semibold px-2 py-0.5 bg-emerald-100/70 rounded truncate inline-block max-w-[160px] sm:max-w-none align-bottom">
                   {geminiStatus.maskedKey || '••••••••'}
                 </code>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 self-start sm:self-auto">
+            <div className="flex items-center space-x-2 self-start sm:self-auto shrink-0">
               <button
                 type="button"
                 onClick={() => setIsChangingKey(!isChangingKey)}
@@ -449,7 +449,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
         {/* Verification Success or Error Alert Banner */}
         {verificationResult && (
           <div
-            className={`p-4 rounded-xl text-xs space-y-1.5 border transition-all ${
+            className={`p-3.5 sm:p-4 rounded-xl text-xs space-y-1.5 border transition-all ${
               verificationResult.success
                 ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                 : 'bg-rose-50 border-rose-300 text-rose-900'
@@ -474,7 +474,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
         {/* Form to Enter and Verify Gemini API Key (Hidden once key is verified) */}
         {(!geminiStatus.isKeyVerified || isChangingKey) && (
-          <form onSubmit={handleVerifyAndSaveGeminiKey} className="space-y-4 pt-1">
+          <form onSubmit={handleVerifyAndSaveGeminiKey} className="space-y-3.5 pt-1 min-w-0">
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-[#202124] uppercase tracking-wider">
                 {isChangingKey ? 'Enter New Gemini API Key' : 'Enter Gemini API Key'}
@@ -485,7 +485,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                   value={geminiApiKeyInput}
                   onChange={(e) => setGeminiApiKeyInput(e.target.value)}
                   placeholder="AIzaSy... or AQ.Ab8..."
-                  className="w-full pl-4 pr-11 py-2.5 bg-[#f8fafd] border border-[#dadce0] rounded-xl text-xs text-[#202124] placeholder-[#80868b] focus:bg-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] font-mono transition-all"
+                  className="w-full pl-3.5 pr-11 py-2.5 bg-[#f8fafd] border border-[#dadce0] rounded-xl text-xs text-[#202124] placeholder-[#80868b] focus:bg-white focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] font-mono transition-all"
                 />
                 <button
                   type="button"
@@ -507,20 +507,20 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                 >
                   Google AI Studio
                 </a>
-                . When you click Verify &amp; Save, a test prompt &quot;Hi&quot; is sent to Gemini to validate the key before saving.
+                . When verified, a test prompt &quot;Hi&quot; validates the key.
               </p>
             </div>
 
-            <div className="pt-1 flex items-center space-x-2">
+            <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <button
                 type="submit"
                 disabled={verifyingKey || !geminiApiKeyInput.trim()}
-                className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {verifyingKey ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Verifying with Gemini (Sending &apos;Hi&apos;)...</span>
+                    <span>Verifying with Gemini...</span>
                   </>
                 ) : (
                   <>
@@ -537,7 +537,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                     setIsChangingKey(false);
                     setGeminiApiKeyInput('');
                   }}
-                  className="px-4 py-2.5 text-xs font-medium text-[#5f6368] hover:bg-[#f1f3f4] rounded-xl cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-[#5f6368] hover:bg-[#f1f3f4] rounded-xl cursor-pointer text-center"
                 >
                   Cancel
                 </button>
@@ -548,11 +548,11 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       </div>
 
       {/* 1. Main AI Knowledge Settings Card (Shop Details & Style) */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-6">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-5 min-w-0">
         {/* Shop Details Section */}
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <Store className="w-4 h-4 text-[#1a73e8]" />
+            <Store className="w-4 h-4 text-[#1a73e8] shrink-0" />
             <label className="text-sm font-semibold text-[#202124]">
               Shop &amp; Business Details
             </label>
@@ -565,14 +565,14 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             value={shopDetails}
             onChange={(e) => setShopDetails(e.target.value)}
             placeholder="e.g. We are a trusted computer shop & service center. We sell branded laptops (Dell, HP, Asus, Lenovo), custom gaming PC builds, original computer accessories, SSDs, and RAM. We also provide fast same-day laptop repair with 6 months warranty."
-            className="w-full px-4 py-3 text-sm text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8] focus:ring-3 focus:ring-[#e8f0fe] transition-all bg-[#fafafa] focus:bg-white"
+            className="w-full px-3.5 sm:px-4 py-3 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8] focus:ring-3 focus:ring-[#e8f0fe] transition-all bg-[#fafafa] focus:bg-white"
           />
         </div>
 
         {/* Review Writing Style & Rules Section */}
         <div className="space-y-2 pt-2 border-t border-[#f1f3f4]">
           <div className="flex items-center space-x-2">
-            <BookOpen className="w-4 h-4 text-[#1a73e8]" />
+            <BookOpen className="w-4 h-4 text-[#1a73e8] shrink-0" />
             <label className="text-sm font-semibold text-[#202124]">
               Review Writing Style &amp; Rules
             </label>
@@ -585,20 +585,20 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             value={reviewStyleRules}
             onChange={(e) => setReviewStyleRules(e.target.value)}
             placeholder="e.g. Write in a warm, enthusiastic, and natural customer tone. Mention polite behavior and fast turnaround. Never sound like a robotic advertisement or use repetitive clichés."
-            className="w-full px-4 py-3 text-sm text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8] focus:ring-3 focus:ring-[#e8f0fe] transition-all bg-[#fafafa] focus:bg-white"
+            className="w-full px-3.5 sm:px-4 py-3 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8] focus:ring-3 focus:ring-[#e8f0fe] transition-all bg-[#fafafa] focus:bg-white"
           />
         </div>
       </div>
 
       {/* 2. Customer Pickable Services (Placed Above Language Section) */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4 min-w-0">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8]">
+              <span className="p-2 rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
                 <Layers className="w-5 h-5" />
               </span>
-              <h3 className="text-base font-bold text-[#202124]">
+              <h3 className="text-base font-bold text-[#202124] truncate">
                 Customer Pickable Services ({services.length})
               </h3>
             </div>
@@ -607,11 +607,11 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             </p>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
             <button
               type="button"
               onClick={openAddModal}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs transition-colors cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Service</span>
@@ -620,22 +620,22 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
         </div>
 
         {services.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
             {services.map((svc) => {
               const isDef = Boolean(svc.isDefault);
               return (
                 <div
                   key={svc.id}
-                  className={`p-3.5 rounded-xl border google-card-shadow flex items-center justify-between gap-2.5 transition-all ${
+                  className={`p-3 sm:p-3.5 rounded-xl border google-card-shadow flex items-center justify-between gap-2.5 transition-all min-w-0 ${
                     isDef
                       ? 'bg-blue-50/50 border-blue-400 ring-1 ring-blue-400/30 shadow-xs'
                       : 'bg-white border-[#dadce0] hover:border-slate-300'
                   }`}
                 >
                   <div className="flex-1 min-w-0 pr-1">
-                    <div className="flex items-center space-x-1.5">
+                    <div className="flex items-center space-x-1.5 min-w-0">
                       <h4
-                        className={`text-sm font-semibold truncate ${
+                        className={`text-xs sm:text-sm font-semibold truncate ${
                           isDef ? 'text-blue-950 font-bold' : 'text-[#202124]'
                         }`}
                       >
@@ -648,7 +648,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                     <button
                       type="button"
                       onClick={() => handleToggleDefault(svc.id)}
-                      className={`px-2 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${
+                      className={`px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-all flex items-center space-x-1 cursor-pointer ${
                         isDef
                           ? 'bg-blue-600 text-white shadow-2xs hover:bg-blue-700'
                           : 'text-[#5f6368] hover:text-[#1a73e8] hover:bg-[#e8f0fe] border border-transparent hover:border-blue-200'
@@ -679,7 +679,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl p-8 border border-[#dadce0] text-center space-y-3">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#dadce0] text-center space-y-3">
             <Layers className="w-8 h-8 text-[#9aa0a6] mx-auto" />
             <h4 className="text-sm font-semibold text-[#202124]">No services added yet</h4>
             <p className="text-xs text-[#5f6368] max-w-sm mx-auto">
@@ -698,23 +698,23 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       </div>
 
       {/* 3. Review Languages & Ratio Section (Placed Below Services) */}
-      <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-4 sm:space-y-5 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
           <div>
             <div className="flex items-center space-x-2">
-              <Languages className="w-4 h-4 text-[#1a73e8]" />
+              <Languages className="w-4 h-4 text-[#1a73e8] shrink-0" />
               <label className="text-sm font-semibold text-[#202124]">
                 Review Languages &amp; Ratio Distribution
               </label>
             </div>
             <p className="text-xs text-[#5f6368] mt-0.5">
-              Configure 1 to 2 review languages. When 2 languages are chosen, you can customize their percentage distribution (e.g. 20% and 80%).
+              Configure 1 to 2 review languages. When 2 languages are chosen, customize percentage distribution.
             </p>
           </div>
 
           {/* Add Language Dropdown (shown only when count < 2) */}
           {languages.length < 2 && (
-            <div className="flex items-center space-x-2 shrink-0">
+            <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
               <select
                 value={selectedLangToAdd}
                 onChange={(e) => {
@@ -722,7 +722,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
                   setSelectedLangToAdd(code);
                   if (code) handleAddLanguage(code);
                 }}
-                className="px-3 py-1.5 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8] cursor-pointer"
+                className="w-full sm:w-auto px-3 py-1.5 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8] cursor-pointer"
               >
                 <option value="">+ Add Language (Max 2)</option>
                 {unaddedLanguages.map((l) => (
@@ -736,7 +736,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
         </div>
 
         {/* Active Languages Display */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           {languages.map((lang) => {
             const meta = ALL_LANGUAGES.find((l) => l.code === lang.code) || {
               flag: '🌐',
@@ -824,7 +824,7 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             {/* Quick Preset Buttons */}
             <div className="flex items-center justify-between flex-wrap gap-2 pt-1 text-xs">
               <span className="text-[11px] text-[#5f6368]">Quick Presets:</span>
-              <div className="flex items-center space-x-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {[
                   { label: '50% / 50%', r0: 50 },
                   { label: '80% / 20%', r0: 80 },

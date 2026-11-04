@@ -93,27 +93,26 @@ export default function GoogleReviewAnimationGuide({
     (currentSec, activeLang) => {
       if (activeLang === 'bn') {
         // Bengali Voice Timeline: Total 10.34s
-        // 0.0s - 3.8s: "আপনার জন্য একটি ফাইভ স্টার রিভিউ কপি করা হয়েছে।" (Intro)
-        if (currentSec < 3.8) {
+        // 0.0s - 2.8s: "আপনার জন্য একটি ফাইভ স্টার রিভিউ কপি করা হয়েছে।" (Intro)
+        if (currentSec < 2.8) {
           setAnimStep(0);
-          if (currentSec < 0.8) {
+          if (currentSec < 0.6) {
             setFingerState((prev) => ({ ...prev, opacity: 0, isClicking: false }));
           } else {
-            // Hover near center ready to point
             setFingerState({
-              x: 260,
-              y: 280,
-              opacity: 0.7,
+              x: 250,
+              y: 270,
+              opacity: 0.75,
               isClicking: false,
               isMoving: true,
             });
           }
         }
-        // 3.8s - 6.2s: "এবার ফাইভ স্টার সিলেক্ট করুন..." (Star 5 Selection)
-        else if (currentSec < 6.2) {
+        // 2.8s - 4.8s: "এবার ফাইভ স্টার সিলেক্ট করুন..." (Star 5 Selection)
+        else if (currentSec < 4.8) {
           const starCoords = getTargetCenter(star5Ref);
           if (starCoords) {
-            if (currentSec < 4.9) {
+            if (currentSec < 3.5) {
               // Gliding to Star 5
               setFingerState({
                 x: starCoords.x,
@@ -122,7 +121,7 @@ export default function GoogleReviewAnimationGuide({
                 isClicking: false,
                 isMoving: true,
               });
-            } else if (currentSec >= 4.9 && currentSec < 5.3) {
+            } else if (currentSec >= 3.5 && currentSec < 3.9) {
               // Tapping Star 5!
               setFingerState({
                 x: starCoords.x,
@@ -141,20 +140,20 @@ export default function GoogleReviewAnimationGuide({
               });
             }
           }
-          if (currentSec >= 5.0) {
+          if (currentSec >= 3.6) {
             setAnimStep(1);
           } else {
             setAnimStep(0);
           }
         }
-        // 6.2s - 8.2s: "...লেখাটি পেস্ট করুন..." (Review Box & Paste Action)
-        else if (currentSec < 8.2) {
+        // 4.8s - 7.2s: "...লেখাটি পেস্ট করুন..." (Review Box & Paste Action)
+        else if (currentSec < 7.2) {
           setAnimStep((prev) => (prev < 1 ? 1 : prev));
           const boxCoords = getTargetCenter(boxRef);
           const pasteCoords = getTargetCenter(pasteRef);
 
-          if (currentSec < 7.0 && boxCoords) {
-            // Glide to review box
+          if (currentSec < 5.6 && boxCoords) {
+            // Glide into review box
             setFingerState({
               x: boxCoords.x,
               y: boxCoords.y - 10,
@@ -162,8 +161,8 @@ export default function GoogleReviewAnimationGuide({
               isClicking: false,
               isMoving: true,
             });
-          } else if (currentSec >= 7.0 && currentSec < 7.4 && boxCoords) {
-            // Tap review box -> shows PASTE tooltip
+          } else if (currentSec >= 5.6 && currentSec < 6.0 && boxCoords) {
+            // Tap review box -> reveals PASTE tooltip
             setAnimStep(2);
             setFingerState({
               x: boxCoords.x,
@@ -172,7 +171,7 @@ export default function GoogleReviewAnimationGuide({
               isClicking: true,
               isMoving: false,
             });
-          } else if (currentSec >= 7.4 && currentSec < 7.7 && pasteCoords) {
+          } else if (currentSec >= 6.0 && currentSec < 6.3 && pasteCoords) {
             // Move to PASTE tooltip
             setAnimStep(2);
             setFingerState({
@@ -182,7 +181,7 @@ export default function GoogleReviewAnimationGuide({
               isClicking: false,
               isMoving: true,
             });
-          } else if (currentSec >= 7.7 && pasteCoords) {
+          } else if (currentSec >= 6.3 && pasteCoords) {
             // Tap PASTE -> text drops in!
             setAnimStep(3);
             setFingerState({
@@ -194,11 +193,11 @@ export default function GoogleReviewAnimationGuide({
             });
           }
         }
-        // 8.2s - 9.8s: "...এবং Post বাটনে ক্লিক করুন।" (Tap the Top-Right Post Button!)
-        else if (currentSec < 9.8) {
+        // 7.2s - 9.4s: "...এবং Post বাটনে ক্লিক করুন।" (Tap the Top-Right Post Button!)
+        else if (currentSec < 9.4) {
           const postCoords = getTargetCenter(topPostRef);
           if (postCoords) {
-            if (currentSec < 8.8) {
+            if (currentSec < 8.2) {
               // Gliding up to the top-right Post button
               setFingerState({
                 x: postCoords.x,
@@ -207,7 +206,7 @@ export default function GoogleReviewAnimationGuide({
                 isClicking: false,
                 isMoving: true,
               });
-            } else if (currentSec >= 8.8 && currentSec < 9.3) {
+            } else if (currentSec >= 8.2 && currentSec < 8.7) {
               // Tapping the top-right Post button!
               setAnimStep(4);
               setFingerState({
@@ -229,33 +228,33 @@ export default function GoogleReviewAnimationGuide({
             }
           }
         }
-        // 9.8s - 10.34s: Completion and fade
+        // 9.4s - 10.34s: Completion and fade
         else {
           setAnimStep(4);
           setFingerState((prev) => ({ ...prev, opacity: 0, isClicking: false }));
         }
       } else {
         // English Voice Timeline: Total 9.05s
-        // 0.0s - 3.2s: "Your 5-star review has been automatically copied."
-        if (currentSec < 3.2) {
+        // 0.0s - 2.2s: "Your 5-star review has been automatically copied."
+        if (currentSec < 2.2) {
           setAnimStep(0);
-          if (currentSec < 0.8) {
+          if (currentSec < 0.6) {
             setFingerState((prev) => ({ ...prev, opacity: 0, isClicking: false }));
           } else {
             setFingerState({
-              x: 260,
-              y: 280,
-              opacity: 0.7,
+              x: 250,
+              y: 270,
+              opacity: 0.75,
               isClicking: false,
               isMoving: true,
             });
           }
         }
-        // 3.2s - 5.4s: "Select 5 stars..."
-        else if (currentSec < 5.4) {
+        // 2.2s - 4.2s: "Select 5 stars..."
+        else if (currentSec < 4.2) {
           const starCoords = getTargetCenter(star5Ref);
           if (starCoords) {
-            if (currentSec < 4.3) {
+            if (currentSec < 2.9) {
               setFingerState({
                 x: starCoords.x,
                 y: starCoords.y,
@@ -263,7 +262,7 @@ export default function GoogleReviewAnimationGuide({
                 isClicking: false,
                 isMoving: true,
               });
-            } else if (currentSec >= 4.3 && currentSec < 4.7) {
+            } else if (currentSec >= 2.9 && currentSec < 3.3) {
               setFingerState({
                 x: starCoords.x,
                 y: starCoords.y,
@@ -281,19 +280,19 @@ export default function GoogleReviewAnimationGuide({
               });
             }
           }
-          if (currentSec >= 4.4) {
+          if (currentSec >= 3.0) {
             setAnimStep(1);
           } else {
             setAnimStep(0);
           }
         }
-        // 5.4s - 7.2s: "...paste your review..."
-        else if (currentSec < 7.2) {
+        // 4.2s - 6.2s: "...paste your review..."
+        else if (currentSec < 6.2) {
           setAnimStep((prev) => (prev < 1 ? 1 : prev));
           const boxCoords = getTargetCenter(boxRef);
           const pasteCoords = getTargetCenter(pasteRef);
 
-          if (currentSec < 6.0 && boxCoords) {
+          if (currentSec < 4.9 && boxCoords) {
             setFingerState({
               x: boxCoords.x,
               y: boxCoords.y - 10,
@@ -301,7 +300,7 @@ export default function GoogleReviewAnimationGuide({
               isClicking: false,
               isMoving: true,
             });
-          } else if (currentSec >= 6.0 && currentSec < 6.4 && boxCoords) {
+          } else if (currentSec >= 4.9 && currentSec < 5.3 && boxCoords) {
             setAnimStep(2);
             setFingerState({
               x: boxCoords.x,
@@ -310,7 +309,7 @@ export default function GoogleReviewAnimationGuide({
               isClicking: true,
               isMoving: false,
             });
-          } else if (currentSec >= 6.4 && currentSec < 6.7 && pasteCoords) {
+          } else if (currentSec >= 5.3 && currentSec < 5.6 && pasteCoords) {
             setAnimStep(2);
             setFingerState({
               x: pasteCoords.x,
@@ -319,7 +318,7 @@ export default function GoogleReviewAnimationGuide({
               isClicking: false,
               isMoving: true,
             });
-          } else if (currentSec >= 6.7 && pasteCoords) {
+          } else if (currentSec >= 5.6 && pasteCoords) {
             setAnimStep(3);
             setFingerState({
               x: pasteCoords.x,
@@ -330,11 +329,11 @@ export default function GoogleReviewAnimationGuide({
             });
           }
         }
-        // 7.2s - 8.6s: "...and tap Post!"
-        else if (currentSec < 8.6) {
+        // 6.2s - 8.2s: "...and tap Post!"
+        else if (currentSec < 8.2) {
           const postCoords = getTargetCenter(topPostRef);
           if (postCoords) {
-            if (currentSec < 7.8) {
+            if (currentSec < 7.2) {
               setFingerState({
                 x: postCoords.x,
                 y: postCoords.y,
@@ -342,7 +341,7 @@ export default function GoogleReviewAnimationGuide({
                 isClicking: false,
                 isMoving: true,
               });
-            } else if (currentSec >= 7.8 && currentSec < 8.2) {
+            } else if (currentSec >= 7.2 && currentSec < 7.7) {
               setAnimStep(4);
               setFingerState({
                 x: postCoords.x,
@@ -363,7 +362,7 @@ export default function GoogleReviewAnimationGuide({
             }
           }
         }
-        // 8.6s - 9.05s: Finish and fade
+        // 8.2s - 9.05s: Finish and fade
         else {
           setAnimStep(4);
           setFingerState((prev) => ({ ...prev, opacity: 0, isClicking: false }));

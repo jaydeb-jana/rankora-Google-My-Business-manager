@@ -1200,15 +1200,15 @@ export default function QRCodeClient({ user }) {
         </div>
 
         {/* Right Column: Printable Table Tent / Counter Display Stand */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="bg-white rounded-2xl p-6 border border-[#dadce0] google-card-shadow">
+        <div className="lg:col-span-7 space-y-4 min-w-0">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow min-w-0">
             {/* Header with Title and Description */}
             <div className="mb-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-sm font-bold text-[#202124]">
                   Printable Table Tent / Counter Stand
                 </h3>
-                <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full shrink-0">
                   Standard Acrylic Stand Size
                 </span>
               </div>
@@ -1219,41 +1219,44 @@ export default function QRCodeClient({ user }) {
 
             {/* Print Sizing & Options Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#f8f9fa] p-2.5 rounded-xl border border-[#dadce0] mb-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <span className="text-[11px] font-bold text-[#3c4043]">Size:</span>
                 <div className="inline-flex p-0.5 bg-white border border-[#dadce0] rounded-lg text-xs font-semibold">
                   <button
                     type="button"
                     onClick={() => setCardSize('4x6')}
-                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
                       cardSize === '4x6'
                         ? 'bg-[#1a73e8] text-white shadow-2xs'
                         : 'text-[#5f6368] hover:text-[#202124]'
                     }`}
                   >
-                    4" × 6" Acrylic Stand
+                    <span className="hidden sm:inline">4" × 6" Acrylic Stand</span>
+                    <span className="sm:hidden">4" × 6"</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCardSize('5x7')}
-                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
                       cardSize === '5x7'
                         ? 'bg-[#1a73e8] text-white shadow-2xs'
                         : 'text-[#5f6368] hover:text-[#202124]'
                     }`}
                   >
-                    5" × 7" Counter
+                    <span className="hidden sm:inline">5" × 7" Counter</span>
+                    <span className="sm:hidden">5" × 7"</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setCardSize('fold')}
-                    className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                    className={`px-2 sm:px-2.5 py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
                       cardSize === 'fold'
                         ? 'bg-[#1a73e8] text-white shadow-2xs'
                         : 'text-[#5f6368] hover:text-[#202124]'
                     }`}
                   >
-                    Foldable Tent
+                    <span className="hidden sm:inline">Foldable Tent</span>
+                    <span className="sm:hidden">Fold Tent</span>
                   </button>
                 </div>
               </div>
@@ -1262,7 +1265,7 @@ export default function QRCodeClient({ user }) {
                 <button
                   type="button"
                   onClick={() => setShowCropMarks((prev) => !prev)}
-                  className={`text-[11px] px-2 py-1 rounded-lg border flex items-center space-x-1 font-medium transition-colors ${
+                  className={`text-[11px] px-2 py-1 rounded-lg border flex items-center space-x-1 font-medium transition-colors cursor-pointer ${
                     showCropMarks
                       ? 'bg-[#e8f0fe] text-[#1a73e8] border-[#d2e3fc]'
                       : 'bg-white text-[#5f6368] border-[#dadce0]'
@@ -1276,7 +1279,7 @@ export default function QRCodeClient({ user }) {
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-2xs transition-colors"
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-2xs transition-colors cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Card</span>

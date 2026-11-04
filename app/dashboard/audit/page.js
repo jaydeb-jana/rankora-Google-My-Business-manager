@@ -10,7 +10,14 @@ export default async function AuditPage() {
   if (!user) return null;
   const freshUser = await userRepo.findById(user._id);
 
-  const initialAudit = freshUser?.lastAudit || DEFAULT_RAJ_COMPUTER_AUDIT;
+  let initialAudit = freshUser?.lastAudit;
+  if (
+    !initialAudit ||
+    initialAudit?.summary?.overallScore === 41 ||
+    initialAudit?.summary?.businessName?.toLowerCase().includes('raj computer')
+  ) {
+    initialAudit = DEFAULT_RAJ_COMPUTER_AUDIT;
+  }
 
   return <AuditClient initialUser={freshUser || user} defaultAudit={initialAudit} />;
 }
