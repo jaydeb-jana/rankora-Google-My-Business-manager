@@ -33,8 +33,9 @@ const NAV_ITEMS = [
 export default function DashboardSidebar({ user, mobileOpen = false, onClose = () => {} }) {
   const pathname = usePathname();
 
-  const rawPlan = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
-  const planName = rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : 'Starter';
+  const rawPlan = user?.plan || 'starter';
+  const planName =
+    rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : rawPlan === 'free' ? 'Free' : 'Starter';
 
   // Calculate days remaining in active billing cycle
   const now = new Date();
@@ -49,9 +50,10 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
     : new Date(planStart.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   const diffMs = expiresAt.getTime() - now.getTime();
-  const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-  const progressPercent = Math.min(100, Math.max(8, Math.round((daysLeft / 30) * 100)));
-  const isExpiringSoon = daysLeft <= 5;
+  const isExpired = user?.role !== 'admin' && (user?.isPlanExpired || diffMs <= 0);
+  const daysLeft = isExpired ? 0 : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  const progressPercent = isExpired ? 0 : Math.min(100, Math.max(8, Math.round((daysLeft / 30) * 100)));
+  const isExpiringSoon = !isExpired && daysLeft <= 5;
 
   const renderContent = (isMobile = false) => (
     <>
@@ -204,9 +206,17 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
             </div>
 
             {/* Live Status indicator */}
-            <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Active</span>
+            <span
+              className={`inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${
+                isExpired
+                  ? 'bg-red-50 text-red-700 border-red-200'
+                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-red-500' : 'bg-emerald-500 animate-pulse'}`}
+              ></span>
+              <span>{isExpired ? 'Expired' : 'Active'}</span>
             </span>
           </div>
 
@@ -214,8 +224,16 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
           <div className="space-y-1">
             <div className="flex items-baseline justify-between text-[11px]">
               <span className="text-[#5f6368] font-medium text-[10px]">Validity:</span>
-              <span className={`font-bold ${isExpiringSoon ? 'text-amber-600' : 'text-[#1a73e8]'}`}>
-                {daysLeft > 0 ? `${daysLeft} Day${daysLeft === 1 ? '' : 's'} Left` : 'Renews Today'}
+              <span
+                className={`font-bold ${
+                  isExpired ? 'text-red-600' : isExpiringSoon ? 'text-amber-600' : 'text-[#1a73e8]'
+                }`}
+              >
+                {isExpired
+                  ? 'Plan Expired'
+                  : daysLeft > 0
+                  ? `${daysLeft} Day${daysLeft === 1 ? '' : 's'} Left`
+                  : 'Renews Today'}
               </span>
             </div>
 
@@ -223,9 +241,13 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
             <div className="w-full bg-stone-200/80 rounded-full h-1.5 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
-                  isExpiringSoon ? 'bg-amber-500' : 'bg-gradient-to-r from-blue-500 to-indigo-600'
+                  isExpired
+                    ? 'bg-red-500'
+                    : isExpiringSoon
+                    ? 'bg-amber-500'
+                    : 'bg-gradient-to-r from-blue-500 to-indigo-600'
                 }`}
-                style={{ width: `${progressPercent}%` }}
+                style={{ width: `${isExpired ? 100 : progressPercent}%` }}
               />
             </div>
 
@@ -234,9 +256,11 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
               <a
                 href="/dashboard/plans"
                 onClick={isMobile ? onClose : undefined}
-                className="font-semibold text-[#1a73e8] hover:text-[#1557b0] hover:underline"
+                className={`font-semibold hover:underline ${
+                  isExpired ? 'text-red-600 hover:text-red-700 font-bold' : 'text-[#1a73e8] hover:text-[#1557b0]'
+                }`}
               >
-                {planName === 'Enterprise' ? 'Manage' : 'Upgrade →'}
+                {isExpired ? 'Renew Plan →' : planName === 'Enterprise' ? 'Manage' : 'Upgrade →'}
               </a>
             </div>
           </div>

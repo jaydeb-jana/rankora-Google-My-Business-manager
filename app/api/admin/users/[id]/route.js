@@ -42,6 +42,13 @@ export async function PATCH(request, context) {
       }
       updates.plan = plan;
       updates.planUpdatedAt = new Date();
+      if (body.planExpiresAt) {
+        updates.planExpiresAt = new Date(body.planExpiresAt);
+      } else if (plan === 'free') {
+        updates.planExpiresAt = new Date();
+      } else {
+        updates.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      }
     }
 
     if (action === 'update_role' || role) {

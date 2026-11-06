@@ -34,7 +34,14 @@ import { useToast } from '@/components/Toast';
 export default function PlansClient({ user, pricingConfig }) {
   const { showToast } = useToast();
   const [billingCycle, setBillingCycle] = useState('monthly');
-  const [currentPlan, setCurrentPlan] = useState((user?.plan === 'free' ? 'starter' : user?.plan) || 'starter');
+  const userPlan = user?.plan || 'free';
+  const [currentPlan, setCurrentPlan] = useState(userPlan);
+
+  const now = new Date();
+  const expiresAt = user?.planExpiresAt ? new Date(user.planExpiresAt) : null;
+  const isExpired = userPlan !== 'free' && expiresAt && expiresAt.getTime() <= now.getTime();
+  const diffMs = expiresAt ? expiresAt.getTime() - now.getTime() : 0;
+  const daysLeft = isExpired || !expiresAt ? 0 : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
   // Checkout Modal & Polling State
   const [planToUpgrade, setPlanToUpgrade] = useState(null);
@@ -410,11 +417,6 @@ export default function PlansClient({ user, pricingConfig }) {
 
   // Trigger Plan Upgrade & Create Dynamic Order
   const handlePlanClick = async (plan) => {
-    if (currentPlan === plan.id) {
-      showToast(`You are already subscribed to the ${plan.name} plan.`, 'info');
-      return;
-    }
-
     setInitiatingPlanId(plan.id);
 
     try {
@@ -509,6 +511,53 @@ export default function PlansClient({ user, pricingConfig }) {
         </div>
       </div>
 
+      {/* Expiration or Warning Notice */}
+      {isExpired && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex items-start space-x-3.5 shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <AlertTriangle className="w-4 h-4" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <h4 className="font-bold text-red-950 flex items-center gap-1.5">
+              <span>Subscription Expired</span>
+              <span className="text-[10px] font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded-full">
+                Action Required
+              </span>
+            </h4>
+            <p className="text-red-800/90 leading-relaxed">
+              Your previous subscription expired on{' '}
+              {expiresAt
+                ? expiresAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'recently'}
+              . Renew your plan below to continue accessing AI draft features and Google Business Profile management.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!isExpired && daysLeft > 0 && daysLeft <= 5 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex items-start space-x-3.5 shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <Clock className="w-4 h-4" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <h4 className="font-bold text-amber-950 flex items-center gap-1.5">
+              <span>Subscription Expiring Soon</span>
+              <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                {daysLeft} Day{daysLeft === 1 ? '' : 's'} Remaining
+              </span>
+            </h4>
+            <p className="text-amber-800/90 leading-relaxed">
+              Your active subscription renews on{' '}
+              {expiresAt
+                ? expiresAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'soon'}
+              . You can renew early below to stack full validity onto your account without any interruption.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Active Subscription Rule Notice */}
       <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/70 to-emerald-50/80 border border-blue-200/90 rounded-2xl p-4 sm:p-5 flex items-start space-x-3.5 shadow-2xs">
         <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
@@ -557,8 +606,14 @@ export default function PlansClient({ user, pricingConfig }) {
                     </p>
                   </div>
                   {isCurrent && (
-                    <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
-                      Active Plan
+                    <span
+                      className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                        isExpired
+                          ? 'bg-red-50 text-red-700 border border-red-200'
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      }`}
+                    >
+                      {isExpired ? 'Plan Expired' : 'Active Plan'}
                     </span>
                   )}
                 </div>
@@ -595,7 +650,9 @@ export default function PlansClient({ user, pricingConfig }) {
                   disabled={isInitiating}
                   onClick={() => handleInitiateUpgrade(plan)}
                   className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition-all cursor-pointer ${
-                    plan.popular
+                    isCurrent && isExpired
+                      ? 'bg-red-600 hover:bg-red-700 text-white shadow-xs'
+                      : plan.popular
                       ? 'bg-[#1a73e8] hover:bg-[#1557b0] text-white shadow-xs'
                       : isCurrent
                       ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300'
@@ -609,7 +666,13 @@ export default function PlansClient({ user, pricingConfig }) {
                     </>
                   ) : (
                     <>
-                      <span>{isCurrent ? `Renew / Extend ${plan.name}` : `Upgrade to ${plan.name}`}</span>
+                      <span>
+                        {isCurrent
+                          ? isExpired
+                            ? `Renew ${plan.name} Plan`
+                            : `Renew / Extend ${plan.name}`
+                          : `Upgrade to ${plan.name}`}
+                      </span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}

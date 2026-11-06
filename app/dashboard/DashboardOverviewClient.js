@@ -75,8 +75,81 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
     }
   };
 
+  const now = new Date();
+  const expiresAt = user?.planExpiresAt ? new Date(user.planExpiresAt) : null;
+  const isExpired = user?.role !== 'admin' && (user?.isPlanExpired || (expiresAt && expiresAt.getTime() <= now.getTime()));
+  const diffMs = expiresAt ? expiresAt.getTime() - now.getTime() : 0;
+  const daysLeft = isExpired || !expiresAt ? 0 : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  const isExpiringSoon = !isExpired && daysLeft > 0 && daysLeft <= 5;
+
   return (
     <div className="space-y-4 sm:space-y-6 min-w-0 w-full">
+      {/* Subscription Expired Alert Banner */}
+      {isExpired && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-start space-x-3.5">
+            <div className="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-bold text-red-950 flex items-center gap-2">
+                <span>Subscription Plan Expired</span>
+                <span className="text-[10px] font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Action Required
+                </span>
+              </h4>
+              <p className="text-xs text-red-800/90 leading-relaxed">
+                Your subscription ended on{' '}
+                {expiresAt
+                  ? expiresAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                  : 'recently'}
+                . Please renew your plan to ensure uninterrupted Google Business Profile services.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/dashboard/plans"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-xs shrink-0"
+          >
+            <span>Renew Plan</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      )}
+
+      {/* Subscription Expiring Soon Alert Banner */}
+      {isExpiringSoon && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="flex items-start space-x-3.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-bold text-amber-950 flex items-center gap-2">
+                <span>Subscription Expiring Soon</span>
+                <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  {daysLeft} Day{daysLeft === 1 ? '' : 's'} Left
+                </span>
+              </h4>
+              <p className="text-xs text-amber-800/90 leading-relaxed">
+                Your plan validity will expire on{' '}
+                {expiresAt
+                  ? expiresAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                  : 'soon'}
+                . Renew early to extend your active subscription seamlessly.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/dashboard/plans"
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-4 py-2 text-xs font-bold text-amber-900 bg-amber-200/80 hover:bg-amber-200 rounded-xl transition border border-amber-300 shadow-2xs shrink-0"
+          >
+            <span>Extend Subscription</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4 min-w-0">
         <div className="min-w-0 flex-1">

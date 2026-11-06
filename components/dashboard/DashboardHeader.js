@@ -45,8 +45,9 @@ export default function DashboardHeader({ user, onOpenMobileSidebar, mobileSideb
   const [copied, setCopied] = useState(false);
   const [internalDrawerOpen, setInternalDrawerOpen] = useState(false);
 
-  const rawPlan = (user?.plan === 'free' ? 'starter' : user?.plan) || 'starter';
-  const planName = rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : 'Starter';
+  const rawPlan = user?.plan || 'starter';
+  const planName =
+    rawPlan === 'enterprise' ? 'Enterprise' : rawPlan === 'pro' ? 'Pro' : rawPlan === 'free' ? 'Free' : 'Starter';
 
   const now = new Date();
   const planStart = user?.planUpdatedAt
@@ -60,9 +61,10 @@ export default function DashboardHeader({ user, onOpenMobileSidebar, mobileSideb
     : new Date(planStart.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   const diffMs = expiresAt.getTime() - now.getTime();
-  const daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-  const progressPercent = Math.min(100, Math.max(8, Math.round((daysLeft / 30) * 100)));
-  const isExpiringSoon = daysLeft <= 5;
+  const isExpired = user?.role !== 'admin' && (user?.isPlanExpired || diffMs <= 0);
+  const daysLeft = isExpired ? 0 : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  const progressPercent = isExpired ? 0 : Math.min(100, Math.max(8, Math.round((daysLeft / 30) * 100)));
+  const isExpiringSoon = !isExpired && daysLeft <= 5;
 
   const reviewUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/r/${user?.slug}`
@@ -136,11 +138,25 @@ export default function DashboardHeader({ user, onOpenMobileSidebar, mobileSideb
           {/* Active Plan & Days Remaining Pill (Desktop / Tablet) */}
           <a
             href="/dashboard/plans"
-            className="hidden lg:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1a73e8] border border-[#d2e3fc] transition-colors shadow-2xs"
+            className={`hidden lg:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-colors shadow-2xs ${
+              isExpired
+                ? 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200'
+                : isExpiringSoon
+                ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200'
+                : 'bg-[#e8f0fe] hover:bg-[#d2e3fc] text-[#1a73e8] border-[#d2e3fc]'
+            }`}
             title="Subscription details • Click to view plans"
           >
-            <Crown className="w-3.5 h-3.5 text-[#1a73e8]" />
-            <span>{planName} Plan &bull; {daysLeft > 0 ? `${daysLeft}d left` : 'Renews Today'}</span>
+            <Crown
+              className={`w-3.5 h-3.5 ${
+                isExpired ? 'text-red-600' : isExpiringSoon ? 'text-amber-600' : 'text-[#1a73e8]'
+              }`}
+            />
+            <span>
+              {isExpired
+                ? `${planName} Expired • Renew Now`
+                : `${planName} Plan • ${daysLeft > 0 ? `${daysLeft}d left` : 'Renews Today'}`}
+            </span>
           </a>
 
           {/* 1-Click Copy Link button */}
