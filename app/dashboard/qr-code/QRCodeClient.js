@@ -285,13 +285,15 @@ function QrViewfinder({
   );
 }
 
-function DisplayCard({ templateId, user, dataUrl, cardSize = 'a4' }) {
+function DisplayCard({ templateId, user, dataUrl, cardSize = '4x6' }) {
   const cardWidth =
-    cardSize === '5x7'
-      ? 'w-full max-w-[430px]'
+    cardSize === '4x6'
+      ? 'w-full max-w-[360px]'
+      : cardSize === '5x7'
+      ? 'w-full max-w-[420px]'
       : cardSize === 'fold'
       ? 'w-full max-w-[390px]'
-      : 'w-full max-w-[420px]';
+      : 'w-full max-w-[460px]';
 
   // 1. Google Official Partner Kit (The Flagship Masterpiece)
   if (templateId === 'google-official' || templateId === 'google-review') {
@@ -992,7 +994,7 @@ export default function QRCodeClient({ user }) {
   const [svgString, setSvgString] = useState('');
   const [copied, setCopied] = useState(false);
   const [templateId, setTemplateId] = useState('google-official');
-  const cardSize = 'a4';
+  const [standSize, setStandSize] = useState('4x6');
   const showCropMarks = false;
   const [downloadingStand, setDownloadingStand] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -1085,13 +1087,14 @@ export default function QRCodeClient({ user }) {
         pixelRatio: 2.5,
         backgroundColor: '#ffffff',
       });
+      const sizeLabel = standSize === '4x6' ? '4x6' : standSize === '5x7' ? '5x7' : 'a4';
       const link = document.createElement('a');
-      link.download = `rankaro-${user.slug}-a4-qr-stand.png`;
+      link.download = `rankaro-${user.slug}-${sizeLabel}-qr-stand.png`;
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast('A4 QR Code Stand downloaded successfully!', 'success');
+      showToast(`${standSize === '4x6' ? '4" × 6" Official Counter Stand' : standSize === '5x7' ? '5" × 7" Table Tent' : 'A4 Stand'} downloaded successfully!`, 'success');
     } catch (err) {
       console.error('Failed to download stand image:', err);
       showToast('Failed to generate stand image. Please use Print Stand instead.', 'error');
@@ -1230,16 +1233,60 @@ export default function QRCodeClient({ user }) {
           <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow min-w-0">
             {/* Header with Title and Description */}
             <div className="mb-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-bold text-[#202124]">
-                  Printable Table Tent / Counter Stand (A4 Size)
-                </h3>
-                <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full shrink-0">
-                  Standard A4 Size (210 × 297 mm)
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm font-bold text-[#202124]">
+                    Official Counter Stand &amp; Table Tent
+                  </h3>
+                  <span className="text-[10px] font-semibold text-[#1a73e8] bg-[#e8f0fe] px-2 py-0.5 rounded-full shrink-0">
+                    {standSize === '4x6'
+                      ? 'Official Counter Size (4" × 6" / 100 × 150 mm)'
+                      : standSize === '5x7'
+                      ? 'Acrylic Table Tent (5" × 7" / 127 × 178 mm)'
+                      : 'Display Poster (A4 / 210 × 297 mm)'}
+                  </span>
+                </div>
+
+                {/* Standard Dimension Switcher */}
+                <div className="flex items-center space-x-1 bg-[#f1f3f4] p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setStandSize('4x6')}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                      standSize === '4x6'
+                        ? 'bg-white text-[#1a73e8] shadow-2xs font-bold'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    4" × 6" (Standard)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStandSize('5x7')}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                      standSize === '5x7'
+                        ? 'bg-white text-[#1a73e8] shadow-2xs font-bold'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    5" × 7" Tent
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStandSize('a4')}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                      standSize === 'a4'
+                        ? 'bg-white text-[#1a73e8] shadow-2xs font-bold'
+                        : 'text-[#5f6368] hover:text-[#202124]'
+                    }`}
+                  >
+                    A4 Poster
+                  </button>
+                </div>
               </div>
-              <p className="text-xs text-[#5f6368] mt-0.5">
-                Engineered for physical A4 counter stands, desktop acrylic holders, and retail display framing.
+
+              <p className="text-xs text-[#5f6368] mt-1">
+                Standard physical dimensions matching official Google Review acrylic standees and merchant QR payment counter stands (Paytm, Google Pay, UPI).
               </p>
             </div>
 
@@ -1251,7 +1298,11 @@ export default function QRCodeClient({ user }) {
               {/* Print Cut Guide Header (only visible on print sheet) */}
               <div className="hidden print:flex items-center justify-between w-full mb-3 text-[9px] font-mono text-slate-400 border-b border-dashed border-slate-300 pb-1">
                 <span>
-                  STANDARD A4 COUNTER STAND • 210 × 297 MM
+                  {standSize === '4x6'
+                    ? 'OFFICIAL COUNTER STAND • 4" × 6" (100 × 150 MM)'
+                    : standSize === '5x7'
+                    ? 'ACRYLIC TABLE TENT • 5" × 7" (127 × 178 MM)'
+                    : 'STANDARD DISPLAY SHEET • A4 (210 × 297 MM)'}
                 </span>
                 <span>300 DPI OPTIMAL PRINT • RANKARO DISPLAY KIT</span>
               </div>
@@ -1259,7 +1310,13 @@ export default function QRCodeClient({ user }) {
               <div
                 ref={printCardRef}
                 id="printable-display-card"
-                className="relative print-card-a4 w-full flex justify-center"
+                className={`relative w-full flex justify-center ${
+                  standSize === '4x6'
+                    ? 'print-card-4x6'
+                    : standSize === '5x7'
+                    ? 'print-card-5x7'
+                    : 'print-card-a4'
+                }`}
               >
                 {/* Physical Scissor Corner Markers (for printing) */}
                 {showCropMarks && (
@@ -1275,7 +1332,7 @@ export default function QRCodeClient({ user }) {
                   templateId={templateId}
                   user={user}
                   dataUrl={dataUrl}
-                  cardSize="a4"
+                  cardSize={standSize}
                 />
               </div>
             </div>
@@ -1292,12 +1349,14 @@ export default function QRCodeClient({ user }) {
                   {downloadingStand ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Generating A4 Stand...</span>
+                      <span>Generating Stand...</span>
                     </>
                   ) : (
                     <>
                       <Download className="w-3.5 h-3.5" />
-                      <span>Download A4 Stand (PNG)</span>
+                      <span>
+                        Download Stand ({standSize === '4x6' ? '4×6"' : standSize === '5x7' ? '5×7"' : 'A4'})
+                      </span>
                     </>
                   )}
                 </button>
@@ -1308,7 +1367,9 @@ export default function QRCodeClient({ user }) {
                   className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-xs transition-colors cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Print Stand (A4)</span>
+                  <span>
+                    Print Stand ({standSize === '4x6' ? '4×6"' : standSize === '5x7' ? '5×7"' : 'A4'})
+                  </span>
                 </button>
 
                 <button
@@ -1327,7 +1388,7 @@ export default function QRCodeClient({ user }) {
 
               <p className="text-[11px] text-[#5f6368] flex items-center space-x-1">
                 <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  ✓ Standard A4 Print Ready (210 × 297 mm)
+                  ✓ {standSize === '4x6' ? 'Official 4" × 6" Acrylic Stand Ready' : standSize === '5x7' ? 'Standard 5" × 7" Table Tent Ready' : 'Standard A4 Sheet Ready'}
                 </span>
                 <span className="text-[#dadce0]">•</span>
                 <span>Active:</span>

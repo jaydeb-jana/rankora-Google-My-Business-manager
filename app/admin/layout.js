@@ -1,39 +1,14 @@
-import { redirect } from 'next/navigation';
 import { getSessionUser, isAdmin } from '@/lib/auth';
-import { ShieldAlert, LogOut, LayoutDashboard } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import AdminLoginForm from './AdminLoginForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminLayout({ children }) {
   const user = await getSessionUser();
 
-  if (!user) {
-    redirect('/login?redirect=/admin');
-  }
-
-  if (!isAdmin(user)) {
-    return (
-      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-red-200 p-8 text-center space-y-4">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-8 h-8" />
-          </div>
-          <h1 className="text-xl font-bold text-stone-900">Access Denied</h1>
-          <p className="text-sm text-stone-600">
-            Access to this admin control panel is restricted to authorized system administrators only. Your current account ({user.email}) does not have administrative privileges.
-          </p>
-          <div className="pt-2 flex justify-center space-x-3">
-            <a
-              href="/dashboard"
-              className="inline-flex items-center space-x-2 text-sm font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] px-4 py-2.5 rounded-xl transition"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Return to Dashboard</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    );
+  if (!user || !isAdmin(user)) {
+    return <AdminLoginForm currentUser={user} />;
   }
 
   return (

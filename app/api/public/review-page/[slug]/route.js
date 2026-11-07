@@ -11,8 +11,23 @@ export async function GET(request, { params }) {
     const cleanSlug = slug.toLowerCase().trim();
     const user = await userRepo.findBySlug(cleanSlug);
 
-    if (!user || !user.isVerified || user.role === 'admin' || user.email === 'ceo@arventventures.online') {
+    if (!user || !user.isVerified || user.role === 'admin' || user.email === 'ceo@arventventures.online' || user.email === 'ceo@arventaventures.online') {
       return NextResponse.json({ error: 'Business review page not found.' }, { status: 404 });
+    }
+
+    // Subscription verification: Check if plan is expired or on free tier
+    const isPlanExpired =
+      user.role !== 'admin' &&
+      (user.plan === 'free' || !user.planExpiresAt || new Date(user.planExpiresAt) <= new Date());
+
+    if (isPlanExpired) {
+      return NextResponse.json(
+        {
+          error: 'This business review page is currently unavailable because the subscription plan has expired or requires renewal.',
+          isExpired: true,
+        },
+        { status: 403 }
+      );
     }
 
     // Safely record visit in background

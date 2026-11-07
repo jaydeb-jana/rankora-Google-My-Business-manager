@@ -41,11 +41,18 @@ export async function PATCH(request, context) {
         return NextResponse.json({ error: 'Invalid plan.' }, { status: 400 });
       }
       updates.plan = plan;
-      updates.planUpdatedAt = new Date();
+      if (body.planUpdatedAt) {
+        updates.planUpdatedAt = new Date(body.planUpdatedAt);
+      } else {
+        updates.planUpdatedAt = new Date();
+      }
+
       if (body.planExpiresAt) {
         updates.planExpiresAt = new Date(body.planExpiresAt);
       } else if (plan === 'free') {
         updates.planExpiresAt = new Date();
+      } else if (body.billingCycle === 'yearly') {
+        updates.planExpiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
       } else {
         updates.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
       }
@@ -62,7 +69,7 @@ export async function PATCH(request, context) {
       updates.isVerified = isVerified;
     }
 
-    if (action === 'update_metrics' || body.profileScore !== undefined || body.replyTime !== undefined) {
+    if (action === 'update_metrics' || body.profileScore !== undefined || body.totalReplies !== undefined || body.replyTime !== undefined) {
       if (body.profileScore !== undefined) {
         const scoreNum = Number(body.profileScore);
         if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
@@ -70,12 +77,18 @@ export async function PATCH(request, context) {
         }
         updates.profileScore = Math.round(scoreNum);
       }
+      if (body.totalReplies !== undefined) {
+        const repliesNum = Number(body.totalReplies);
+        if (isNaN(repliesNum) || repliesNum < 0) {
+          return NextResponse.json({ error: 'Total replies must be a valid number (0 or greater).' }, { status: 400 });
+        }
+        updates.totalReplies = Math.round(repliesNum);
+      }
       if (body.replyTime !== undefined) {
         const replyStr = String(body.replyTime).trim();
-        if (!replyStr) {
-          return NextResponse.json({ error: 'Reply time cannot be empty.' }, { status: 400 });
+        if (replyStr) {
+          updates.replyTime = replyStr;
         }
-        updates.replyTime = replyStr;
       }
     }
 
@@ -89,9 +102,12 @@ export async function PATCH(request, context) {
         status: updatedUser.status || 'active',
         suspensionReason: updatedUser.suspensionReason || '',
         plan: updatedUser.plan || 'free',
+        planUpdatedAt: updatedUser.planUpdatedAt,
+        planExpiresAt: updatedUser.planExpiresAt,
         role: updatedUser.role || 'user',
         isVerified: updatedUser.isVerified,
         profileScore: updatedUser.profileScore !== undefined ? updatedUser.profileScore : 94,
+        totalReplies: updatedUser.totalReplies !== undefined ? updatedUser.totalReplies : 0,
         replyTime: updatedUser.replyTime || 'Under 2 Hours',
       },
       message: 'User updated successfully.',

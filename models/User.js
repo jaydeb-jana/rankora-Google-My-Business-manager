@@ -179,6 +179,11 @@ const UserSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    totalReplies: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     replyTime: {
       type: String,
       default: 'Under 2 Hours',

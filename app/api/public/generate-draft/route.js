@@ -18,6 +18,23 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'Business not found' }, { status: 404 });
     }
 
+    // Subscription verification: Review page is restricted if on free plan or expired
+    const isPlanExpired =
+      user.role !== 'admin' &&
+      (user.plan === 'free' || !user.planExpiresAt || new Date(user.planExpiresAt) <= new Date());
+
+    if (isPlanExpired) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'This review portal is temporarily inactive because the subscription plan has expired or requires renewal.',
+          isExpired: true,
+          drafts: [],
+        },
+        { status: 403 }
+      );
+    }
+
     // Filter to only the services that the customer actually selected
     const allServices = user.services || [];
     const chosenServices = allServices.filter((s) => selectedServiceIds.includes(s.id));
@@ -31,10 +48,11 @@ export async function POST(request) {
       '';
 
     if (!effectiveApiKey) {
+      console.warn(`[Gemini AI Draft]: Gemini API key is missing for ${user.slug}`);
       return NextResponse.json(
         {
           success: false,
-          error: 'System Error: Google Gemini API key is missing or not configured. AI review generation is unavailable.',
+          error: 'A technical issue occurred while generating the review. Please try again later or write your review manually.',
           drafts: [],
         },
         { status: 503 }
@@ -57,10 +75,11 @@ export async function POST(request) {
     });
 
     if (!result?.success || !Array.isArray(result?.drafts) || result.drafts.length === 0) {
+      console.warn(`[Gemini AI Draft Error]:`, result?.error);
       return NextResponse.json(
         {
           success: false,
-          error: result?.error || 'System Error: Google Gemini AI failed to respond. Please try again.',
+          error: 'A technical issue occurred while generating the review. Please try again later or write your review manually.',
           drafts: [],
         },
         { status: 500 }
@@ -91,7 +110,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: false,
-        error: 'System Error: An unexpected error occurred while generating the review.',
+        error: 'A technical issue occurred while generating the review. Please try again later or write your review manually.',
         drafts: [],
       },
       { status: 500 }

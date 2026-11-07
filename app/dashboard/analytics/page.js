@@ -18,6 +18,8 @@ export default async function AnalyticsPage() {
   return (
     <AnalyticsClient
       stats={stats}
+      profileScore={freshUser?.profileScore !== undefined && freshUser?.profileScore !== null ? freshUser.profileScore : 94}
+      totalReplies={freshUser?.totalReplies !== undefined && freshUser?.totalReplies !== null ? freshUser.totalReplies : 0}
       businessName={freshUser?.businessName || user.businessName}
     />
   );

@@ -86,6 +86,69 @@ export default function ProfileClient({ initialUser }) {
 
   const [saving, setSaving] = useState(false);
 
+  // Fast client-side image compression: converts to crisp 400x400 WebP/JPEG data URL (~15-30KB)
+  const compressImageForDatabase = async (file) => {
+    if (file.type === 'image/svg+xml') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX_DIM = 400;
+          let w = img.width;
+          let h = img.height;
+          if (w > h) {
+            if (w > MAX_DIM) {
+              h = Math.round((h * MAX_DIM) / w);
+              w = MAX_DIM;
+            }
+          } else {
+            if (h > MAX_DIM) {
+              w = Math.round((w * MAX_DIM) / h);
+              h = MAX_DIM;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(e.target.result);
+            return;
+          }
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, w, h);
+
+          try {
+            const webp = canvas.toDataURL('image/webp', 0.85);
+            if (webp && webp.startsWith('data:image/webp')) {
+              resolve(webp);
+              return;
+            }
+          } catch {
+            // fallback to JPEG
+          }
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => resolve(e.target.result);
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -104,13 +167,18 @@ export default function ProfileClient({ initialUser }) {
     }
 
     setLogoUploading(true);
-    const body = new FormData();
-    body.append('file', file);
 
     try {
+      // Compress and optimize image directly in browser before database save
+      const optimizedDataUrl = await compressImageForDatabase(file);
+      if (!optimizedDataUrl) {
+        throw new Error('Failed to process image file.');
+      }
+
       const res = await fetch('/api/business/upload-logo', {
         method: 'POST',
-        body,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logoUrl: optimizedDataUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to upload logo');
@@ -118,7 +186,7 @@ export default function ProfileClient({ initialUser }) {
       const newLogoUrl = data.logoUrl;
       setFormData((prev) => ({ ...prev, logoUrl: newLogoUrl }));
       setUser((prev) => ({ ...prev, logoUrl: newLogoUrl }));
-      showToast('Business logo uploaded successfully!', 'success');
+      showToast('Profile picture saved to database and optimized!', 'success');
       router.refresh();
     } catch (err) {
       showToast(err.message, 'error');

@@ -17,6 +17,7 @@ import {
   Settings,
   Clock,
   Award,
+  MessageSquareCheck,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
@@ -393,38 +394,39 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
           </div>
         </div>
 
-        {/* Average Reply Time */}
+        {/* Total Reviews Replied */}
         <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#dadce0] google-card-shadow min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-[#5f6368]">
               <div className="flex items-center space-x-1.5 min-w-0">
                 <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#5f6368] truncate">
-                  Average Reply Time
+                  Total Reviews Replied
                 </span>
-                <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#e8f0fe] text-[#1a73e8] shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#1a73e8] animate-pulse"></span>
-                  <span>Active SLA</span>
+                <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#e6f4ea] text-[#137333] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#137333] animate-pulse"></span>
+                  <span>Google Managed</span>
                 </span>
               </div>
-              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e8f0fe] text-[#1a73e8] shrink-0">
-                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-[#e6f4ea] text-[#1e8e3e] shrink-0">
+                <MessageSquareCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </div>
             </div>
 
             <div className="mt-2.5 sm:mt-3 flex items-baseline space-x-2">
               <span className="text-2xl sm:text-3xl font-extrabold text-[#202124] tracking-tight">
-                {user.replyTime || 'Under 2 Hours'}
+                {user.totalReplies !== undefined && user.totalReplies !== null ? user.totalReplies : 0}
               </span>
+              <span className="text-xs font-medium text-[#70757a]">Responses Completed</span>
             </div>
 
             <p className="mt-2 text-xs text-[#5f6368] leading-relaxed">
-              Target response speed for customer reviews and inquiries on Google Maps.
+              Total customer reviews answered and managed to boost local Google SEO visibility.
             </p>
           </div>
 
           <div className="mt-3 text-[11px] text-[#70757a] flex items-center justify-between pt-2 border-t border-[#f1f3f4]">
-            <span>Customer Response Velocity</span>
-            <span className="font-semibold text-[#1e8e3e]">Optimal Speed</span>
+            <span>Review Response Rate</span>
+            <span className="font-semibold text-[#1e8e3e]">100% Active</span>
           </div>
         </div>
       </div>

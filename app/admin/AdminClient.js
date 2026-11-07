@@ -32,8 +32,10 @@ import {
   QrCode,
   Zap,
   Clock,
+  Calendar,
   Sliders,
   Award,
+  MessageSquareCheck,
   FileText,
   StickyNote,
   Pin,
@@ -69,15 +71,50 @@ export default function AdminClient({ currentUser }) {
 
   // Modals & Action States
   const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [visiblePasswords, setVisiblePasswords] = useState({});
   const [planModalUser, setPlanModalUser] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState('free');
+  const [selectedPlan, setSelectedPlan] = useState('starter');
+  const [planBillingCycle, setPlanBillingCycle] = useState('monthly');
+  const [planStartDate, setPlanStartDate] = useState('');
+  const [planEndDate, setPlanEndDate] = useState('');
   const [deleteModalUser, setDeleteModalUser] = useState(null);
   const [suspendModalUser, setSuspendModalUser] = useState(null);
   const [suspensionReasonInput, setSuspensionReasonInput] = useState('');
   const [copiedSlug, setCopiedSlug] = useState(null);
   const [metricsModalUser, setMetricsModalUser] = useState(null);
   const [scoreInput, setScoreInput] = useState(94);
-  const [replyTimeInput, setReplyTimeInput] = useState('Under 2 Hours');
+  const [totalRepliesInput, setTotalRepliesInput] = useState(0);
+
+  const openPlanModal = (u) => {
+    setPlanModalUser(u);
+    setSelectedPlan(u.plan && u.plan !== 'free' ? u.plan : 'starter');
+    setPlanBillingCycle('monthly');
+
+    // Initialize Start Date (YYYY-MM-DD)
+    const startDateObj = u.planUpdatedAt ? new Date(u.planUpdatedAt) : new Date();
+    const startStr = !isNaN(startDateObj) ? startDateObj.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    setPlanStartDate(startStr);
+
+    // Initialize End Date (YYYY-MM-DD)
+    const endDateObj = u.planExpiresAt ? new Date(u.planExpiresAt) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const endStr = !isNaN(endDateObj) ? endDateObj.toISOString().split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    setPlanEndDate(endStr);
+  };
+
+  const handleApplyPresetDuration = (cycle) => {
+    setPlanBillingCycle(cycle);
+    const baseDate = planStartDate ? new Date(planStartDate) : new Date();
+    if (cycle === 'monthly') {
+      const target = new Date(baseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+      setPlanEndDate(target.toISOString().split('T')[0]);
+    } else if (cycle === 'yearly') {
+      const target = new Date(baseDate.getTime() + 365 * 24 * 60 * 60 * 1000);
+      setPlanEndDate(target.toISOString().split('T')[0]);
+    } else if (cycle === 'expired') {
+      const target = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      setPlanEndDate(target.toISOString().split('T')[0]);
+    }
+  };
 
   // Settings State
   const [settings, setSettings] = useState({
@@ -584,7 +621,7 @@ export default function AdminClient({ currentUser }) {
     }
   };
 
-  // Update Plan
+  // Update Plan with Full Duration & Dates Management
   const handleUpdatePlan = async () => {
     if (!planModalUser) return;
     setActionLoadingId(`plan_${planModalUser._id}`);
@@ -592,14 +629,29 @@ export default function AdminClient({ currentUser }) {
       const res = await fetch(`/api/admin/users/${planModalUser._id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update_plan', plan: selectedPlan }),
+        body: JSON.stringify({
+          action: 'update_plan',
+          plan: selectedPlan,
+          billingCycle: planBillingCycle,
+          planUpdatedAt: planStartDate ? new Date(planStartDate).toISOString() : new Date().toISOString(),
+          planExpiresAt: planEndDate ? new Date(planEndDate).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setUsers((prev) =>
-          prev.map((u) => (u._id === planModalUser._id ? { ...u, plan: selectedPlan } : u))
+          prev.map((u) =>
+            u._id === planModalUser._id
+              ? {
+                  ...u,
+                  plan: selectedPlan,
+                  planUpdatedAt: planStartDate ? new Date(planStartDate).toISOString() : u.planUpdatedAt,
+                  planExpiresAt: planEndDate ? new Date(planEndDate).toISOString() : u.planExpiresAt,
+                }
+              : u
+          )
         );
-        showToast(`Plan successfully updated to ${selectedPlan.toUpperCase()}`, 'success');
+        showToast(`Plan successfully updated to ${selectedPlan.toUpperCase()} with active validity!`, 'success');
         setPlanModalUser(null);
       } else {
         showToast(data.error || 'Failed to update subscription plan.', 'error');
@@ -635,16 +687,12 @@ export default function AdminClient({ currentUser }) {
     }
   };
 
-  // Update Profile Score & Reply Time (Admin Controlled)
+  // Update Profile Score & Total Replies (Admin Controlled)
   const handleUpdateMetrics = async (e) => {
     e?.preventDefault();
     if (!metricsModalUser) return;
     const scoreNum = Math.min(100, Math.max(0, parseInt(scoreInput, 10) || 0));
-    const cleanReply = String(replyTimeInput || '').trim();
-    if (!cleanReply) {
-      showToast('Reply time cannot be empty.', 'error');
-      return;
-    }
+    const repliesNum = Math.max(0, parseInt(totalRepliesInput, 10) || 0);
 
     setActionLoadingId(`metrics_${metricsModalUser._id}`);
     try {
@@ -654,7 +702,7 @@ export default function AdminClient({ currentUser }) {
         body: JSON.stringify({
           action: 'update_metrics',
           profileScore: scoreNum,
-          replyTime: cleanReply,
+          totalReplies: repliesNum,
         }),
       });
       const data = await res.json();
@@ -662,11 +710,11 @@ export default function AdminClient({ currentUser }) {
         setUsers((prev) =>
           prev.map((u) =>
             u._id === metricsModalUser._id
-              ? { ...u, profileScore: scoreNum, replyTime: cleanReply }
+              ? { ...u, profileScore: scoreNum, totalReplies: repliesNum }
               : u
           )
         );
-        showToast(`Score & reply time updated for ${metricsModalUser.businessName}!`, 'success');
+        showToast(`Score & total replies updated for ${metricsModalUser.businessName}!`, 'success');
         setMetricsModalUser(null);
       } else {
         showToast(data.error || 'Failed to update metrics.', 'error');
@@ -1186,31 +1234,85 @@ export default function AdminClient({ currentUser }) {
                             </div>
                           </td>
 
-                          {/* Contact Info */}
+                          {/* Contact Info & Password */}
                           <td className="py-3.5 px-4 text-xs text-stone-600">
                             <div className="font-medium text-stone-900">{u.email}</div>
                             <div className="text-stone-500 mt-0.5">{u.phone || 'No phone provided'}</div>
-                          </td>
-
-                          {/* Subscription Plan */}
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center space-x-1.5">
-                              <span
-                                className={`inline-block text-xs font-bold px-2.5 py-1 rounded-md border ${planConfig.bg} ${planConfig.text} ${planConfig.border}`}
-                              >
-                                {planConfig.label}
+                            {/* Password Reveal Button for Admin */}
+                            <div className="flex items-center space-x-1.5 mt-1.5">
+                              <span className="font-mono text-[11px] bg-stone-100 px-2 py-0.5 rounded border border-stone-200 select-all font-semibold text-stone-700">
+                                {visiblePasswords[u._id] ? (u.password || 'Jaydeb@123') : '••••••••'}
                               </span>
                               <button
-                                onClick={() => {
-                                  setPlanModalUser(u);
-                                  setSelectedPlan(u.plan || 'free');
-                                }}
-                                className="inline-flex items-center space-x-1 px-2 py-0.5 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition shadow-2xs cursor-pointer"
-                                title="Change subscription plan"
+                                type="button"
+                                onClick={() => setVisiblePasswords((prev) => ({ ...prev, [u._id]: !prev[u._id] }))}
+                                className="inline-flex items-center space-x-1 px-1.5 py-0.5 text-[10px] font-medium rounded bg-stone-100 hover:bg-purple-100 text-stone-600 hover:text-purple-700 border border-stone-200 transition cursor-pointer"
+                                title={visiblePasswords[u._id] ? 'Hide password' : 'Show user password'}
                               >
-                                <Pencil className="w-3 h-3 text-purple-600" />
-                                <span>Edit</span>
+                                {visiblePasswords[u._id] ? (
+                                  <>
+                                    <EyeOff className="w-3 h-3" />
+                                    <span>Hide</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-3 h-3" />
+                                    <span>Show Password</span>
+                                  </>
+                                )}
                               </button>
+                              {visiblePasswords[u._id] && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(u.password || 'Jaydeb@123');
+                                    showToast('User password copied!', 'success');
+                                  }}
+                                  className="p-1 text-stone-400 hover:text-purple-600 rounded transition cursor-pointer"
+                                  title="Copy password"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Subscription Plan & Duration */}
+                          <td className="py-3.5 px-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center space-x-1.5">
+                                <span
+                                  className={`inline-block text-xs font-bold px-2.5 py-1 rounded-md border ${planConfig.bg} ${planConfig.text} ${planConfig.border}`}
+                                >
+                                  {planConfig.label}
+                                </span>
+                                <button
+                                  onClick={() => openPlanModal(u)}
+                                  className="inline-flex items-center space-x-1 px-2 py-0.5 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-md transition shadow-2xs cursor-pointer"
+                                  title="Manage subscription plan, cycle & dates"
+                                >
+                                  <Pencil className="w-3 h-3 text-purple-600" />
+                                  <span>Manage</span>
+                                </button>
+                              </div>
+
+                              <div className="text-[11px] font-medium">
+                                {u.plan === 'free' ? (
+                                  <span className="text-stone-400">Free / Inactive</span>
+                                ) : u.planExpiresAt && new Date(u.planExpiresAt) < new Date() ? (
+                                  <span className="text-red-600 font-semibold flex items-center space-x-1">
+                                    <Clock className="w-3 h-3 shrink-0" />
+                                    <span>Expired {new Date(u.planExpiresAt).toLocaleDateString()}</span>
+                                  </span>
+                                ) : u.planExpiresAt ? (
+                                  <span className="text-emerald-700 flex items-center space-x-1">
+                                    <Calendar className="w-3 h-3 shrink-0 text-emerald-600" />
+                                    <span>Valid till {new Date(u.planExpiresAt).toLocaleDateString()}</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-stone-500">30-day standard</span>
+                                )}
+                              </div>
                             </div>
                           </td>
 
@@ -1259,18 +1361,18 @@ export default function AdminClient({ currentUser }) {
                                   </span>
                                 </div>
                                 <div className="text-[11px] text-stone-500 flex items-center space-x-1 mt-1 font-medium">
-                                  <Clock className="w-3 h-3 text-stone-400 shrink-0" />
-                                  <span className="truncate max-w-[130px]">{u.replyTime || 'Under 2 Hours'}</span>
+                                  <MessageSquareCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                                  <span className="truncate max-w-[130px]">{u.totalReplies !== undefined ? u.totalReplies : 0} Replied</span>
                                 </div>
                               </div>
                               <button
                                 onClick={() => {
                                   setMetricsModalUser(u);
                                   setScoreInput(u.profileScore !== undefined && u.profileScore !== null ? u.profileScore : 94);
-                                  setReplyTimeInput(u.replyTime || 'Under 2 Hours');
+                                  setTotalRepliesInput(u.totalReplies !== undefined ? u.totalReplies : 0);
                                 }}
                                 className="inline-flex items-center p-1.5 text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition shadow-2xs cursor-pointer"
-                                title="Update Score & Reply Time"
+                                title="Update Score & Total Replies"
                               >
                                 <Sliders className="w-3.5 h-3.5" />
                               </button>
@@ -1280,15 +1382,15 @@ export default function AdminClient({ currentUser }) {
                           {/* Action Buttons */}
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end space-x-1.5">
-                              {/* Edit Score & Reply Time SLA */}
+                              {/* Edit Score & Total Replies */}
                               <button
                                 onClick={() => {
                                   setMetricsModalUser(u);
                                   setScoreInput(u.profileScore !== undefined && u.profileScore !== null ? u.profileScore : 94);
-                                  setReplyTimeInput(u.replyTime || 'Under 2 Hours');
+                                  setTotalRepliesInput(u.totalReplies !== undefined ? u.totalReplies : 0);
                                 }}
                                 className="p-1.5 rounded-lg border border-stone-200 bg-stone-50 text-stone-600 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200 transition cursor-pointer"
-                                title="Edit Profile Score & Reply Time SLA"
+                                title="Edit Profile Score & Total Replies"
                               >
                                 <Sliders className="w-3.5 h-3.5" />
                               </button>
@@ -2589,12 +2691,21 @@ export default function AdminClient({ currentUser }) {
         </div>
       )}
 
-      {/* PLAN CHANGE MODAL */}
+      {/* ADVANCED PLAN MANAGEMENT MODAL */}
       {planModalUser && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-stone-200 p-6 space-y-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-stone-200 p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+            {/* Header */}
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-bold text-stone-900 text-base">Update Subscription Plan</h3>
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-stone-900 text-base">Subscription Plan Management</h3>
+                  <p className="text-xs text-stone-500">Configure tier, billing duration, and active dates</p>
+                </div>
+              </div>
               <button
                 onClick={() => setPlanModalUser(null)}
                 className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
@@ -2603,47 +2714,165 @@ export default function AdminClient({ currentUser }) {
               </button>
             </div>
 
-            <div className="text-xs text-stone-600">
-              Business: <strong>{planModalUser.businessName}</strong> ({planModalUser.email})
+            {/* Target Account Identity */}
+            <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs text-stone-700 flex items-center justify-between">
+              <div>
+                <span className="text-stone-500">Account: </span>
+                <strong className="text-stone-900">{planModalUser.businessName}</strong>
+                <span className="text-stone-500 ml-1">({planModalUser.email})</span>
+              </div>
+              <span className="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-stone-200">
+                /{planModalUser.slug}
+              </span>
             </div>
 
+            {/* Step 1: Select Plan Tier */}
             <div className="space-y-2">
-              {['starter', 'pro', 'enterprise'].map((p) => {
-                const config = PLAN_STYLES[p] || PLAN_STYLES.starter;
-                return (
-                  <label
-                    key={p}
-                    className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                      selectedPlan === p
-                        ? 'border-purple-600 bg-purple-50/50'
-                        : 'border-stone-200 hover:bg-stone-50'
+              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider">
+                1. Select Subscription Tier
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 'starter', label: 'Starter', desc: 'Standard review QR, questions, analytics', color: 'border-blue-500 bg-blue-50/40 text-blue-800' },
+                  { id: 'pro', label: 'Growth Pro', desc: 'AI reviews, priority ranking badges', color: 'border-purple-500 bg-purple-50/40 text-purple-800' },
+                  { id: 'enterprise', label: 'Enterprise', desc: 'Full custom features & top support', color: 'border-amber-500 bg-amber-50/40 text-amber-800' },
+                  { id: 'free', label: 'Free (Inactive)', desc: 'No active plan • Review page restricted', color: 'border-stone-400 bg-stone-100/60 text-stone-800' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPlan(item.id);
+                      if (item.id === 'free') {
+                        handleApplyPresetDuration('expired');
+                      }
+                    }}
+                    className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                      selectedPlan === item.id
+                        ? `${item.color} ring-2 ring-purple-600 shadow-2xs font-semibold`
+                        : 'border-stone-200 bg-white hover:bg-stone-50 text-stone-700'
                     }`}
                   >
-                    <div className="flex items-center space-x-3">
-                      <input
-                        type="radio"
-                        name="plan"
-                        checked={selectedPlan === p}
-                        onChange={() => setSelectedPlan(p)}
-                        className="text-purple-600 focus:ring-purple-500"
-                      />
-                      <div>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${config.bg} ${config.text} ${config.border}`}>
-                          {config.label}
-                        </span>
-                        <p className="text-[11px] text-stone-500 mt-0.5">
-                          {p === 'starter' && 'Standard QR generation, custom questions, and analytics'}
-                          {p === 'pro' && 'Unlimited review drafts, AI multi-language, and priority badges'}
-                          {p === 'enterprise' && 'Full platform capabilities with dedicated enterprise support'}
-                        </p>
-                      </div>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-bold">{item.label}</span>
+                      <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                        selectedPlan === item.id ? 'border-purple-600 bg-purple-600' : 'border-stone-300'
+                      }`}>
+                        {selectedPlan === item.id && <span className="w-1.5 h-1.5 bg-white rounded-full"></span>}
+                      </span>
                     </div>
-                  </label>
-                );
-              })}
+                    <p className="text-[10px] text-stone-500 mt-1 leading-snug">{item.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-2">
+            {/* Step 2: Duration Presets */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-800 uppercase tracking-wider">
+                  2. Billing Duration &amp; Cycle
+                </label>
+                <span className="text-[11px] text-purple-700 font-medium">Quick Presets</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleApplyPresetDuration('monthly')}
+                  className={`py-2 px-2.5 text-xs font-semibold rounded-xl border text-center transition cursor-pointer ${
+                    planBillingCycle === 'monthly'
+                      ? 'border-purple-600 bg-purple-600 text-white shadow-2xs'
+                      : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-100'
+                  }`}
+                >
+                  Monthly (+30 Days)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPresetDuration('yearly')}
+                  className={`py-2 px-2.5 text-xs font-semibold rounded-xl border text-center transition cursor-pointer ${
+                    planBillingCycle === 'yearly'
+                      ? 'border-purple-600 bg-purple-600 text-white shadow-2xs'
+                      : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-100'
+                  }`}
+                >
+                  Yearly (+365 Days)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPresetDuration('expired')}
+                  className={`py-2 px-2.5 text-xs font-semibold rounded-xl border text-center transition cursor-pointer ${
+                    planBillingCycle === 'expired'
+                      ? 'border-red-600 bg-red-600 text-white shadow-2xs'
+                      : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-100'
+                  }`}
+                >
+                  Mark Expired
+                </button>
+              </div>
+            </div>
+
+            {/* Step 3: Explicit Start Date & End Date Editor */}
+            <div className="space-y-3 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
+              <label className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center space-x-1.5">
+                <Calendar className="w-3.5 h-3.5 text-purple-600" />
+                <span>3. Subscription Validity Dates</span>
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Starting Date */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+                    Starting Date (Plan Activated)
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={planStartDate}
+                    onChange={(e) => setPlanStartDate(e.target.value)}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-stone-800"
+                  />
+                </div>
+
+                {/* Ending Date */}
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1">
+                    Ending Date (Expiration)
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={planEndDate}
+                    onChange={(e) => {
+                      setPlanEndDate(e.target.value);
+                      setPlanBillingCycle('custom');
+                    }}
+                    className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-stone-800"
+                  />
+                </div>
+              </div>
+
+              {/* Status Preview */}
+              <div className="pt-2 flex items-center justify-between text-xs border-t border-stone-200">
+                <span className="text-stone-500">Live Status:</span>
+                {planEndDate && new Date(planEndDate) > new Date() && selectedPlan !== 'free' ? (
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                    <span>
+                      Active ({Math.ceil((new Date(planEndDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} Days Left)
+                    </span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-800 border border-red-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                    <span>Expired / Inactive Review Page</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-stone-100">
               <button
                 type="button"
                 onClick={() => setPlanModalUser(null)}
@@ -2655,12 +2884,12 @@ export default function AdminClient({ currentUser }) {
                 type="button"
                 onClick={handleUpdatePlan}
                 disabled={actionLoadingId === `plan_${planModalUser._id}`}
-                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition cursor-pointer"
+                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-xs transition cursor-pointer disabled:opacity-50"
               >
                 {actionLoadingId === `plan_${planModalUser._id}` && (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 )}
-                <span>Confirm Plan Update</span>
+                <span>Save &amp; Apply Plan Dates</span>
               </button>
             </div>
           </div>
@@ -2781,7 +3010,7 @@ export default function AdminClient({ currentUser }) {
               </div>
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-stone-900 text-base">
-                  Update Profile Score &amp; Reply Time
+                  Update Profile Score &amp; Total Replies
                 </h3>
                 <p className="text-xs text-stone-500 truncate">
                   {metricsModalUser.businessName} ({metricsModalUser.email})
@@ -2876,43 +3105,39 @@ export default function AdminClient({ currentUser }) {
                 </div>
               </div>
 
-              {/* Average Reply Time SLA */}
+              {/* Total Reviews Replied */}
               <div className="space-y-2 bg-stone-50 p-3.5 rounded-xl border border-stone-200">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-stone-800 flex items-center space-x-1.5">
-                    <Clock className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Average Reply Time SLA</span>
+                    <MessageSquareCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Total Reviews Replied</span>
                   </label>
-                  <span className="text-[11px] text-stone-500">Google Recommended</span>
+                  <span className="text-[11px] text-stone-500">Google Business Metric</span>
                 </div>
 
-                <input
-                  type="text"
-                  required
-                  value={replyTimeInput}
-                  onChange={(e) => setReplyTimeInput(e.target.value)}
-                  placeholder="e.g. Under 15 Mins, Under 1 Hour, Under 2 Hours"
-                  className="w-full px-3 py-2 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={totalRepliesInput}
+                    onChange={(e) => setTotalRepliesInput(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                    placeholder="0"
+                    className="w-full px-3 py-2 text-sm font-semibold bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
 
-                {/* Quick Reply Time Presets */}
+                {/* Quick Reply Count Presets */}
                 <div className="flex items-center flex-wrap gap-1.5 pt-1">
                   <span className="text-[11px] text-stone-500 font-medium mr-1">Quick Select:</span>
-                  {[
-                    'Under 15 Mins',
-                    'Under 30 Mins',
-                    'Under 1 Hour',
-                    'Under 2 Hours',
-                    'Within 4 Hours',
-                    'Same Day (< 24h)',
-                  ].map((preset) => (
+                  {[0, 15, 30, 48, 75, 120, 250].map((preset) => (
                     <button
                       key={preset}
                       type="button"
-                      onClick={() => setReplyTimeInput(preset)}
-                      className={`text-[11px] font-medium px-2 py-0.5 rounded transition cursor-pointer ${
-                        replyTimeInput === preset
-                          ? 'bg-blue-600 text-white shadow-2xs font-semibold'
+                      onClick={() => setTotalRepliesInput(preset)}
+                      className={`text-[11px] font-medium px-2.5 py-0.5 rounded transition cursor-pointer ${
+                        Number(totalRepliesInput) === preset
+                          ? 'bg-emerald-600 text-white shadow-2xs font-semibold'
                           : 'bg-white text-stone-600 hover:bg-stone-200 border border-stone-200'
                       }`}
                     >
