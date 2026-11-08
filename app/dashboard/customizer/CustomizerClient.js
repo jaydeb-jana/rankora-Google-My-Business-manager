@@ -9,6 +9,10 @@ import {
   Eye,
   CheckCircle2,
   Star,
+  Plus,
+  Trash2,
+  ShieldCheck,
+  AlertCircle,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -20,9 +24,63 @@ export default function CustomizerClient({ user }) {
     instructions:
       user.instructions ||
       'Select the services you received below. We will help draft an authentic review you can review and paste into Google.',
+    fallbackReviews: {
+      enabled: Boolean(user.fallbackReviews?.enabled),
+      items: Array.isArray(user.fallbackReviews?.items) && user.fallbackReviews.items.length > 0
+        ? user.fallbackReviews.items
+        : [],
+    },
   });
 
   const [saving, setSaving] = useState(false);
+
+  const handleAddFallbackDraft = () => {
+    const currentItems = formData.fallbackReviews?.items || [];
+    if (currentItems.length >= 8) {
+      showToast('Maximum 8 fallback review drafts allowed.', 'info');
+      return;
+    }
+    setFormData({
+      ...formData,
+      fallbackReviews: {
+        ...formData.fallbackReviews,
+        items: [...currentItems, ''],
+      },
+    });
+  };
+
+  const handleUpdateFallbackDraft = (index, value) => {
+    const currentItems = [...(formData.fallbackReviews?.items || [])];
+    currentItems[index] = value;
+    setFormData({
+      ...formData,
+      fallbackReviews: {
+        ...formData.fallbackReviews,
+        items: currentItems,
+      },
+    });
+  };
+
+  const handleRemoveFallbackDraft = (index) => {
+    const currentItems = (formData.fallbackReviews?.items || []).filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      fallbackReviews: {
+        ...formData.fallbackReviews,
+        items: currentItems,
+      },
+    });
+  };
+
+  const handleToggleFallback = (enabled) => {
+    setFormData({
+      ...formData,
+      fallbackReviews: {
+        ...formData.fallbackReviews,
+        enabled,
+      },
+    });
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -101,6 +159,91 @@ export default function CustomizerClient({ user }) {
               <span className="text-[11px] text-[#70757a] mt-1 block">
                 Clear, reassuring explanation of the simple 2-step process.
               </span>
+            </div>
+
+            {/* Fallback Reviews Safety Net Section */}
+            <div className="pt-4 border-t border-[#f1f3f4] space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <ShieldCheck className="w-4 h-4 text-[#1a73e8]" />
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#202124]">
+                      Fallback Reviews
+                    </h3>
+                    <p className="text-[11px] text-[#5f6368]">
+                      Backup drafts shown only if Gemini AI fails repeatedly
+                    </p>
+                  </div>
+                </div>
+
+                {/* Toggle Button */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={Boolean(formData.fallbackReviews?.enabled)}
+                  onClick={() => handleToggleFallback(!formData.fallbackReviews?.enabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    formData.fallbackReviews?.enabled ? 'bg-[#1a73e8]' : 'bg-[#dadce0]'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      formData.fallbackReviews?.enabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {formData.fallbackReviews?.enabled ? (
+                <div className="space-y-3 p-3.5 bg-[#f8f9fa] rounded-xl border border-[#e8eaed]">
+                  <p className="text-[11px] text-[#5f6368] leading-relaxed">
+                    Add up to 8 real customer review drafts below. When active, customers will receive these backup drafts if AI generation experiences any network or API failure.
+                  </p>
+
+                  <div className="space-y-2.5">
+                    {(formData.fallbackReviews?.items || []).map((draft, idx) => (
+                      <div key={idx} className="bg-white p-3 rounded-lg border border-[#dadce0] shadow-2xs space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-[#5f6368]">
+                          <span>Review Draft #{idx + 1}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFallbackDraft(idx)}
+                            className="text-[#d93025] hover:text-[#b31412] p-1 rounded-md hover:bg-[#fce8e6] transition-colors cursor-pointer"
+                            title="Delete draft"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <textarea
+                          rows={2}
+                          value={draft}
+                          onChange={(e) => handleUpdateFallbackDraft(idx, e.target.value)}
+                          placeholder="e.g. Excellent service! The team was highly professional, transparent with pricing, and completed the job promptly. Will definitely visit again."
+                          className="w-full px-2.5 py-1.5 text-xs text-[#202124] border border-[#dadce0] rounded-md focus:outline-none focus:border-[#1a73e8]"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {(!formData.fallbackReviews?.items || formData.fallbackReviews.items.length < 8) && (
+                    <button
+                      type="button"
+                      onClick={handleAddFallbackDraft}
+                      className="w-full py-2 px-3 border border-dashed border-[#1a73e8] text-[#1a73e8] bg-[#e8f0fe]/40 hover:bg-[#e8f0fe] rounded-lg text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Fallback Review Draft ({(formData.fallbackReviews?.items || []).length}/8)</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 bg-[#f8f9fa] rounded-xl border border-[#e8eaed] text-[11px] text-[#70757a] flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 text-[#9aa0a6] shrink-0" />
+                  <span>
+                    Fallback reviews are currently disabled. If AI generation fails, customers will see a standard technical error notification.
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="pt-3 border-t border-[#f1f3f4] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">

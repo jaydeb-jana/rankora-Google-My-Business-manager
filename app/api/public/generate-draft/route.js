@@ -47,8 +47,53 @@ export async function POST(request) {
       process.env.GEMINI_API_KEY ||
       '';
 
+    // Helper to produce merchant fallback reviews if enabled
+    const tryFallbackReviews = () => {
+      if (user.fallbackReviews?.enabled && Array.isArray(user.fallbackReviews?.items)) {
+        const validItems = user.fallbackReviews.items
+          .map((t) => String(t || '').trim())
+          .filter(Boolean);
+        if (validItems.length > 0) {
+          const shuffled = [...validItems].sort(() => 0.5 - Math.random());
+          const selectedDrafts = shuffled.slice(0, 3).map((text, idx) => ({
+            id: `fallback_${idx + 1}`,
+            lang: forceLanguage || 'en',
+            title: idx === 0 ? 'Customer Review' : idx === 1 ? 'Detailed Feedback' : 'Recommended Experience',
+            description: 'Customer review draft',
+            text,
+          }));
+
+          userRepo.incrementStats(user.slug, 'draftsGenerated').catch(() => {});
+          activityRepo
+            .recordActivity({
+              businessId: user._id,
+              slug: user.slug,
+              type: 'DRAFT_GENERATED',
+              servicesSelected: chosenServices.map((s) => s.name),
+              sentiment,
+            })
+            .catch(() => {});
+
+          return {
+            success: true,
+            businessName: user.businessName,
+            googleReviewUrl: user.googleReviewUrl || '',
+            isAiGenerated: false,
+            isFallback: true,
+            drafts: selectedDrafts,
+          };
+        }
+      }
+      return null;
+    };
+
     if (!effectiveApiKey) {
       console.warn(`[Gemini AI Draft]: Gemini API key is missing for ${user.slug}`);
+      const fallbackResult = tryFallbackReviews();
+      if (fallbackResult) {
+        return NextResponse.json(fallbackResult);
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -76,6 +121,11 @@ export async function POST(request) {
 
     if (!result?.success || !Array.isArray(result?.drafts) || result.drafts.length === 0) {
       console.warn(`[Gemini AI Draft Error]:`, result?.error);
+      const fallbackResult = tryFallbackReviews();
+      if (fallbackResult) {
+        return NextResponse.json(fallbackResult);
+      }
+
       return NextResponse.json(
         {
           success: false,

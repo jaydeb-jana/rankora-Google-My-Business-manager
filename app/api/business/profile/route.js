@@ -37,6 +37,7 @@ export async function PATCH(request) {
       'welcomeHeadline',
       'instructions',
       'logoUrl',
+      'fallbackReviews',
     ];
 
     const updates = {};

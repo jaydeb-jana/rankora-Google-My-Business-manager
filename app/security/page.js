@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Lock,
   ShieldCheck,
@@ -17,11 +18,67 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
   title: 'Data Security, Encryption & Trust Center | Rankaro',
   description:
-    'Detailed overview of Rankaro’s enterprise security architecture, AES-256 encryption, SOC 2 compliance posture, multi-tenant database isolation, and disaster recovery.',
+    'Overview of Rankaro’s enterprise security architecture, AES-256 encryption, SOC 2 compliance posture, multi-tenant database isolation, and disaster recovery.',
+  keywords: [
+    'rankaro security',
+    'data privacy google reviews',
+    'soc 2 compliance posture',
+    'aes 256 encryption',
+    'tenant data isolation',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/security`,
+  },
+  openGraph: {
+    title: 'Data Security, Encryption & Trust Center | Rankaro',
+    description:
+      'Overview of Rankaro’s enterprise security architecture, AES-256 encryption, SOC 2 compliance posture, multi-tenant database isolation, and disaster recovery.',
+    url: `${siteUrl}/security`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rankaro Security & Trust Center',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Data Security, Encryption & Trust Center | Rankaro',
+    description:
+      'Overview of Rankaro’s enterprise security architecture, AES-256 encryption, SOC 2 compliance posture, multi-tenant database isolation, and disaster recovery.',
+    images: ['/logo.png'],
+  },
 };
+
+const securitySchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Security',
+        'item': `${siteUrl}/security`
+      }
+    ]
+  }
+];
 
 export default function SecurityPage() {
   const securityPillars = [
@@ -72,6 +129,7 @@ export default function SecurityPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={securitySchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-24">

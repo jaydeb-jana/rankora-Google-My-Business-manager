@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   ShieldCheck,
   Sparkles,
@@ -22,11 +23,84 @@ import {
   MessageSquare
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'About Us | Rankaro by Arventa Ventures',
+  title: 'About Us - The Mission & Leadership Team | Rankaro',
   description:
-    'Learn about our mission to democratize authentic local reputation, eliminate review friction, and empower independent businesses worldwide under the leadership of Founder & CEO Jaydeb Jana.',
+    'Discover Rankaro’s founding story, mission to democratize authentic local reputation, and leadership team under Founder & CEO Jaydeb Jana at Arventa Ventures.',
+  keywords: [
+    'about rankaro',
+    'arventa ventures',
+    'jaydeb jana',
+    'local reputation team',
+    'google review founders',
+    'local seo mission',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/about`,
+  },
+  openGraph: {
+    title: 'About Us - The Mission & Leadership Team | Rankaro',
+    description:
+      'Discover Rankaro’s founding story, mission to democratize authentic local reputation, and leadership team under Founder & CEO Jaydeb Jana at Arventa Ventures.',
+    url: `${siteUrl}/about`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'About Rankaro Leadership & Mission',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us - The Mission & Leadership Team | Rankaro',
+    description:
+      'Discover Rankaro’s founding story, mission to democratize authentic local reputation, and leadership team under Founder & CEO Jaydeb Jana at Arventa Ventures.',
+    images: ['/logo.png'],
+  },
 };
+
+const aboutSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    'name': 'About Rankaro',
+    'description': 'Information about Rankaro, its mission, executive leadership, and parent company Arventa Ventures.',
+    'url': `${siteUrl}/about`,
+    'mainEntity': {
+      '@type': 'Organization',
+      'name': 'Rankaro',
+      'founder': {
+        '@type': 'Person',
+        'name': 'Jaydeb Jana',
+        'jobTitle': 'Founder & CEO'
+      }
+    }
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'About',
+        'item': `${siteUrl}/about`
+      }
+    ]
+  }
+];
 
 export default function AboutPage() {
   const leadership = [
@@ -134,6 +208,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={aboutSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-24">

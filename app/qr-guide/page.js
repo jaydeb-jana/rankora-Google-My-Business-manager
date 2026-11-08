@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   QrCode,
   Smartphone,
@@ -20,11 +21,94 @@ import {
   DollarSign
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'The Countertop QR & NFC Setup Master Playbook | Rankaro',
+  title: 'Countertop QR Code & NFC Stand Setup Guide | Rankaro',
   description:
-    'Master the physical science of in-store review generation: optimal optical countertop placement spots, NFC tap hardware, material durability, and printable templates.',
+    'Master the physical science of in-store Google review collection: countertop placement ergonomics, NFC tap cards, glare reduction, and printable acrylic templates.',
+  keywords: [
+    'google review qr code stand',
+    'countertop qr code placement',
+    'nfc review tap cards setup',
+    'acrylic qr stand for business',
+    'google review stand templates',
+    'how to print review qr codes',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/qr-guide`,
+  },
+  openGraph: {
+    title: 'Countertop QR Code & NFC Stand Setup Guide | Rankaro',
+    description:
+      'Master the physical science of in-store Google review collection: countertop placement ergonomics, NFC tap cards, glare reduction, and printable acrylic templates.',
+    url: `${siteUrl}/qr-guide`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Countertop QR and NFC Review Hardware Guide',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Countertop QR Code & NFC Stand Setup Guide | Rankaro',
+    description:
+      'Master the physical science of in-store Google review collection: countertop placement ergonomics, NFC tap cards, glare reduction, and printable acrylic templates.',
+    images: ['/logo.png'],
+  },
 };
+
+const qrGuideSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    'name': 'How to Deploy Countertop QR Displays for In-Store Google Reviews',
+    'description': 'Best practices for physical QR and NFC hardware placement to achieve maximum customer scan rates.',
+    'step': [
+      {
+        '@type': 'HowToStep',
+        'position': 1,
+        'name': 'Position Next to POS Payment Terminal',
+        'text': 'Place a 4x6 inch matte acrylic stand within 8 to 12 inches of the chip reader at a 45-degree angle.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 2,
+        'name': 'Eliminate Overhead Glare',
+        'text': 'Use matte finish acrylic or non-reflective cardstock to prevent overhead store lighting from causing specular glare.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 3,
+        'name': 'Equip Staff with 10-Second Prompt',
+        'text': 'Train staff to use the compliant verbal cue: Tapping this lets you highlight your favorite service in 10 seconds.'
+      }
+    ]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'QR Guide',
+        'item': `${siteUrl}/qr-guide`
+      }
+    ]
+  }
+];
 
 export default function QrGuidePage() {
   const hotspots = [
@@ -105,6 +189,7 @@ export default function QrGuidePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={qrGuideSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-28">

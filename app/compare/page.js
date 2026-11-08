@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Check,
   X,
@@ -19,11 +20,68 @@ import {
   Scale
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'Rankaro vs Birdeye & Podium Comparison (2026 Deep-Dive) | Rankaro',
+  title: 'Rankaro vs Birdeye vs Podium (2026 Comparison Guide) | Rankaro',
   description:
-    'Comprehensive comparison between Rankaro, Birdeye, Podium, and GatherUp. Compare pricing, customer friction, SMS spam regulations, and FTC anti-gating compliance.',
+    'In-depth comparison between Rankaro, Birdeye, Podium, and GatherUp. Compare pricing, SMS spam penalties, customer conversion friction, and FTC compliance.',
+  keywords: [
+    'birdeye alternative',
+    'podium alternative',
+    'gatherup alternative',
+    'cheaper than podium',
+    'birdeye vs podium vs rankaro',
+    'review software comparison',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/compare`,
+  },
+  openGraph: {
+    title: 'Rankaro vs Birdeye vs Podium (2026 Comparison Guide) | Rankaro',
+    description:
+      'In-depth comparison between Rankaro, Birdeye, Podium, and GatherUp. Compare pricing, SMS spam penalties, customer conversion friction, and FTC compliance.',
+    url: `${siteUrl}/compare`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rankaro vs Birdeye vs Podium Comparison',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Rankaro vs Birdeye vs Podium (2026 Comparison Guide) | Rankaro',
+    description:
+      'In-depth comparison between Rankaro, Birdeye, Podium, and GatherUp. Compare pricing, SMS spam penalties, customer conversion friction, and FTC compliance.',
+    images: ['/logo.png'],
+  },
 };
+
+const compareSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Comparison',
+        'item': `${siteUrl}/compare`
+      }
+    ]
+  }
+];
 
 export default function ComparePage() {
   const criteria = [
@@ -173,6 +231,7 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={compareSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-28">

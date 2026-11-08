@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import {
   Download,
-  Printer,
   Copy,
   Check,
   ExternalLink,
@@ -1097,7 +1096,7 @@ export default function QRCodeClient({ user }) {
       showToast(`${standSize === '4x6' ? '4" × 6" Official Counter Stand' : standSize === '5x7' ? '5" × 7" Table Tent' : 'A4 Stand'} downloaded successfully!`, 'success');
     } catch (err) {
       console.error('Failed to download stand image:', err);
-      showToast('Failed to generate stand image. Please use Print Stand instead.', 'error');
+      showToast('Failed to generate stand image. Please try again.', 'error');
     } finally {
       setDownloadingStand(false);
     }
@@ -1359,17 +1358,6 @@ export default function QRCodeClient({ user }) {
                       </span>
                     </>
                   )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="inline-flex items-center space-x-1.5 px-4 py-2.5 text-xs font-semibold text-white bg-[#1e8e3e] hover:bg-[#188038] rounded-xl shadow-xs transition-colors cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>
-                    Print Stand ({standSize === '4x6' ? '4×6"' : standSize === '5x7' ? '5×7"' : 'A4'})
-                  </span>
                 </button>
 
                 <button

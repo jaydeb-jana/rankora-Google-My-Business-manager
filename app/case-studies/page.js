@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Star,
   TrendingUp,
@@ -14,11 +15,67 @@ import {
   Award
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'Customer Success Stories & Case Studies | Rankaro',
+  title: 'Customer Case Studies & Google Review Success Stories | Rankaro',
   description:
-    'Explore verified case studies of dental clinics, restaurants, auto repair shops, and home contractors who multiplied their 5-star Google reviews and revenue with Rankaro.',
+    'Verified case studies of dental clinics, restaurants, auto mechanics, and contractors who grew their 5-star Google reviews by up to 430% with Rankaro.',
+  keywords: [
+    'local seo case studies',
+    'google review success stories',
+    'dental clinic reviews case study',
+    'restaurant google reviews growth',
+    'rankaro customer results',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/case-studies`,
+  },
+  openGraph: {
+    title: 'Customer Case Studies & Google Review Success Stories | Rankaro',
+    description:
+      'Verified case studies of dental clinics, restaurants, auto mechanics, and contractors who grew their 5-star Google reviews by up to 430% with Rankaro.',
+    url: `${siteUrl}/case-studies`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rankaro Customer Case Studies and Review Growth',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Customer Case Studies & Google Review Success Stories | Rankaro',
+    description:
+      'Verified case studies of dental clinics, restaurants, auto mechanics, and contractors who grew their 5-star Google reviews by up to 430% with Rankaro.',
+    images: ['/logo.png'],
+  },
 };
+
+const caseStudiesSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Case Studies',
+        'item': `${siteUrl}/case-studies`
+      }
+    ]
+  }
+];
 
 export default function CaseStudiesPage() {
   const caseStudies = [
@@ -102,6 +159,7 @@ export default function CaseStudiesPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={caseStudiesSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-24">

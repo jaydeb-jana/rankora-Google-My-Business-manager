@@ -326,15 +326,19 @@ export default function PublicReviewPageClient({ business }) {
       {/* Top Brand Header Bar */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Rankaro Official Brand */}
+          {/* Rankora Official Brand */}
           <div className="flex items-center space-x-2.5">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1a73e8] to-[#4285f4] text-white shadow-xs font-black text-sm ring-2 ring-blue-100">
-              R
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-white shadow-xs ring-1 ring-slate-200 p-0.5">
+              <img
+                src="/logo-icon.png"
+                alt="Rankora"
+                className="w-full h-full object-contain rounded-lg"
+              />
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#34a853] border-2 border-white rounded-full" />
             </div>
             <div className="leading-none">
               <span className="text-sm font-black tracking-tight text-slate-900 block">
-                Rankaro
+                Rankora
               </span>
               <span className="text-[10px] font-semibold text-slate-400">
                 Official Review Partner

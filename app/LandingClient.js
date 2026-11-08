@@ -37,7 +37,8 @@ import {
   MapPin,
   RefreshCw,
   Eye,
-  CheckCheck
+  CheckCheck,
+  Gift,
 } from 'lucide-react';
 
 export default function LandingClient() {
@@ -1125,6 +1126,77 @@ export default function LandingClient() {
           >
             <span>Have more questions? Browse our complete 25+ FAQ directory →</span>
           </a>
+        </div>
+      </section>
+
+      {/* SPECIAL PRO PLAN OFFER BANNER */}
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-12 border-2 border-indigo-500/40 shadow-2xl overflow-hidden">
+          <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-4 text-left">
+              <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-300 text-xs font-black uppercase tracking-wider">
+                <Gift className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span>Special Promotion • $49 Value Included Free</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                Subscribe to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-amber-300">Growth Pro</span> &amp; Get a Free Premium Acrylic Google Stand Kit
+              </h2>
+
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+                Elevate your physical front desk immediately. Every business subscribing to the Growth Pro plan receives our commercial-grade, scratch-resistant acrylic Google counter display with custom laser branding and instant NFC tap support at zero additional charge.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-xs font-semibold text-slate-200">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Heavy-Duty Clear Acrylic Counter Stand</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Dual NFC Tap + Ultra-HD QR Code</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Branded with Your Exact Business Name</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Free Worldwide Express Shipping</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-3 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm text-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
+                Limited Time Hardware Bundle
+              </span>
+              <div className="flex items-baseline space-x-2">
+                <span className="text-4xl font-black text-white">$0</span>
+                <span className="text-sm line-through text-slate-400">$49 Value</span>
+              </div>
+              <span className="text-xs text-slate-300">
+                Included with Growth Pro Subscription
+              </span>
+
+              <a
+                href="/register?plan=pro"
+                className="w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 hover:from-blue-600 hover:to-indigo-600 text-white font-extrabold text-sm shadow-lg shadow-indigo-500/25 transition-all text-center rk-btn-shine"
+              >
+                Claim Free Stand with Pro →
+              </a>
+
+              <a
+                href="/pricing"
+                className="text-xs text-slate-400 hover:text-white underline transition-colors"
+              >
+                View Plan Details &amp; Pricing
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

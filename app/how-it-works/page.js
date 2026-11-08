@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Compass,
   QrCode,
@@ -25,11 +26,119 @@ import {
   MessageSquare
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'How It Works - The Complete 7-Step Review Conversion Architecture | Rankaro',
+  title: 'How It Works - The 7-Step Google Review Conversion Engine | Rankaro',
   description:
-    'Master the step-by-step science of physical review conversion: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
+    'Step-by-step architecture of in-store review generation: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
+  keywords: [
+    'how to get google reviews',
+    'google review process',
+    'countertop qr code review steps',
+    'ai review generator process',
+    'google maps 3-pack optimization',
+    'local seo reputation workflow',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/how-it-works`,
+  },
+  openGraph: {
+    title: 'How It Works - The 7-Step Google Review Conversion Engine | Rankaro',
+    description:
+      'Step-by-step architecture of in-store review generation: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
+    url: `${siteUrl}/how-it-works`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'How Rankaro Works - 7-Step Review Architecture',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'How It Works - The 7-Step Google Review Conversion Engine | Rankaro',
+    description:
+      'Step-by-step architecture of in-store review generation: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
+    images: ['/logo.png'],
+  },
 };
+
+const howToSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    'name': 'How to Collect 5-Star Google Reviews with Countertop QR Codes and AI Drafts',
+    'description': 'A 7-step guide to generating authentic, keyword-dense Google reviews from in-store customers.',
+    'totalTime': 'PT10S',
+    'step': [
+      {
+        '@type': 'HowToStep',
+        'position': 1,
+        'name': 'Configure Semantic Service Tags',
+        'text': 'Link your verified Google Business Profile and configure your primary high-margin service tags.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 2,
+        'name': 'Generate Vector QR & NFC Hardware',
+        'text': 'Download ready-to-print vector SVG and 300 DPI templates for countertop acrylic stands, check folios, and NFC badges.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 3,
+        'name': 'Customer Scans at Point of Sale',
+        'text': 'Customer scans the QR code or taps the NFC badge with their smartphone camera at checkout.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 4,
+        'name': 'Tap Service Highlights',
+        'text': 'Customer taps 2 or 3 service chips highlighting what they enjoyed during their visit.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 5,
+        'name': 'AI Formulates Authentic Draft',
+        'text': 'Contextual AI synthesizes a natural, articulate review incorporating those exact service keywords.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 6,
+        'name': '1-Tap Copy & Post to Google Maps',
+        'text': 'Customer taps Copy & Open Google, pasting the review directly into Google Maps rating box.'
+      },
+      {
+        '@type': 'HowToStep',
+        'position': 7,
+        'name': 'Google Maps 3-Pack Elevation',
+        'text': 'Google algorithms index high review velocity and keyword density, elevating the business to the local top 3.'
+      }
+    ]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'How It Works',
+        'item': `${siteUrl}/how-it-works`
+      }
+    ]
+  }
+];
 
 export default function HowItWorksPage() {
   const masterSteps = [
@@ -161,6 +270,7 @@ export default function HowItWorksPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={howToSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-28">

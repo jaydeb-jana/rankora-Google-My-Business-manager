@@ -1,12 +1,47 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import { ShieldCheck, Lock, Globe, Mail, FileText, CheckCircle2 } from 'lucide-react';
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
 
 export const metadata = {
   title: 'Privacy Policy | Rankaro by Arventa Ventures',
   description:
     'Comprehensive Privacy Policy outlining our strict data governance, zero-sale of consumer information, GDPR & CCPA adherence, and security practices.',
+  alternates: {
+    canonical: `${siteUrl}/privacy`,
+  },
+  openGraph: {
+    title: 'Privacy Policy | Rankaro by Arventa Ventures',
+    description:
+      'Comprehensive Privacy Policy outlining our strict data governance, zero-sale of consumer information, GDPR & CCPA adherence, and security practices.',
+    url: `${siteUrl}/privacy`,
+    siteName: 'Rankaro',
+    type: 'website',
+  },
 };
+
+const privacySchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Privacy Policy',
+        'item': `${siteUrl}/privacy`
+      }
+    ]
+  }
+];
 
 export default function PrivacyPage() {
   const lastUpdated = 'November 2, 2026';
@@ -131,6 +166,7 @@ To exercise any of these rights, email privacy@arventaventures.online with the s
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={privacySchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-16 pb-24">

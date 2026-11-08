@@ -51,8 +51,15 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
   const [googleUrlError, setGoogleUrlError] = useState('');
 
   const handleSaveGoogleUrl = async (e) => {
-    e.preventDefault();
-    if (!googleUrlInput.trim()) return;
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const cleanUrl = googleUrlInput.trim();
+    if (!cleanUrl) {
+      setGoogleUrlError('Please enter your Google Review link.');
+      return;
+    }
 
     setSavingGoogleUrl(true);
     setGoogleUrlError('');
@@ -60,13 +67,14 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
       const res = await fetch('/api/business/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ googleReviewUrl: googleUrlInput.trim() }),
+        body: JSON.stringify({ googleReviewUrl: cleanUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save URL');
 
-      // Merge so the banner hides immediately even if the API returns a partial profile
-      setUser((prev) => ({ ...prev, ...(data.profile || {}), googleReviewUrl: googleUrlInput.trim() }));
+      const savedUrl = data.profile?.googleReviewUrl || cleanUrl;
+      setUser((prev) => ({ ...prev, ...(data.profile || {}), googleReviewUrl: savedUrl }));
+      setGoogleUrlInput(savedUrl);
       showToast('Google Review link saved successfully!', 'success');
     } catch (err) {
       setGoogleUrlError(err.message);
@@ -195,18 +203,25 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
                 When customers approve their review draft, Rankaro seamlessly sends them to your Google Business Profile to publish it. Save your Google review URL below so customers can paste their review with one tap.
               </p>
 
-              <form onSubmit={handleSaveGoogleUrl} className="mt-3 flex flex-col sm:flex-row gap-2 min-w-0 w-full">
+              <div className="mt-3 flex flex-col sm:flex-row gap-2 min-w-0 w-full">
                 <input
                   type="text"
                   required
                   placeholder="Paste your link here (e.g. https://g.page/r/... or Google Review URL)"
                   value={googleUrlInput}
                   onChange={(e) => setGoogleUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSaveGoogleUrl();
+                    }
+                  }}
                   className="flex-1 w-full min-w-0 px-3.5 py-2 text-xs bg-white text-[#202124] border border-[#dadce0] rounded-lg focus:outline-none focus:border-[#1a73e8]"
                 />
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => handleSaveGoogleUrl()}
                     disabled={savingGoogleUrl}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-lg transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
                   >
@@ -227,7 +242,7 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
                     How to find?
                   </button>
                 </div>
-              </form>
+              </div>
               {googleUrlError && (
                 <p className="mt-2 text-xs font-medium text-[#c5221f]">{googleUrlError}</p>
               )}

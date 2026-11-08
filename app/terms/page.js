@@ -1,12 +1,47 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import { FileText, ShieldCheck, Scale, AlertTriangle, CheckCircle2 } from 'lucide-react';
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
 
 export const metadata = {
   title: 'Terms of Service | Rankaro by Arventa Ventures',
   description:
     'Comprehensive Terms of Service and Master Subscription Agreement governing the use of the Rankaro platform, API, QR codes, and review assistance tools.',
+  alternates: {
+    canonical: `${siteUrl}/terms`,
+  },
+  openGraph: {
+    title: 'Terms of Service | Rankaro by Arventa Ventures',
+    description:
+      'Comprehensive Terms of Service and Master Subscription Agreement governing the use of the Rankaro platform, API, QR codes, and review assistance tools.',
+    url: `${siteUrl}/terms`,
+    siteName: 'Rankaro',
+    type: 'website',
+  },
 };
+
+const termsSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Terms of Service',
+        'item': `${siteUrl}/terms`
+      }
+    ]
+  }
+];
 
 export default function TermsPage() {
   const lastUpdated = 'November 2, 2026';

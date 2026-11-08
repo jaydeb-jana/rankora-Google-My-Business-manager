@@ -184,6 +184,10 @@ const UserSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    fallbackReviews: {
+      enabled: { type: Boolean, default: false },
+      items: { type: [String], default: [] },
+    },
     replyTime: {
       type: String,
       default: 'Under 2 Hours',

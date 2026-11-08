@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Sparkles,
   QrCode,
@@ -28,11 +29,69 @@ import {
   HardDrive
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'Complete Feature Suite & Technical Architecture | Rankaro',
+  title: 'Google Review Automation Features & Platform Architecture | Rankaro',
   description:
     'Comprehensive architectural breakdown of Rankaro’s 10 platform pillars: AI draft synthesis, vector QR generator, NFC tap cards, private complaint resolution, and multi-location analytics.',
+  keywords: [
+    'google review features',
+    'ai review assistant architecture',
+    'vector qr code generator for reviews',
+    'nfc review stands',
+    'private complaint resolution',
+    'multi-location review management',
+    'local seo reputation features',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/features`,
+  },
+  openGraph: {
+    title: 'Google Review Automation Features & Platform Architecture | Rankaro',
+    description:
+      'Comprehensive architectural breakdown of Rankaro’s 10 platform pillars: AI draft synthesis, vector QR generator, NFC tap cards, private complaint resolution, and multi-location analytics.',
+    url: `${siteUrl}/features`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rankaro Features and Technical Architecture',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Google Review Automation Features & Platform Architecture | Rankaro',
+    description:
+      'Comprehensive architectural breakdown of Rankaro’s 10 platform pillars: AI draft synthesis, vector QR generator, NFC tap cards, private complaint resolution, and multi-location analytics.',
+    images: ['/logo.png'],
+  },
 };
+
+const featuresSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Features',
+        'item': `${siteUrl}/features`
+      }
+    ]
+  }
+];
 
 export default function FeaturesPage() {
   const featurePillars = [
@@ -210,6 +269,7 @@ export default function FeaturesPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={featuresSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-28">

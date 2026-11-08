@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   Heart,
   UtensilsCrossed,
@@ -20,11 +21,69 @@ import {
   Printer
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
-  title: 'Industry Playbooks & Local Reputation Strategies | Rankaro',
+  title: 'Industry Review Playbooks: Dental, Dining, Auto & Legal | Rankaro',
   description:
-    'Comprehensive vertical reputation playbooks for healthcare, restaurants, auto mechanics, home services, salons, law firms, and real estate agencies.',
+    'Comprehensive vertical reputation playbooks for dental clinics, restaurants, auto mechanics, home services, salons, law firms, and real estate agencies.',
+  keywords: [
+    'dental clinic google reviews',
+    'restaurant review management',
+    'auto repair google reviews',
+    'home contractor reputation management',
+    'salon google reviews',
+    'law firm local seo reviews',
+    'industry review playbooks',
+  ],
+  alternates: {
+    canonical: `${siteUrl}/solutions`,
+  },
+  openGraph: {
+    title: 'Industry Review Playbooks: Dental, Dining, Auto & Legal | Rankaro',
+    description:
+      'Comprehensive vertical reputation playbooks for dental clinics, restaurants, auto mechanics, home services, salons, law firms, and real estate agencies.',
+    url: `${siteUrl}/solutions`,
+    siteName: 'Rankaro',
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Rankaro Industry Review Playbooks',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Industry Review Playbooks: Dental, Dining, Auto & Legal | Rankaro',
+    description:
+      'Comprehensive vertical reputation playbooks for dental clinics, restaurants, auto mechanics, home services, salons, law firms, and real estate agencies.',
+    images: ['/logo.png'],
+  },
 };
+
+const solutionsSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'Solutions',
+        'item': `${siteUrl}/solutions`
+      }
+    ]
+  }
+];
 
 export default function SolutionsPage() {
   const industries = [
@@ -192,6 +251,7 @@ export default function SolutionsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={solutionsSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-24 pb-28">
