@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   QrCode,
   Copy,
@@ -18,11 +19,13 @@ import {
   Clock,
   Award,
   MessageSquareCheck,
+  Loader2,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 import GoogleReviewUrlHelpModal from '@/components/GoogleReviewUrlHelpModal';
 
 export default function DashboardOverviewClient({ initialUser, initialStats, recentActivities }) {
+  const router = useRouter();
   const { showToast } = useToast();
   const [user, setUser] = useState(initialUser);
   const [copied, setCopied] = useState(false);
@@ -55,10 +58,14 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
       e.preventDefault();
       e.stopPropagation();
     }
-    const cleanUrl = googleUrlInput.trim();
+    let cleanUrl = googleUrlInput.trim();
     if (!cleanUrl) {
       setGoogleUrlError('Please enter your Google Review link.');
       return;
+    }
+
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      cleanUrl = 'https://' + cleanUrl;
     }
 
     setSavingGoogleUrl(true);
@@ -76,6 +83,7 @@ export default function DashboardOverviewClient({ initialUser, initialStats, rec
       setUser((prev) => ({ ...prev, ...(data.profile || {}), googleReviewUrl: savedUrl }));
       setGoogleUrlInput(savedUrl);
       showToast('Google Review link saved successfully!', 'success');
+      router.refresh();
     } catch (err) {
       setGoogleUrlError(err.message);
       showToast(err.message, 'error');

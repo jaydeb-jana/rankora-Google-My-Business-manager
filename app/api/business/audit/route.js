@@ -18,17 +18,9 @@ export async function GET() {
     }
 
     const freshUser = await userRepo.findById(sessionUser._id);
-    let lastAudit = freshUser?.lastAudit;
-    if (
-      !lastAudit ||
-      lastAudit?.summary?.overallScore === 41 ||
-      lastAudit?.summary?.businessName?.toLowerCase().includes('raj computer')
-    ) {
-      lastAudit = DEFAULT_RAJ_COMPUTER_AUDIT;
-    }
     return NextResponse.json({
       success: true,
-      lastAudit,
+      lastAudit: null, // Initial screen waits for explicit user search
       savedReviewUrl: freshUser?.googleReviewUrl || '',
       businessName: freshUser?.businessName || '',
     });
@@ -53,7 +45,7 @@ export async function POST(req) {
 
     if (!url || typeof url !== 'string' || !url.trim()) {
       return NextResponse.json(
-        { error: 'Please enter a valid Google Business Profile or Google Maps link.' },
+        { error: 'Please enter a business name, search keyword, or Google Maps link.' },
         { status: 400 }
       );
     }

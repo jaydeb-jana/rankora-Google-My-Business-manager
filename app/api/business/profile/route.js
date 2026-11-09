@@ -47,7 +47,7 @@ export async function PATCH(request) {
       }
     }
 
-    // Google review / business URL validation: allow any valid web link
+    // Google review / business URL: accept any link provided by user
     if (updates.googleReviewUrl !== undefined) {
       if (typeof updates.googleReviewUrl === 'string' && updates.googleReviewUrl.trim()) {
         let urlStr = updates.googleReviewUrl.trim();
@@ -57,32 +57,13 @@ export async function PATCH(request) {
         }
         try {
           const parsed = new URL(urlStr);
-          if (!['http:', 'https:'].includes(parsed.protocol)) {
-            return NextResponse.json({ error: 'Please enter a valid web link (http:// or https://)' }, { status: 400 });
-          }
           updates.googleReviewUrl = parsed.toString();
         } catch {
-          return NextResponse.json({ error: 'Please enter a valid URL link' }, { status: 400 });
+          // If URL constructor fails, still accept the raw string
+          updates.googleReviewUrl = urlStr;
         }
       } else {
         updates.googleReviewUrl = '';
-      }
-    }
-
-    // Validate Google review link: warn if user pastes their internal Rankaro review link
-    if (updates.googleReviewUrl) {
-      const lower = updates.googleReviewUrl.toLowerCase();
-      if (
-        (lower.includes('/r/') && (lower.includes('localhost') || lower.includes('rankaro'))) ||
-        (user.slug && lower.includes(`/r/${user.slug.toLowerCase()}`))
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              'You entered your Rankaro review page URL! Please enter your official Google Business Profile review link from Google Maps (e.g. https://g.page/r/.../review).',
-          },
-          { status: 400 }
-        );
       }
     }
 
@@ -96,8 +77,9 @@ export async function PATCH(request) {
       updates.slug = await getUniqueSlug(user.businessName, user._id);
     }
 
-    const updatedUser = await userRepo.updateById(user._id, updates);
-    const { password, ...safeUser } = updatedUser;
+    const updatedUser = (await userRepo.updateById(user._id, updates)) || user;
+    const safeUser = updatedUser ? { ...updatedUser } : {};
+    delete safeUser.password;
 
     return NextResponse.json({
       success: true,

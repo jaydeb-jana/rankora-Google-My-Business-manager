@@ -10,14 +10,6 @@ export default async function AuditPage() {
   if (!user) return null;
   const freshUser = await userRepo.findById(user._id);
 
-  let initialAudit = freshUser?.lastAudit;
-  if (
-    !initialAudit ||
-    initialAudit?.summary?.overallScore === 41 ||
-    initialAudit?.summary?.businessName?.toLowerCase().includes('raj computer')
-  ) {
-    initialAudit = DEFAULT_RAJ_COMPUTER_AUDIT;
-  }
-
-  return <AuditClient initialUser={freshUser || user} defaultAudit={initialAudit} />;
+  // Do not auto-display audit results on initial page load. Keep initial screen ready for user search.
+  return <AuditClient initialUser={freshUser || user} defaultAudit={null} />;
 }
