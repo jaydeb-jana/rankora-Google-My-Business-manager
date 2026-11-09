@@ -237,7 +237,6 @@ export default function PlansClient({ user, pricingConfig }) {
           }
           triggerConfetti();
           showToast('Payment verified successfully! Your subscription is now active.', 'success');
-          fetchInvoices();
         } else if (data.status === 'expired') {
           clearInterval(pollIntervalRef.current);
           clearInterval(timerIntervalRef.current);
@@ -248,7 +247,7 @@ export default function PlansClient({ user, pricingConfig }) {
         console.warn('Status poll check failed:', err);
       }
     }, 3000); // 3-second recommended polling interval
-  }, [fetchInvoices, showToast]);
+  }, [showToast]);
 
   // Start comfortable 10-minute timer
   const startTimer = useCallback((durationInSeconds = 600) => {
@@ -294,7 +293,6 @@ export default function PlansClient({ user, pricingConfig }) {
         }
         triggerConfetti();
         showToast('Payment confirmed! Your plan is activated.', 'success');
-        fetchInvoices();
       } else {
         showToast('Payment not detected yet. Please ensure UPI transfer completed on your phone.', 'info');
       }
@@ -335,7 +333,6 @@ export default function PlansClient({ user, pricingConfig }) {
         }
         triggerConfetti();
         showToast('Bank UTR verified successfully! Your subscription is now active.', 'success');
-        fetchInvoices();
       } else {
         showToast(
           data.message || 'UTR recorded! Bank email notification is syncing in memory. Please check status in 10 seconds.',
@@ -436,6 +433,21 @@ export default function PlansClient({ user, pricingConfig }) {
       if (!res.ok || !data.success || !data.order) {
         showToast(data.error || 'Failed to initialize payment session.', 'error');
         setInitiatingPlanId(null);
+        return;
+      }
+
+      // If 100% free (via referral discount), activate immediately with zero payment required!
+      if (data.isFree || data.order?.isPaid || data.order?.payableAmount === 0) {
+        setCurrentPlan(data.order.planId);
+        setPaymentStatus('success');
+        setSuccessDetails(data.order);
+        setActiveOrder(data.order);
+        triggerConfetti();
+        showToast(
+          `Congratulations! Your ${data.order.planName} plan has been activated 100% free with referral code arventaventures360!`,
+          'success'
+        );
+        fetchInvoices();
         return;
       }
 
@@ -692,19 +704,33 @@ export default function PlansClient({ user, pricingConfig }) {
                 <div className="pt-2 pb-4 border-b border-[#f1f3f4]">
                   {appliedReferral ? (
                     <div>
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-lg font-medium text-stone-400 line-through">
-                          {currency}{(billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly).toLocaleString('en-IN')}
-                        </span>
-                        <span className="text-3xl sm:text-4xl font-extrabold text-[#1a73e8]">
-                          {currency}{Math.max(1, (billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly) - referralDiscount).toLocaleString('en-IN')}
-                        </span>
-                        <span className="text-xs text-[#70757a]">/{plan.period}</span>
-                      </div>
-                      <div className="mt-1.5 inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        <Tag className="w-3 h-3 text-emerald-600" />
-                        <span>Instant ₹500 OFF Applied</span>
-                      </div>
+                      {(() => {
+                        const raw = billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly;
+                        const discounted = Math.max(0, raw - referralDiscount);
+                        const isPlanFree = discounted === 0;
+
+                        return (
+                          <>
+                            <div className="flex items-baseline space-x-2">
+                              <span className="text-lg font-medium text-stone-400 line-through">
+                                {currency}{raw.toLocaleString('en-IN')}
+                              </span>
+                              <span
+                                className={`text-3xl sm:text-4xl font-extrabold ${
+                                  isPlanFree ? 'text-[#1e8e3e]' : 'text-[#1a73e8]'
+                                }`}
+                              >
+                                {isPlanFree ? `${currency}0 FREE` : `${currency}${discounted.toLocaleString('en-IN')}`}
+                              </span>
+                              <span className="text-xs text-[#70757a]">/{plan.period}</span>
+                            </div>
+                            <div className="mt-1.5 inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              <Sparkles className="w-3 h-3 text-emerald-600" />
+                              <span>{isPlanFree ? '100% Free with arventaventures360' : 'Instant ₹500 OFF Applied'}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   ) : (
                     <div className="flex items-baseline space-x-1">
@@ -798,109 +824,6 @@ export default function PlansClient({ user, pricingConfig }) {
           <span>Contact Sales Team</span>
           <ArrowRight className="w-3.5 h-3.5 text-[#5f6368]" />
         </Link>
-      </div>
-
-      {/* RECENT INVOICES & PAYMENT RECEIPTS SECTION */}
-      <div className="bg-white border border-[#dadce0] rounded-2xl p-6 sm:p-7 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#f1f3f4] pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold">
-              <Receipt className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-[#202124]">Payment Invoices & Receipts</h3>
-              <p className="text-xs text-[#5f6368]">
-                Download official GST & MSME certified bank transaction receipts compiled for your accounts
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={fetchInvoices}
-            disabled={loadingInvoices}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-[#5f6368] hover:text-[#202124] hover:bg-[#f8f9fa] border border-[#dadce0] rounded-lg transition cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loadingInvoices ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
-          </button>
-        </div>
-
-        {loadingInvoices ? (
-          <div className="py-8 text-center text-xs text-[#70757a] flex items-center justify-center space-x-2">
-            <Loader2 className="w-4 h-4 animate-spin text-[#1a73e8]" />
-            <span>Loading transaction history...</span>
-          </div>
-        ) : invoices.length === 0 ? (
-          <div className="py-8 text-center space-y-1">
-            <p className="text-xs font-medium text-[#202124]">No payment records found</p>
-            <p className="text-[11px] text-[#70757a]">
-              When you upgrade or renew your plan, official receipts and NPCI Bank UTRs will appear here.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-[#f1f3f4] text-[#70757a] uppercase tracking-wider font-semibold">
-                  <th className="py-2.5 px-3">Order ID</th>
-                  <th className="py-2.5 px-3">Plan</th>
-                  <th className="py-2.5 px-3">Amount</th>
-                  <th className="py-2.5 px-3">NPCI Bank UTR</th>
-                  <th className="py-2.5 px-3">Status</th>
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3 text-right">Receipt</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#f1f3f4]">
-                {invoices.map((inv) => (
-                  <tr key={inv.orderId} className="hover:bg-[#f8f9fa] transition-colors">
-                    <td className="py-3 px-3 font-mono font-medium text-[#202124]">{inv.orderId}</td>
-                    <td className="py-3 px-3 font-semibold text-[#202124]">{inv.planName}</td>
-                    <td className="py-3 px-3 font-bold text-[#202124]">₹{Number(inv.amount).toLocaleString('en-IN')}</td>
-                    <td className="py-3 px-3 font-mono text-[#5f6368]">{inv.utr || '—'}</td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          inv.status === 'success'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : inv.status === 'expired'
-                            ? 'bg-stone-100 text-stone-600'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }`}
-                      >
-                        {inv.status === 'success' ? 'Confirmed' : inv.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-[#70757a]">
-                      {inv.paidAt || inv.createdAt
-                        ? new Date(inv.paidAt || inv.createdAt).toLocaleDateString('en-IN', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                          })
-                        : '—'}
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      {inv.receiptUrl ? (
-                        <a
-                          href={inv.receiptUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 text-xs font-semibold text-[#1a73e8] hover:text-[#1557b0] hover:underline"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>PDF</span>
-                        </a>
-                      ) : (
-                        <span className="text-[#dadce0]">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
 
       {/* Brand Footer Governance Note */}
@@ -1037,8 +960,9 @@ export default function PlansClient({ user, pricingConfig }) {
               {/* Cost Summary Breakdown */}
               {(() => {
                 const rawPrice = billingCycle === 'yearly' ? pendingPlanForCheckout.rawYearly : pendingPlanForCheckout.rawMonthly;
-                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice > 1 ? rawPrice - 1 : 0) : 0;
-                const payable = Math.max(1, rawPrice - discount);
+                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice) : 0;
+                const payable = Math.max(0, rawPrice - discount);
+                const isFree = appliedReferral && payable === 0;
 
                 return (
                   <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-2 text-xs">
@@ -1047,12 +971,15 @@ export default function PlansClient({ user, pricingConfig }) {
                       <span>₹{rawPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                     </div>
                     {discount > 0 && (
-                      <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-100/60 px-2 py-1 rounded-lg">
-                        <span className="flex items-center gap-1">
-                          <Tag className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Referral Discount:</span>
+                      <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-100/60 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                        <span className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Referral Discount ({appliedReferral}):</span>
                         </span>
-                        <span>-₹{discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        <span>
+                          -₹{discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}{' '}
+                          {isFree ? '(100% Free)' : ''}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between text-emerald-700 font-medium">
@@ -1062,10 +989,23 @@ export default function PlansClient({ user, pricingConfig }) {
                     <div className="pt-2 border-t border-stone-200 flex justify-between items-baseline">
                       <span className="font-bold text-stone-900 text-sm">Final Payable Amount:</span>
                       <div className="text-right">
-                        <span className="text-2xl font-black text-blue-900 font-sans">
-                          ₹{payable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                        </span>
-                        <span className="text-[10px] text-stone-500 block">Inclusive of all taxes</span>
+                        {isFree ? (
+                          <>
+                            <span className="text-2xl font-black text-emerald-600 font-sans">
+                              ₹0.00 FREE
+                            </span>
+                            <span className="text-[10px] text-emerald-700 block font-bold">
+                              100% Free &bull; No Payment Required
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-2xl font-black text-blue-900 font-sans">
+                              ₹{payable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </span>
+                            <span className="text-[10px] text-stone-500 block">Inclusive of all taxes</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1075,30 +1015,53 @@ export default function PlansClient({ user, pricingConfig }) {
               {/* Modal Action Buttons */}
               {(() => {
                 const rawPrice = billingCycle === 'yearly' ? pendingPlanForCheckout.rawYearly : pendingPlanForCheckout.rawMonthly;
-                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice > 1 ? rawPrice - 1 : 0) : 0;
-                const payable = Math.max(1, rawPrice - discount);
+                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice) : 0;
+                const payable = Math.max(0, rawPrice - discount);
+                const isFree = appliedReferral && payable === 0;
 
                 return (
                   <div className="space-y-2.5 pt-1">
-                    <button
-                      type="button"
-                      disabled={initiatingPlanId === pendingPlanForCheckout.id}
-                      onClick={handleConfirmAndGeneratePayment}
-                      className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-md"
-                    >
-                      {initiatingPlanId === pendingPlanForCheckout.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Generating Dynamic UPI QR...</span>
-                        </>
-                      ) : (
-                        <>
-                          <QrCode className="w-4 h-4" />
-                          <span>Generate Payment QR &bull; Pay ₹{payable.toLocaleString('en-IN')}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                    {isFree ? (
+                      <button
+                        type="button"
+                        disabled={initiatingPlanId === pendingPlanForCheckout.id}
+                        onClick={handleConfirmAndGeneratePayment}
+                        className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-md"
+                      >
+                        {initiatingPlanId === pendingPlanForCheckout.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Activating Free Subscription...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 text-amber-300" />
+                            <span>Claim Free Plan Activation (₹0.00)</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={initiatingPlanId === pendingPlanForCheckout.id}
+                        onClick={handleConfirmAndGeneratePayment}
+                        className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-md"
+                      >
+                        {initiatingPlanId === pendingPlanForCheckout.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Generating Dynamic UPI QR...</span>
+                          </>
+                        ) : (
+                          <>
+                            <QrCode className="w-4 h-4" />
+                            <span>Generate Payment QR &bull; Pay ₹{payable.toLocaleString('en-IN')}</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setPendingPlanForCheckout(null)}
@@ -1163,13 +1126,15 @@ export default function PlansClient({ user, pricingConfig }) {
 
                 <div className="space-y-1">
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                    Payment Verified & Account Activated
+                    {activeOrder.payableAmount === 0 ? '100% Free Referral Plan Activated' : 'Payment Verified & Account Activated'}
                   </span>
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 pt-2">
                     Welcome to {activeOrder.planName}!
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
-                    Your UPI payment was settled directly with zero deductions. All pro capabilities are now active on your dashboard.
+                    {activeOrder.payableAmount === 0
+                      ? 'Your subscription was activated 100% free with your Arventa Ventures referral code. All pro capabilities are now unlocked on your account.'
+                      : 'Your UPI payment was settled directly with zero deductions. All pro capabilities are now active on your dashboard.'}
                   </p>
                 </div>
 
@@ -1181,8 +1146,8 @@ export default function PlansClient({ user, pricingConfig }) {
                   </div>
                   <div className="flex justify-between items-center text-stone-600">
                     <span>Settled Amount:</span>
-                    <strong className="text-stone-900 font-sans font-bold text-sm">
-                      ₹{successDetails?.amount || activeOrder.payableAmount} INR
+                    <strong className="text-emerald-700 font-sans font-bold text-sm">
+                      {activeOrder.payableAmount === 0 ? '₹0.00 (100% Free Promo)' : `₹${successDetails?.amount || activeOrder.payableAmount} INR`}
                     </strong>
                   </div>
                   {successDetails?.utr && (

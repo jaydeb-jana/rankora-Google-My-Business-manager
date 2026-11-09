@@ -68,9 +68,9 @@ export async function POST(request) {
           discountApplied = 500;
           amount = amount - 500;
         } else {
-          // Keep minimum payable amount at ₹1 for UPI gateways
-          discountApplied = Math.max(0, amount - 1);
-          amount = 1;
+          // 100% Free - ₹500 discount completely covers the plan amount!
+          discountApplied = amount;
+          amount = 0;
         }
       } else {
         return NextResponse.json(
@@ -80,16 +80,74 @@ export async function POST(request) {
       }
     }
 
+    const customerName = sessionUser.businessName || sessionUser.ownerName || 'Merchant Partner';
+    const customerEmail = sessionUser.email;
+    const customerPhone = sessionUser.phone || '';
+
+    // If amount is 0 (100% free via referral discount), activate immediately with zero payment required!
+    if (amount === 0) {
+      const freeOrderId = `REF_FREE_${Date.now()}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+      // Persist free completed order record in database
+      await orderRepo.create({
+        orderId: freeOrderId,
+        userId: sessionUser._id,
+        userEmail: sessionUser.email,
+        businessName: customerName,
+        planId,
+        planName,
+        billingCycle,
+        amount: originalAmount,
+        payableAmount: 0,
+        currency: 'INR',
+        upiId: '',
+        qrUrl: '',
+        checkoutUrl: '',
+        upiIntent: '',
+        status: 'pending',
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        metadata: {
+          referralCode: 'arventaventures360',
+          discountApplied,
+          originalAmount,
+          isFree: true,
+        },
+      });
+
+      // Atomically mark success and activate user subscription
+      await orderRepo.markSuccess({
+        orderId: freeOrderId,
+        utr: `ARVENTA360_FREE_${Date.now()}`,
+        transactionId: freeOrderId,
+        senderName: customerName,
+        amount: 0,
+        paidAt: new Date(),
+      });
+
+      return NextResponse.json({
+        success: true,
+        isFree: true,
+        order: {
+          orderId: freeOrderId,
+          amount: originalAmount,
+          payableAmount: 0,
+          discountApplied,
+          referralCode: 'arventaventures360',
+          planId,
+          planName,
+          billingCycle,
+          status: 'success',
+          isPaid: true,
+        },
+      });
+    }
+
     const appUrl = (
       settings.general?.appUrl ||
       process.env.NEXT_PUBLIC_APP_URL ||
       request.headers.get('origin') ||
       'http://localhost:3000'
     ).replace(/\/+$/, '');
-
-    const customerName = sessionUser.businessName || sessionUser.ownerName || 'Merchant Partner';
-    const customerEmail = sessionUser.email;
-    const customerPhone = sessionUser.phone || '';
 
     // Call FamGateway Canonical REST API (POST /api/create-order)
     const fgResponse = await fetch('https://famgateway.in/api/create-order', {
