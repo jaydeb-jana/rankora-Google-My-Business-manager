@@ -523,75 +523,6 @@ export default function PlansClient({ user, pricingConfig }) {
             Yearly <span className="text-[#1e8e3e] font-semibold">(Save 15%)</span>
           </span>
         </div>
-
-        {/* Referral Promo Code Entry Bar */}
-        <div className="pt-3 max-w-lg mx-auto">
-          {!appliedReferral ? (
-            <div className="bg-white border border-[#dadce0] hover:border-[#1a73e8]/50 rounded-2xl p-2 sm:p-2.5 shadow-xs transition flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex items-center space-x-2 pl-2 text-stone-500 shrink-0">
-                <Tag className="w-4 h-4 text-[#1a73e8]" />
-                <span className="text-xs font-semibold text-[#3c4043]">Referral Code</span>
-              </div>
-              <div className="flex items-center gap-2 w-full">
-                <input
-                  type="text"
-                  value={referralInput}
-                  onChange={(e) => {
-                    setReferralInput(e.target.value);
-                    if (referralError) setReferralError('');
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleApplyReferral();
-                    }
-                  }}
-                  placeholder="Enter code (e.g. arventaventures360)"
-                  className="w-full text-xs px-3 py-1.5 bg-[#f8f9fa] border border-[#dadce0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/20 focus:border-[#1a73e8] uppercase font-mono tracking-wider text-[#202124]"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleApplyReferral()}
-                  className="shrink-0 px-3.5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-2xs"
-                >
-                  Apply Code
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 shadow-xs flex items-center justify-between animate-fadeIn">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                  <Check className="w-4 h-4" />
-                </div>
-                <div className="text-xs text-left">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="font-bold text-emerald-950">Referral Code Applied:</span>
-                    <span className="font-mono font-bold bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded text-[11px] tracking-wide">
-                      {appliedReferral}
-                    </span>
-                    <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      Instant ₹500 OFF
-                    </span>
-                  </div>
-                  <p className="text-emerald-700 text-[11px] mt-0.5">
-                    Instant ₹500 discount unlocked across all subscription tiers.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={handleRemoveReferral}
-                className="text-xs text-stone-500 hover:text-red-600 font-semibold px-2 py-1 rounded transition cursor-pointer shrink-0"
-              >
-                Remove
-              </button>
-            </div>
-          )}
-          {referralError && (
-            <p className="text-xs text-red-600 text-center mt-1.5 font-medium">{referralError}</p>
-          )}
-        </div>
       </div>
 
       {/* Expiration or Warning Notice */}
@@ -702,44 +633,12 @@ export default function PlansClient({ user, pricingConfig }) {
                 </div>
 
                 <div className="pt-2 pb-4 border-b border-[#f1f3f4]">
-                  {appliedReferral ? (
-                    <div>
-                      {(() => {
-                        const raw = billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly;
-                        const discounted = Math.max(0, raw - referralDiscount);
-                        const isPlanFree = discounted === 0;
-
-                        return (
-                          <>
-                            <div className="flex items-baseline space-x-2">
-                              <span className="text-lg font-medium text-stone-400 line-through">
-                                {currency}{raw.toLocaleString('en-IN')}
-                              </span>
-                              <span
-                                className={`text-3xl sm:text-4xl font-extrabold ${
-                                  isPlanFree ? 'text-[#1e8e3e]' : 'text-[#1a73e8]'
-                                }`}
-                              >
-                                {isPlanFree ? `${currency}0 FREE` : `${currency}${discounted.toLocaleString('en-IN')}`}
-                              </span>
-                              <span className="text-xs text-[#70757a]">/{plan.period}</span>
-                            </div>
-                            <div className="mt-1.5 inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                              <Sparkles className="w-3 h-3 text-emerald-600" />
-                              <span>{isPlanFree ? '100% Free with arventaventures360' : 'Instant ₹500 OFF Applied'}</span>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <div className="flex items-baseline space-x-1">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-[#202124]">
-                        {billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly}
-                      </span>
-                      <span className="text-xs text-[#70757a]">/{plan.period}</span>
-                    </div>
-                  )}
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-[#202124]">
+                      {billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly}
+                    </span>
+                    <span className="text-xs text-[#70757a]">/{plan.period}</span>
+                  </div>
                   <p className="text-[11px] text-[#70757a] mt-1">
                     {billingCycle === 'yearly' ? 'Billed annually with zero gateway fees' : 'Billed monthly with zero gateway fees'}
                   </p>
