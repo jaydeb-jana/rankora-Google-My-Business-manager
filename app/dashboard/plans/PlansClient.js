@@ -44,8 +44,6 @@ export default function PlansClient({ user, pricingConfig }) {
   const daysLeft = isExpired || !expiresAt ? 0 : Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
   // Checkout Modal & Polling State
-  const [planToUpgrade, setPlanToUpgrade] = useState(null);
-  const [simulatingTest, setSimulatingTest] = useState(false);
   const [initiatingPlanId, setInitiatingPlanId] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle' | 'pending' | 'success' | 'expired' | 'failed'
@@ -347,72 +345,10 @@ export default function PlansClient({ user, pricingConfig }) {
     setManualUtr('');
   };
 
-  // Open Checkout Mode Selection Modal
-  const handleInitiateUpgrade = (plan) => {
-    setPlanToUpgrade(plan);
-  };
-
-  // Simulate Instant Successful Test Payment
-  const handleExecuteTestSuccess = async (plan) => {
-    const targetPlan = plan || planToUpgrade;
-    if (!targetPlan) return;
-
-    setSimulatingTest(true);
-    try {
-      const res = await fetch('/api/payment/simulate-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planId: targetPlan.id,
-          billingCycle,
-          orderId: activeOrder?.orderId || undefined,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        showToast(data.error || 'Failed to simulate test payment.', 'error');
-        return;
-      }
-
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-
-      setPlanToUpgrade(null);
-      setActiveOrder({
-        orderId: data.order?.orderId || 'fg_TEST_' + Date.now(),
-        planId: data.order?.planId || targetPlan.id,
-        planName: data.order?.planName || targetPlan.name,
-        amount: data.order?.amount || 0,
-        payableAmount: data.order?.amount || 0,
-        billingCycle,
-      });
-      setSuccessDetails(data.order || {
-        orderId: data.order?.orderId || 'fg_TEST_' + Date.now(),
-        planName: targetPlan.name,
-        amount: data.order?.amount || 0,
-        status: 'success',
-      });
-      setPaymentStatus('success');
-      setCurrentPlan(data.order?.planId || targetPlan.id);
-
-      triggerConfetti();
-      showToast('Test payment successful! Subscription activated.', 'success');
-      fetchInvoices();
-    } catch (err) {
-      console.error(err);
-      showToast('Network error while simulating test payment.', 'error');
-    } finally {
-      setSimulatingTest(false);
-    }
-  };
-
-  // Continue with Live Production Order Creation
-  const handleContinueProduction = async (plan) => {
-    const targetPlan = plan || planToUpgrade;
-    setPlanToUpgrade(null);
-    if (!targetPlan) return;
-    await handlePlanClick(targetPlan);
+  // Directly Initiate Live Production Plan Upgrade & Create Dynamic Order
+  const handleInitiateUpgrade = async (plan) => {
+    if (!plan) return;
+    await handlePlanClick(plan);
   };
 
   // Trigger Plan Upgrade & Create Dynamic Order
@@ -822,135 +758,6 @@ export default function PlansClient({ user, pricingConfig }) {
           <span>A Product by Arventa Ventures</span>
         </p>
       </div>
-
-      {/* CHECKOUT MODE SELECTION MODAL (Test Successful vs Continue Production) */}
-      {planToUpgrade && (
-        <div className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-stone-200 overflow-hidden relative animate-scaleUp">
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-slate-900 to-stone-900 px-6 py-5 text-white flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white tracking-tight">
-                    Select Checkout Mode
-                  </h3>
-                  <p className="text-xs text-slate-300">
-                    Upgrade to <span className="font-semibold text-white">{planToUpgrade.name}</span> ({billingCycle === 'yearly' ? planToUpgrade.priceYearly : planToUpgrade.priceMonthly}/{planToUpgrade.period})
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPlanToUpgrade(null)}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              <p className="text-xs text-stone-600">
-                Please select how you would like to proceed with your upgrade:
-              </p>
-
-              {/* Option 1: Test Successful */}
-              <div className="rounded-2xl border-2 border-emerald-500/40 bg-emerald-50/50 p-4 space-y-3 hover:border-emerald-600 transition-all">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-emerald-950">Test Mode (Zero Cost)</h4>
-                      <span className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider block">
-                        Instant Simulation &bull; Sandbox Test
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full">
-                    Instant Demo
-                  </span>
-                </div>
-                <p className="text-xs text-emerald-900 leading-relaxed">
-                  Simulates a verified UPI payment with a mock NPCI Bank UTR. Instantly activates the <strong>{planToUpgrade.name}</strong> subscription on your account without charging any real money.
-                </p>
-                <button
-                  type="button"
-                  disabled={simulatingTest}
-                  onClick={() => handleExecuteTestSuccess(planToUpgrade)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center space-x-2 shadow-sm transition cursor-pointer disabled:opacity-60"
-                >
-                  {simulatingTest ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Activating Test Subscription...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Test Successful (Instant Activation)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Option 2: Continue Production */}
-              <div className="rounded-2xl border-2 border-blue-500/40 bg-blue-50/50 p-4 space-y-3 hover:border-blue-600 transition-all">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-xs">
-                      <QrCode className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-blue-950">Production Mode (Live Payment)</h4>
-                      <span className="text-[10px] font-semibold text-blue-700 uppercase tracking-wider block">
-                        Live FamGateway UPI &bull; 100% P2P
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold text-blue-800 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded-full">
-                    Real Transfer
-                  </span>
-                </div>
-                <p className="text-xs text-blue-900 leading-relaxed">
-                  Generates an authoritative dynamic UPI QR code and deep intent links for Google Pay, PhonePe, Paytm, or BHIM. Verified via real-time merchant IMAP email sync.
-                </p>
-                <button
-                  type="button"
-                  disabled={initiatingPlanId === planToUpgrade.id}
-                  onClick={() => handleContinueProduction(planToUpgrade)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center space-x-2 shadow-sm transition cursor-pointer disabled:opacity-60"
-                >
-                  {initiatingPlanId === planToUpgrade.id ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Connecting to FamGateway...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ArrowRight className="w-4 h-4" />
-                      <span>Continue Production (Live UPI QR)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-3 bg-stone-50 border-t border-stone-200 text-center">
-              <p className="text-[11px] text-stone-500 flex items-center justify-center space-x-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Zero gateway deduction &bull; Automated receipt generation &bull; Encrypted</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* INSTITUTIONAL FINTECH DUAL-PANE UPI CHECKOUT MODAL */}
       {activeOrder && (
@@ -1441,28 +1248,6 @@ export default function PlansClient({ user, pricingConfig }) {
                           </p>
                         </form>
                       )}
-                    </div>
-
-                    {/* Test Successful Sandbox Action */}
-                    <div className="pt-2 text-center border-t border-stone-100">
-                      <button
-                        type="button"
-                        disabled={simulatingTest}
-                        onClick={() => handleExecuteTestSuccess({ id: activeOrder.planId, name: activeOrder.planName })}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer disabled:opacity-50"
-                      >
-                        {simulatingTest ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Simulating Test Success...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Test Successful (Instant Activation)</span>
-                          </>
-                        )}
-                      </button>
                     </div>
                   </div>
                 </div>

@@ -44,6 +44,9 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   // AI Knowledge States
   const [shopDetails, setShopDetails] = useState(initialAiKnowledge?.shopDetails || '');
   const [reviewStyleRules, setReviewStyleRules] = useState(initialAiKnowledge?.reviewStyleRules || '');
+  const [savedShopDetails, setSavedShopDetails] = useState(initialAiKnowledge?.shopDetails || '');
+  const [savedStyleRules, setSavedStyleRules] = useState(initialAiKnowledge?.reviewStyleRules || '');
+  const [hasSavedOnce, setHasSavedOnce] = useState(Boolean(initialAiKnowledge?.shopDetails || initialAiKnowledge?.reviewStyleRules));
   const [languages, setLanguages] = useState(() => {
     if (initialAiKnowledge?.languages && initialAiKnowledge.languages.length > 0) {
       return initialAiKnowledge.languages;
@@ -131,24 +134,32 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
   };
 
   const handleSaveKnowledge = async () => {
+    if (savingKnowledge) return;
     setSavingKnowledge(true);
     try {
+      const payload = {
+        shopDetails: shopDetails.trim(),
+        reviewStyleRules: reviewStyleRules.trim(),
+        languages,
+      };
+
       const res = await fetch('/api/business/ai-knowledge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shopDetails,
-          reviewStyleRules,
-          languages,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to save AI Knowledge');
+      if (!res.ok) throw new Error(data.error || 'Failed to save shop details');
 
-      showToast('AI Knowledge configuration saved successfully!', 'success');
+      setShopDetails(payload.shopDetails);
+      setReviewStyleRules(payload.reviewStyleRules);
+      setSavedShopDetails(payload.shopDetails);
+      setSavedStyleRules(payload.reviewStyleRules);
+      setHasSavedOnce(true);
+      showToast('Shop details & review rules saved successfully!', 'success');
     } catch (err) {
-      showToast(err.message, 'error');
+      showToast(err.message || 'Failed to save shop details', 'error');
     } finally {
       setSavingKnowledge(false);
     }
@@ -551,11 +562,22 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
       <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#dadce0] google-card-shadow space-y-5 min-w-0">
         {/* Shop Details Section */}
         <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Store className="w-4 h-4 text-[#1a73e8] shrink-0" />
-            <label className="text-sm font-semibold text-[#202124]">
-              Shop &amp; Business Details
-            </label>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Store className="w-4 h-4 text-[#1a73e8] shrink-0" />
+              <label className="text-sm font-semibold text-[#202124]">
+                Shop &amp; Business Details
+              </label>
+            </div>
+            {!shopDetails && (
+              <button
+                type="button"
+                onClick={() => setShopDetails('We are a trusted computer shop & service center. We sell branded laptops (Dell, HP, Asus, Lenovo), custom gaming PC builds, original computer accessories, SSDs, and RAM. We also provide fast same-day laptop repair with 6 months warranty.')}
+                className="text-[11px] font-semibold text-[#1a73e8] hover:text-[#1557b0] hover:underline cursor-pointer"
+              >
+                + Fill Computer Shop Example
+              </button>
+            )}
           </div>
           <p className="text-xs text-[#5f6368] leading-relaxed">
             Write key details about your shop (e.g. products sold, top brands, specialities, warranties, store timings, or landmarks). The AI uses this context to mention real store facts in reviews.
@@ -571,11 +593,22 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
         {/* Review Writing Style & Rules Section */}
         <div className="space-y-2 pt-2 border-t border-[#f1f3f4]">
-          <div className="flex items-center space-x-2">
-            <BookOpen className="w-4 h-4 text-[#1a73e8] shrink-0" />
-            <label className="text-sm font-semibold text-[#202124]">
-              Review Writing Style &amp; Rules
-            </label>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <BookOpen className="w-4 h-4 text-[#1a73e8] shrink-0" />
+              <label className="text-sm font-semibold text-[#202124]">
+                Review Writing Style &amp; Rules
+              </label>
+            </div>
+            {!reviewStyleRules && (
+              <button
+                type="button"
+                onClick={() => setReviewStyleRules('Write in a warm, enthusiastic, and natural customer tone. Mention polite behavior and fast turnaround. Never sound like a robotic advertisement or use repetitive clichés.')}
+                className="text-[11px] font-semibold text-[#1a73e8] hover:text-[#1557b0] hover:underline cursor-pointer"
+              >
+                + Fill Style Example
+              </button>
+            )}
           </div>
           <p className="text-xs text-[#5f6368] leading-relaxed">
             Define tone, persona, and guidelines for the AI (e.g. natural tone, avoid robotic buzzwords, emphasize courteous staff, keep it authentic and believable).
@@ -587,6 +620,46 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             placeholder="e.g. Write in a warm, enthusiastic, and natural customer tone. Mention polite behavior and fast turnaround. Never sound like a robotic advertisement or use repetitive clichés."
             className="w-full px-3.5 sm:px-4 py-3 text-xs sm:text-sm text-[#202124] border border-[#dadce0] rounded-xl focus:outline-none focus:border-[#1a73e8] focus:ring-3 focus:ring-[#e8f0fe] transition-all bg-[#fafafa] focus:bg-white"
           />
+        </div>
+
+        {/* Dedicated Save Action Bar directly inside this card */}
+        <div className="pt-3 border-t border-[#f1f3f4] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center space-x-2 text-xs">
+            {savingKnowledge ? (
+              <span className="inline-flex items-center space-x-1.5 text-[#1a73e8] font-medium">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Saving details to cloud...</span>
+              </span>
+            ) : (shopDetails !== savedShopDetails || reviewStyleRules !== savedStyleRules) ? (
+              <span className="inline-flex items-center space-x-1.5 text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px] font-semibold">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span>Unsaved changes (Click &quot;Save Shop Details &amp; Rules&quot;)</span>
+              </span>
+            ) : hasSavedOnce ? (
+              <span className="inline-flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-semibold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>All details &amp; rules saved successfully</span>
+              </span>
+            ) : (
+              <span className="text-xs text-[#5f6368]">
+                Type your store details and review rules, then click Save below.
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={savingKnowledge}
+            onClick={handleSaveKnowledge}
+            className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          >
+            {savingKnowledge ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>Save Shop Details &amp; Rules</span>
+          </button>
         </div>
       </div>
 
@@ -608,6 +681,15 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
           </div>
 
           <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsPresetModalOpen(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 px-3.5 py-2 text-xs font-semibold text-[#1a73e8] bg-[#e8f0fe] hover:bg-[#d2e3fc] rounded-xl transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Load Template</span>
+            </button>
+
             <button
               type="button"
               onClick={openAddModal}
@@ -685,14 +767,24 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
             <p className="text-xs text-[#5f6368] max-w-sm mx-auto">
               Add the specific services or products you want customers to pick from when writing a review.
             </p>
-            <button
-              type="button"
-              onClick={openAddModal}
-              className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Your First Service</span>
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={openAddModal}
+                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] rounded-xl shadow-2xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Your First Service</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsPresetModalOpen(true)}
+                className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-[#1a73e8] bg-[#e8f0fe] hover:bg-[#d2e3fc] rounded-xl transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Load Pre-Made Template</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

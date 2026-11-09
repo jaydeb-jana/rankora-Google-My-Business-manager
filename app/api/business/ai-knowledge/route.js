@@ -36,7 +36,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { shopDetails = '', reviewStyleRules = '', languages = [] } = body;
+    const { shopDetails, reviewStyleRules, languages } = body;
 
     const freshUser = await userRepo.findById(user._id);
     const existingAiKnowledge = freshUser?.aiKnowledge || {};
@@ -62,10 +62,18 @@ export async function POST(request) {
       }
     }
 
+    const shopDetailsStr = typeof shopDetails === 'string'
+      ? shopDetails.trim().slice(0, 4000)
+      : (existingAiKnowledge.shopDetails || '');
+
+    const reviewStyleRulesStr = typeof reviewStyleRules === 'string'
+      ? reviewStyleRules.trim().slice(0, 3000)
+      : (existingAiKnowledge.reviewStyleRules || '');
+
     const aiKnowledgeUpdate = {
       ...existingAiKnowledge,
-      shopDetails: String(shopDetails ?? existingAiKnowledge.shopDetails ?? '').slice(0, 4000),
-      reviewStyleRules: String(reviewStyleRules ?? existingAiKnowledge.reviewStyleRules ?? '').slice(0, 3000),
+      shopDetails: shopDetailsStr,
+      reviewStyleRules: reviewStyleRulesStr,
       languages: sanitizedLanguages,
     };
 
