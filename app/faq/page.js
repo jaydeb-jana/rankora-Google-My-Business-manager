@@ -2,11 +2,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FaqClient from './FaqClient';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Frequently Asked Questions & Local SEO Knowledge Base | Rankaro',
+  title: 'Frequently Asked Questions & Local SEO Knowledge Base',
   description:
     'Answers to all your questions regarding Google review policy compliance, FTC regulations, countertop QR stands, NFC tap cards, and AI review drafts.',
   keywords: [

@@ -148,7 +148,7 @@ export default function Navbar() {
           <a href="/" className="flex items-center space-x-2 group">
             <img
               src="/logo.png"
-              alt="RANKORA"
+              alt="Rankaro - Google Review Booster"
               width={180}
               height={36}
               fetchPriority="high"

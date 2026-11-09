@@ -1,8 +1,11 @@
+import { getSiteUrl } from '@/lib/seoConfig';
+import { blogArticles } from '@/lib/blogArticles';
+
 export default function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+  const baseUrl = getSiteUrl();
   const now = new Date().toISOString();
 
-  const routes = [
+  const staticRoutes = [
     { path: '', changeFrequency: 'daily', priority: 1.0 },
     { path: '/features', changeFrequency: 'weekly', priority: 0.9 },
     { path: '/solutions', changeFrequency: 'weekly', priority: 0.9 },
@@ -22,9 +25,16 @@ export default function sitemap() {
     { path: '/gdpr', changeFrequency: 'monthly', priority: 0.5 },
   ];
 
-  return routes.map((route) => ({
+  const blogRoutes = blogArticles.map((article) => ({
+    path: `/blog/${article.id}`,
+    changeFrequency: 'weekly',
+    priority: 0.85,
+    lastModified: article.isoDate || now,
+  }));
+
+  return [...staticRoutes, ...blogRoutes].map((route) => ({
     url: `${baseUrl}${route.path}`,
-    lastModified: now,
+    lastModified: route.lastModified || now,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));

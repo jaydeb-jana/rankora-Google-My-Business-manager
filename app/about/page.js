@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   ShieldCheck,
   Sparkles,
@@ -23,10 +24,10 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'About Us - The Mission & Leadership Team | Rankaro',
+  title: 'About Us - The Mission & Leadership Team',
   description:
     'Discover Rankaro’s founding story, mission to democratize authentic local reputation, and leadership team under Founder & CEO Jaydeb Jana at Arventa Ventures.',
   keywords: [

@@ -2,11 +2,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContactClient from './ContactClient';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Contact Us & Executive Support | Rankaro',
+  title: 'Contact Us & Executive Support',
   description:
     'Contact the Rankaro team for enterprise deployment, countertop NFC hardware inquiries, agency partnerships, or 24/7 technical assistance.',
   keywords: [

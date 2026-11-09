@@ -41,9 +41,6 @@ export default function PublicReviewPageClient({ business }) {
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [isAiDraft, setIsAiDraft] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
-  const [privateFeedbackSent, setPrivateFeedbackSent] = useState(false);
-  const [privateFeedbackText, setPrivateFeedbackText] = useState('');
-  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [systemError, setSystemError] = useState(null);
 
   const experienceTextareaRef = useRef(null);
@@ -684,68 +681,6 @@ export default function PublicReviewPageClient({ business }) {
                   </button>
                 </div>
               </div>
-
-              {/* Direct Management Resolution Safe-Harbor for 1-3 Stars */}
-              {(sentiment === 'terrible' || sentiment === 'critical' || sentiment === 'neutral') && !privateFeedbackSent && (
-                <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2">
-                  <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-900">
-                    <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Resolve with Management Directly</span>
-                  </div>
-                  <p className="text-[10.5px] text-amber-800 leading-relaxed">
-                    We want to make this right. Send a private message to the owner so we can resolve any issue directly with you:
-                  </p>
-                  <textarea
-                    rows={2}
-                    placeholder="How can management resolve this for you?"
-                    value={privateFeedbackText}
-                    onChange={(e) => setPrivateFeedbackText(e.target.value)}
-                    className="w-full p-2 text-xs bg-white text-slate-800 border border-amber-200 rounded-xl focus:outline-none focus:border-amber-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (privateFeedbackText.trim() && !isSendingFeedback) {
-                        setIsSendingFeedback(true);
-                        try {
-                          await fetch('/api/public/private-feedback', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              slug: business.slug,
-                              sentiment,
-                              message: privateFeedbackText,
-                            }),
-                          });
-                          setPrivateFeedbackSent(true);
-                        } catch (err) {
-                          console.error('Failed to send private feedback:', err);
-                        } finally {
-                          setIsSendingFeedback(false);
-                        }
-                      }
-                    }}
-                    disabled={!privateFeedbackText.trim() || isSendingFeedback}
-                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 cursor-pointer inline-flex items-center space-x-1 shrink-0"
-                  >
-                    {isSendingFeedback ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
-                        <span>Sending...</span>
-                      </>
-                    ) : (
-                      <span>Send Private Note</span>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {privateFeedbackSent && (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-800 flex items-center space-x-2">
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Your private message was sent to management. Thank you!</span>
-                </div>
-              )}
 
               {/* Single Continue Button */}
               <div className="pt-1">

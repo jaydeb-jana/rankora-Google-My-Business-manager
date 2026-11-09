@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Trash2,
@@ -38,6 +39,7 @@ const ALL_LANGUAGES = [
 ];
 
 export default function ServicesManagerClient({ initialServices, initialAiKnowledge }) {
+  const router = useRouter();
   const { showToast } = useToast();
   const [services, setServices] = useState(initialServices || []);
 
@@ -145,19 +147,27 @@ export default function ServicesManagerClient({ initialServices, initialAiKnowle
 
       const res = await fetch('/api/business/ai-knowledge', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save shop details');
 
-      setShopDetails(payload.shopDetails);
-      setReviewStyleRules(payload.reviewStyleRules);
-      setSavedShopDetails(payload.shopDetails);
-      setSavedStyleRules(payload.reviewStyleRules);
+      const confirmedShopDetails = data?.aiKnowledge?.shopDetails ?? payload.shopDetails;
+      const confirmedStyleRules = data?.aiKnowledge?.reviewStyleRules ?? payload.reviewStyleRules;
+
+      setShopDetails(confirmedShopDetails);
+      setReviewStyleRules(confirmedStyleRules);
+      setSavedShopDetails(confirmedShopDetails);
+      setSavedStyleRules(confirmedStyleRules);
       setHasSavedOnce(true);
       showToast('Shop details & review rules saved successfully!', 'success');
+      try {
+        router.refresh();
+      } catch (rErr) {
+        // Safe fallback
+      }
     } catch (err) {
       showToast(err.message || 'Failed to save shop details', 'error');
     } finally {

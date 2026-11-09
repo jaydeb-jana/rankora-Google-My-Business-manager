@@ -58,7 +58,7 @@ export default function Footer() {
             <a href="/" className="inline-block group">
               <img
                 src="/logo-white.png"
-                alt="RANKORA"
+                alt="Rankaro - Google Review Booster"
                 width={180}
                 height={36}
                 loading="lazy"

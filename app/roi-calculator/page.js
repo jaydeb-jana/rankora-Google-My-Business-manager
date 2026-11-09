@@ -2,11 +2,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RoiCalculatorClient from './RoiCalculatorClient';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Google Review Revenue & ROI Calculator for Local Businesses | Rankaro',
+  title: 'Google Review Revenue & ROI Calculator for Local Businesses',
   description:
     'Calculate the estimated revenue lift, customer footfall increase, and Google Maps rank progression by multiplying your 5-star Google review velocity.',
   keywords: [

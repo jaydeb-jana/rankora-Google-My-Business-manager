@@ -2,11 +2,12 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogClient from './BlogClient';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Local SEO Strategy & Google Review Knowledge Base | Rankaro',
+  title: 'Local SEO Strategy & Google Review Knowledge Base',
   description:
     'Authoritative masterclasses on Google Maps 3-Pack algorithms, BERT entity matching, FTC compliance, and physical countertop QR conversion psychology.',
   keywords: [

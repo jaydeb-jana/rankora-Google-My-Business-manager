@@ -4,6 +4,7 @@ import { ToastProvider } from "@/components/Toast";
 import TopProgressBar from "@/components/TopProgressBar";
 import JsonLd from "@/components/JsonLd";
 import { Suspense } from "react";
+import { getSiteUrl } from "@/lib/seoConfig";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
@@ -100,9 +101,6 @@ export const metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  alternates: {
-    canonical: siteUrl,
   },
 };
 

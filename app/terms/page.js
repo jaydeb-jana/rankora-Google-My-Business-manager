@@ -1,12 +1,13 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import { FileText, ShieldCheck, Scale, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Terms of Service | Rankaro by Arventa Ventures',
+  title: 'Terms of Service',
   description:
     'Comprehensive Terms of Service and Master Subscription Agreement governing the use of the Rankaro platform, API, QR codes, and review assistance tools.',
   alternates: {

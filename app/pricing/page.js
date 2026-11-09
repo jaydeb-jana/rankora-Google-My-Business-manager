@@ -3,13 +3,14 @@ import Footer from '@/components/Footer';
 import PricingClient from './PricingClient';
 import { settingsRepo } from '@/lib/repositories';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
 export const revalidate = 60; // Cache at edge, background revalidate every 60s
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Pricing & Plans - Transparent Google Review Software | Rankaro',
+  title: 'Pricing & Plans - Transparent Google Review Software',
   description:
     'Simple, honest pricing for local businesses. Unlimited QR scans, instant AI review drafts, and 100% FTC compliance starting at $0/month. No lock-in contracts.',
   keywords: [

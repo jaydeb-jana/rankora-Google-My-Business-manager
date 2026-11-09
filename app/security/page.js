@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Lock,
   ShieldCheck,
@@ -18,10 +19,10 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Data Security, Encryption & Trust Center | Rankaro',
+  title: 'Data Security, Encryption & Trust Center',
   description:
     'Overview of Rankaro’s enterprise security architecture, AES-256 encryption, SOC 2 compliance posture, multi-tenant database isolation, and disaster recovery.',
   keywords: [

@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -13,10 +14,10 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'GDPR & International Data Compliance Hub | Rankaro',
+  title: 'GDPR & International Data Compliance Hub',
   description:
     'Information regarding Rankaro’s compliance with the EU General Data Protection Regulation (GDPR), Data Processing Addendum (DPA), sub-processor directory, and Data Subject Rights.',
   alternates: {

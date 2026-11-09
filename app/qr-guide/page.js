@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   QrCode,
   Smartphone,
@@ -21,10 +22,10 @@ import {
   DollarSign
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Countertop QR Code & NFC Stand Setup Guide | Rankaro',
+  title: 'Countertop QR Code & NFC Stand Setup Guide',
   description:
     'Master the physical science of in-store Google review collection: countertop placement ergonomics, NFC tap cards, glare reduction, and printable acrylic templates.',
   keywords: [

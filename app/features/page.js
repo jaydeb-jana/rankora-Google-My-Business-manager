@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Sparkles,
   QrCode,
@@ -29,10 +30,10 @@ import {
   HardDrive
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Google Review Automation Features & Platform Architecture | Rankaro',
+  title: 'Google Review Automation Features & Platform Architecture',
   description:
     'Comprehensive architectural breakdown of Rankaro’s 10 platform pillars: AI draft synthesis, vector QR generator, NFC tap cards, private complaint resolution, and multi-location analytics.',
   keywords: [

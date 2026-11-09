@@ -1,12 +1,13 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import { ShieldCheck, Lock, Globe, Mail, FileText, CheckCircle2 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Privacy Policy | Rankaro by Arventa Ventures',
+  title: 'Privacy Policy',
   description:
     'Comprehensive Privacy Policy outlining our strict data governance, zero-sale of consumer information, GDPR & CCPA adherence, and security practices.',
   alternates: {

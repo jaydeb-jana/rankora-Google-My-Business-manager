@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Reset Password | Rankaro',
+  title: 'Reset Password',
   description: 'Reset your Rankaro merchant password.',
   robots: {
     index: false,

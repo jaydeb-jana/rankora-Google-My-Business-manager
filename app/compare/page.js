@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Check,
   X,
@@ -20,10 +21,10 @@ import {
   Scale
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Rankaro vs Birdeye vs Podium (2026 Comparison Guide) | Rankaro',
+  title: 'Rankaro vs Birdeye vs Podium (2026 Comparison Guide)',
   description:
     'In-depth comparison between Rankaro, Birdeye, Podium, and GatherUp. Compare pricing, SMS spam penalties, customer conversion friction, and FTC compliance.',
   keywords: [

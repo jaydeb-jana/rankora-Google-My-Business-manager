@@ -2,8 +2,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import LandingClient from './LandingClient';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
   title: 'Rankaro - #1 Google Review Booster & Local SEO Growth Platform',

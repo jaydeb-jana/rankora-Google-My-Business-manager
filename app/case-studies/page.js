@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Star,
   TrendingUp,
@@ -15,10 +16,10 @@ import {
   Award
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Customer Case Studies & Google Review Success Stories | Rankaro',
+  title: 'Customer Case Studies & Google Review Success Stories',
   description:
     'Verified case studies of dental clinics, restaurants, auto mechanics, and contractors who grew their 5-star Google reviews by up to 430% with Rankaro.',
   keywords: [

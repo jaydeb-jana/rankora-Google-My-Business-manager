@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Heart,
   UtensilsCrossed,
@@ -21,10 +22,10 @@ import {
   Printer
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'Industry Review Playbooks: Dental, Dining, Auto & Legal | Rankaro',
+  title: 'Industry Review Playbooks: Dental, Dining, Auto & Legal',
   description:
     'Comprehensive vertical reputation playbooks for dental clinics, restaurants, auto mechanics, home services, salons, law firms, and real estate agencies.',
   keywords: [

@@ -1,6 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import JsonLd from '@/components/JsonLd';
+import { getSiteUrl } from '@/lib/seoConfig';
 import {
   Compass,
   QrCode,
@@ -26,10 +27,10 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'How It Works - The 7-Step Google Review Conversion Engine | Rankaro',
+  title: 'How It Works - The 7-Step Google Review Conversion Engine',
   description:
     'Step-by-step architecture of in-store review generation: from countertop scan ergonomics and AI draft synthesis to Google Maps 3-Pack rank elevation.',
   keywords: [
