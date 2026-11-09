@@ -299,8 +299,12 @@ export default function DashboardSidebar({ user, mobileOpen = false, onClose = (
 
   return (
     <>
-      {/* 1. Desktop Sticky Aside (Hidden on Mobile) */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r border-[#dadce0] shrink-0 sticky top-0 h-screen z-20">
+      {/* 1. Desktop Fixed Aside (Hidden on Mobile) */}
+      <aside
+        className={`hidden md:flex flex-col w-64 bg-white border-r border-[#dadce0] fixed left-0 bottom-0 z-30 ${
+          user?.isImpersonated ? 'top-10' : 'top-0'
+        }`}
+      >
         {renderContent(false)}
       </aside>
 

@@ -35,16 +35,16 @@ export default function DashboardShell({ user, children }) {
   }, []);
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row min-w-0 w-full">
-      {/* Sidebar - Desktop Sticky + Mobile Slide Drawer */}
+    <div className="flex-1 flex flex-col min-w-0 w-full min-h-screen">
+      {/* Sidebar - Desktop Fixed + Mobile Slide Drawer */}
       <DashboardSidebar
         user={user}
         mobileOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden pb-16 md:pb-0">
+      {/* Main Content Area - Padded on desktop to accommodate fixed 256px sidebar */}
+      <div className="flex-1 flex flex-col min-w-0 w-full md:pl-64 pb-16 md:pb-0">
         <DashboardHeader
           user={user}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}

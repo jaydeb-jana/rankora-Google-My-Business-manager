@@ -38,39 +38,34 @@ export async function POST(request) {
     const body = await request.json();
     const { shopDetails = '', reviewStyleRules = '', languages = [] } = body;
 
-    // Validate languages (minimum 1, maximum 2)
-    if (!Array.isArray(languages) || languages.length < 1 || languages.length > 2) {
-      return NextResponse.json(
-        { error: 'Please configure between 1 and 2 review languages.' },
-        { status: 400 }
-      );
-    }
+    const freshUser = await userRepo.findById(user._id);
+    const existingAiKnowledge = freshUser?.aiKnowledge || {};
 
-    let sanitizedLanguages = languages.map((lang) => ({
-      code: String(lang.code || 'en').trim().toLowerCase(),
-      name: String(lang.name || 'English').trim(),
-      ratio: Math.max(0, Math.min(100, Math.round(Number(lang.ratio) || 0))),
-    }));
+    // Safely parse languages with fallback to existing or default English
+    let sanitizedLanguages = existingAiKnowledge.languages && existingAiKnowledge.languages.length > 0
+      ? existingAiKnowledge.languages
+      : [{ code: 'en', name: 'English', ratio: 100 }];
 
-    if (sanitizedLanguages.length === 1) {
-      sanitizedLanguages[0].ratio = 100;
-    } else if (sanitizedLanguages.length === 2) {
-      let r1 = sanitizedLanguages[0].ratio;
-      let r2 = sanitizedLanguages[1].ratio;
-      if (r1 + r2 !== 100) {
-        // Automatically balance to 100%
-        r2 = 100 - r1;
+    if (Array.isArray(languages) && languages.length > 0) {
+      sanitizedLanguages = languages.slice(0, 2).map((lang) => ({
+        code: String(lang.code || 'en').trim().toLowerCase(),
+        name: String(lang.name || 'English').trim(),
+        ratio: Math.max(0, Math.min(100, Math.round(Number(lang.ratio) || 0))),
+      }));
+
+      if (sanitizedLanguages.length === 1) {
+        sanitizedLanguages[0].ratio = 100;
+      } else if (sanitizedLanguages.length === 2) {
+        let r1 = sanitizedLanguages[0].ratio;
+        let r2 = 100 - r1;
         sanitizedLanguages[1].ratio = r2;
       }
     }
 
-    const freshUser = await userRepo.findById(user._id);
-    const existingAiKnowledge = freshUser?.aiKnowledge || {};
-
     const aiKnowledgeUpdate = {
       ...existingAiKnowledge,
-      shopDetails: String(shopDetails).slice(0, 4000),
-      reviewStyleRules: String(reviewStyleRules).slice(0, 3000),
+      shopDetails: String(shopDetails ?? existingAiKnowledge.shopDetails ?? '').slice(0, 4000),
+      reviewStyleRules: String(reviewStyleRules ?? existingAiKnowledge.reviewStyleRules ?? '').slice(0, 3000),
       languages: sanitizedLanguages,
     };
 
@@ -80,11 +75,11 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      aiKnowledge: updatedUser.aiKnowledge,
-      message: 'AI Knowledge saved successfully!',
+      aiKnowledge: updatedUser?.aiKnowledge || aiKnowledgeUpdate,
+      message: 'Shop details and review rules saved successfully!',
     });
   } catch (err) {
     console.error('[AI Knowledge POST Error]:', err);
-    return NextResponse.json({ error: 'Failed to save AI knowledge' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to save shop details and AI rules' }, { status: 500 });
   }
 }

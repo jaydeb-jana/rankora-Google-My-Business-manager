@@ -128,7 +128,7 @@ export default async function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] flex flex-col text-[#202124] overflow-x-hidden">
+    <div className="min-h-screen bg-[#f8f9fa] flex flex-col text-[#202124]">
       {/* Impersonation Banner if admin logged in as user */}
       {user.isImpersonated && <ImpersonationBanner user={user} />}
 
