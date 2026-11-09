@@ -65,6 +65,9 @@ export default function PlansClient({ user, pricingConfig }) {
   const [referralDiscount, setReferralDiscount] = useState(0);
   const [referralError, setReferralError] = useState('');
 
+  // Pre-Payment Referral Confirmation Modal
+  const [pendingPlanForCheckout, setPendingPlanForCheckout] = useState(null);
+
   // Invoices & Payment History
   const [invoices, setInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
@@ -398,10 +401,18 @@ export default function PlansClient({ user, pricingConfig }) {
     showToast('Referral discount removed.', 'info');
   };
 
-  // Directly Initiate Live Production Plan Upgrade & Create Dynamic Order
-  const handleInitiateUpgrade = async (plan) => {
+  // Open referral check step before generating payment
+  const handleInitiateUpgrade = (plan) => {
     if (!plan) return;
-    await handlePlanClick(plan);
+    setPendingPlanForCheckout(plan);
+  };
+
+  // Generate Dynamic Payment Order after referral confirmation
+  const handleConfirmAndGeneratePayment = async () => {
+    if (!pendingPlanForCheckout) return;
+    const planToProcess = pendingPlanForCheckout;
+    setPendingPlanForCheckout(null);
+    await handlePlanClick(planToProcess, appliedReferral || '');
   };
 
   // Trigger Plan Upgrade & Create Dynamic Order
@@ -900,6 +911,208 @@ export default function PlansClient({ user, pricingConfig }) {
           <span>A Product by Arventa Ventures</span>
         </p>
       </div>
+
+      {/* PRE-PAYMENT REFERRAL STEP MODAL */}
+      {pendingPlanForCheckout && (
+        <div className="fixed inset-0 bg-stone-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 z-50 animate-fadeIn overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-stone-200 overflow-hidden relative my-auto">
+            {/* Header */}
+            <div className="bg-[#0f172a] px-6 py-4 text-white flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                  <Tag className="w-4 h-4 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Confirm Plan & Referral Code</h3>
+                  <p className="text-[11px] text-slate-400">Step 1 of 2: Apply discount before payment generation</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingPlanForCheckout(null)}
+                className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Selected Plan Snapshot */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="inline-flex items-center space-x-1 text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    <Crown className="w-3 h-3 text-blue-600" />
+                    <span>Selected Subscription</span>
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900">{pendingPlanForCheckout.name} Plan</h4>
+                  <p className="text-xs text-slate-500">
+                    {billingCycle === 'yearly' ? 'Annual Billing (Save 15%)' : 'Monthly Billing'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-xl font-extrabold text-slate-900">
+                    ₹{(billingCycle === 'yearly' ? pendingPlanForCheckout.rawYearly : pendingPlanForCheckout.rawMonthly).toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-[11px] text-slate-500 block">per {billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                </div>
+              </div>
+
+              {/* Referral Code Entry / Applied Box */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center space-x-1.5">
+                    <Tag className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Referral Discount Code</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-normal">Optional</span>
+                </label>
+
+                {!appliedReferral ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={referralInput}
+                        onChange={(e) => {
+                          setReferralInput(e.target.value);
+                          if (referralError) setReferralError('');
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyReferral();
+                          }
+                        }}
+                        placeholder="Enter referral code (e.g. arventaventures360)"
+                        className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono uppercase tracking-wider text-stone-900"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleApplyReferral()}
+                        className="shrink-0 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs"
+                      >
+                        Apply Code
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Tip: Enter code <span className="font-mono font-bold text-blue-600 bg-blue-50 px-1 py-0.5 rounded">arventaventures360</span> to receive an instant ₹500 discount on your order.
+                    </p>
+                    {referralError && (
+                      <p className="text-xs text-red-600 font-medium">{referralError}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3.5 flex items-center justify-between animate-fadeIn">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <Check className="w-4 h-4" />
+                      </div>
+                      <div className="text-xs">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-bold text-emerald-950">Code Applied:</span>
+                          <span className="font-mono font-bold bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded text-[11px]">
+                            {appliedReferral}
+                          </span>
+                          <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            -₹500 OFF
+                          </span>
+                        </div>
+                        <p className="text-emerald-700 text-[11px] mt-0.5">
+                          ₹500 instant discount unlocked on this payment.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveReferral}
+                      className="text-xs text-stone-500 hover:text-red-600 font-semibold px-2 py-1 rounded transition cursor-pointer shrink-0"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Cost Summary Breakdown */}
+              {(() => {
+                const rawPrice = billingCycle === 'yearly' ? pendingPlanForCheckout.rawYearly : pendingPlanForCheckout.rawMonthly;
+                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice > 1 ? rawPrice - 1 : 0) : 0;
+                const payable = Math.max(1, rawPrice - discount);
+
+                return (
+                  <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-2 text-xs">
+                    <div className="flex justify-between text-stone-600">
+                      <span>Base Plan Price:</span>
+                      <span>₹{rawPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-100/60 px-2 py-1 rounded-lg">
+                        <span className="flex items-center gap-1">
+                          <Tag className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Referral Discount:</span>
+                        </span>
+                        <span>-₹{discount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-emerald-700 font-medium">
+                      <span>Convenience & Gateway Fee:</span>
+                      <span>0% (₹0.00 FREE)</span>
+                    </div>
+                    <div className="pt-2 border-t border-stone-200 flex justify-between items-baseline">
+                      <span className="font-bold text-stone-900 text-sm">Final Payable Amount:</span>
+                      <div className="text-right">
+                        <span className="text-2xl font-black text-blue-900 font-sans">
+                          ₹{payable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </span>
+                        <span className="text-[10px] text-stone-500 block">Inclusive of all taxes</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Modal Action Buttons */}
+              {(() => {
+                const rawPrice = billingCycle === 'yearly' ? pendingPlanForCheckout.rawYearly : pendingPlanForCheckout.rawMonthly;
+                const discount = appliedReferral ? Math.min(referralDiscount, rawPrice > 1 ? rawPrice - 1 : 0) : 0;
+                const payable = Math.max(1, rawPrice - discount);
+
+                return (
+                  <div className="space-y-2.5 pt-1">
+                    <button
+                      type="button"
+                      disabled={initiatingPlanId === pendingPlanForCheckout.id}
+                      onClick={handleConfirmAndGeneratePayment}
+                      className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-md"
+                    >
+                      {initiatingPlanId === pendingPlanForCheckout.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Generating Dynamic UPI QR...</span>
+                        </>
+                      ) : (
+                        <>
+                          <QrCode className="w-4 h-4" />
+                          <span>Generate Payment QR &bull; Pay ₹{payable.toLocaleString('en-IN')}</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPendingPlanForCheckout(null)}
+                      className="w-full py-2.5 text-stone-500 hover:text-stone-800 text-xs font-semibold rounded-xl transition cursor-pointer"
+                    >
+                      Cancel & Back to Plans
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* INSTITUTIONAL FINTECH DUAL-PANE UPI CHECKOUT MODAL */}
       {activeOrder && (
