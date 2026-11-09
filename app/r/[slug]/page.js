@@ -29,6 +29,10 @@ export async function generateMetadata({ params }) {
   return {
     title: `Share Your Experience with ${user.businessName} - Rankaro`,
     description: `Leave an authentic, detailed Google review for ${user.businessName}.`,
+    robots: {
+      index: false,
+      follow: false,
+    },
   };
 }
 

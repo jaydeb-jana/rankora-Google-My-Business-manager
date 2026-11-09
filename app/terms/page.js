@@ -179,6 +179,7 @@ Support: support@arventaventures.online`,
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={termsSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-16 pb-24">

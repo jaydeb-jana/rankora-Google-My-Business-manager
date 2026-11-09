@@ -1,5 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import JsonLd from '@/components/JsonLd';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -12,11 +13,45 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://rankaro.com';
+
 export const metadata = {
   title: 'GDPR & International Data Compliance Hub | Rankaro',
   description:
     'Information regarding Rankaro’s compliance with the EU General Data Protection Regulation (GDPR), Data Processing Addendum (DPA), sub-processor directory, and Data Subject Rights.',
+  alternates: {
+    canonical: `${siteUrl}/gdpr`,
+  },
+  openGraph: {
+    title: 'GDPR & International Data Compliance Hub | Rankaro',
+    description:
+      'Information regarding Rankaro’s compliance with the EU General Data Protection Regulation (GDPR), Data Processing Addendum (DPA), sub-processor directory, and Data Subject Rights.',
+    url: `${siteUrl}/gdpr`,
+    siteName: 'Rankaro',
+    type: 'website',
+  },
 };
+
+const gdprSchemas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': siteUrl
+      },
+      {
+        '@type': 'ListItem',
+        'position': 2,
+        'name': 'GDPR Compliance',
+        'item': `${siteUrl}/gdpr`
+      }
+    ]
+  }
+];
 
 export default function GDPRPage() {
   const subProcessors = [
@@ -55,6 +90,7 @@ export default function GDPRPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <JsonLd schema={gdprSchemas} />
       <Navbar />
 
       <main className="flex-1 space-y-20 pb-24">
