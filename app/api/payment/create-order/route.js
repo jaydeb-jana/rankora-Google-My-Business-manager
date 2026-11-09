@@ -12,7 +12,7 @@ export async function POST(request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { planId, billingCycle = 'monthly' } = body;
+    const { planId, billingCycle = 'monthly', referralCode = '' } = body;
 
     if (!['starter', 'pro', 'enterprise'].includes(planId)) {
       return NextResponse.json({ error: 'Invalid plan selected. Please choose a valid plan.' }, { status: 400 });
@@ -53,6 +53,31 @@ export async function POST(request) {
         { error: 'Selected plan has zero price. Please select a paid subscription plan.' },
         { status: 400 }
       );
+    }
+
+    // Referral Code Evaluation (arventaventures360 -> Instant ₹500 discount)
+    const originalAmount = amount;
+    let discountApplied = 0;
+    const cleanReferral = String(referralCode || '').trim();
+    let isReferralValid = false;
+
+    if (cleanReferral) {
+      if (cleanReferral.toLowerCase() === 'arventaventures360') {
+        isReferralValid = true;
+        if (amount > 500) {
+          discountApplied = 500;
+          amount = amount - 500;
+        } else {
+          // Keep minimum payable amount at ₹1 for UPI gateways
+          discountApplied = Math.max(0, amount - 1);
+          amount = 1;
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'Invalid referral code. Please check and try again.' },
+          { status: 400 }
+        );
+      }
     }
 
     const appUrl = (
@@ -109,7 +134,7 @@ export async function POST(request) {
       planId,
       planName,
       billingCycle,
-      amount: Number(orderData.amount) || amount,
+      amount: originalAmount,
       payableAmount: Number(orderData.payable_amount) || amount,
       currency: 'INR',
       upiId: orderData.upi_id || '',
@@ -123,6 +148,9 @@ export async function POST(request) {
       metadata: {
         createdAtIST: orderData.created_at_ist,
         expiresAtIST: orderData.expires_at_ist,
+        referralCode: isReferralValid ? 'arventaventures360' : null,
+        discountApplied,
+        originalAmount,
       },
     });
 
@@ -130,8 +158,10 @@ export async function POST(request) {
       success: true,
       order: {
         orderId: orderData.order_id,
-        amount: orderData.amount,
-        payableAmount: orderData.payable_amount,
+        amount: originalAmount,
+        payableAmount: Number(orderData.payable_amount) || amount,
+        discountApplied,
+        referralCode: isReferralValid ? 'arventaventures360' : null,
         upiId: orderData.upi_id,
         qrUrl: orderData.qr_url,
         checkoutUrl: orderData.checkout_url,

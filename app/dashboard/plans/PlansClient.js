@@ -28,6 +28,7 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
+  Tag,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
@@ -57,6 +58,12 @@ export default function PlansClient({ user, pricingConfig }) {
   const [showUtrInput, setShowUtrInput] = useState(false);
   const [manualUtr, setManualUtr] = useState('');
   const [submittingUtr, setSubmittingUtr] = useState(false);
+
+  // Referral Promo Code State
+  const [referralInput, setReferralInput] = useState('');
+  const [appliedReferral, setAppliedReferral] = useState(null);
+  const [referralDiscount, setReferralDiscount] = useState(0);
+  const [referralError, setReferralError] = useState('');
 
   // Invoices & Payment History
   const [invoices, setInvoices] = useState([]);
@@ -115,6 +122,8 @@ export default function PlansClient({ user, pricingConfig }) {
       id: 'starter',
       name: 'Starter',
       description: 'Essential local reputation engine for individual storefronts.',
+      rawMonthly: starterMonthly,
+      rawYearly: starterYearly,
       priceMonthly: `${currency}${starterMonthly.toLocaleString('en-IN')}`,
       priceYearly: `${currency}${starterYearly.toLocaleString('en-IN')}`,
       period: 'per month',
@@ -127,6 +136,8 @@ export default function PlansClient({ user, pricingConfig }) {
       id: 'pro',
       name: 'Pro',
       description: 'Ideal for growing businesses looking to dominate local Google search.',
+      rawMonthly: proMonthly,
+      rawYearly: proYearly,
       priceMonthly: `${currency}${proMonthly.toLocaleString('en-IN')}`,
       priceYearly: `${currency}${proYearly.toLocaleString('en-IN')}`,
       period: 'per month',
@@ -139,6 +150,8 @@ export default function PlansClient({ user, pricingConfig }) {
       id: 'enterprise',
       name: 'Ultra Enterprise',
       description: 'Tailored for agencies, multi-location chains, and high-volume brands.',
+      rawMonthly: entMonthly,
+      rawYearly: entYearly,
       priceMonthly: `${currency}${entMonthly.toLocaleString('en-IN')}`,
       priceYearly: `${currency}${entYearly.toLocaleString('en-IN')}`,
       period: 'per month',
@@ -345,6 +358,46 @@ export default function PlansClient({ user, pricingConfig }) {
     setManualUtr('');
   };
 
+  // Referral Code Application Handlers
+  const handleApplyReferral = (customCode) => {
+    const raw = (typeof customCode === 'string' ? customCode : referralInput).trim();
+    if (!raw) {
+      setReferralError('Please enter a referral code.');
+      showToast('Please enter a referral code.', 'warning');
+      return false;
+    }
+
+    if (raw.toLowerCase() === 'arventaventures360') {
+      setAppliedReferral('arventaventures360');
+      setReferralDiscount(500);
+      setReferralError('');
+      showToast("Referral code 'arventaventures360' applied! Instant ₹500 discount unlocked.", 'success');
+      try {
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#2563eb', '#f59e0b'],
+        });
+      } catch {
+        // ignore
+      }
+      return true;
+    } else {
+      setReferralError('Invalid referral code. Please check and try again.');
+      showToast('Invalid referral code. Please check and try again.', 'error');
+      return false;
+    }
+  };
+
+  const handleRemoveReferral = () => {
+    setAppliedReferral(null);
+    setReferralDiscount(0);
+    setReferralInput('');
+    setReferralError('');
+    showToast('Referral discount removed.', 'info');
+  };
+
   // Directly Initiate Live Production Plan Upgrade & Create Dynamic Order
   const handleInitiateUpgrade = async (plan) => {
     if (!plan) return;
@@ -352,8 +405,9 @@ export default function PlansClient({ user, pricingConfig }) {
   };
 
   // Trigger Plan Upgrade & Create Dynamic Order
-  const handlePlanClick = async (plan) => {
+  const handlePlanClick = async (plan, overrideReferralCode) => {
     setInitiatingPlanId(plan.id);
+    const codeToSend = overrideReferralCode !== undefined ? overrideReferralCode : (appliedReferral || '');
 
     try {
       const res = await fetch('/api/payment/create-order', {
@@ -362,6 +416,7 @@ export default function PlansClient({ user, pricingConfig }) {
         body: JSON.stringify({
           planId: plan.id,
           billingCycle,
+          referralCode: codeToSend,
         }),
       });
 
@@ -444,6 +499,75 @@ export default function PlansClient({ user, pricingConfig }) {
           <span className={`text-xs font-medium ${billingCycle === 'yearly' ? 'text-[#202124]' : 'text-[#70757a]'}`}>
             Yearly <span className="text-[#1e8e3e] font-semibold">(Save 15%)</span>
           </span>
+        </div>
+
+        {/* Referral Promo Code Entry Bar */}
+        <div className="pt-3 max-w-lg mx-auto">
+          {!appliedReferral ? (
+            <div className="bg-white border border-[#dadce0] hover:border-[#1a73e8]/50 rounded-2xl p-2 sm:p-2.5 shadow-xs transition flex flex-col sm:flex-row items-center gap-2">
+              <div className="flex items-center space-x-2 pl-2 text-stone-500 shrink-0">
+                <Tag className="w-4 h-4 text-[#1a73e8]" />
+                <span className="text-xs font-semibold text-[#3c4043]">Referral Code</span>
+              </div>
+              <div className="flex items-center gap-2 w-full">
+                <input
+                  type="text"
+                  value={referralInput}
+                  onChange={(e) => {
+                    setReferralInput(e.target.value);
+                    if (referralError) setReferralError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleApplyReferral();
+                    }
+                  }}
+                  placeholder="Enter code (e.g. arventaventures360)"
+                  className="w-full text-xs px-3 py-1.5 bg-[#f8f9fa] border border-[#dadce0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a73e8]/20 focus:border-[#1a73e8] uppercase font-mono tracking-wider text-[#202124]"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleApplyReferral()}
+                  className="shrink-0 px-3.5 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold rounded-xl transition cursor-pointer shadow-2xs"
+                >
+                  Apply Code
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 shadow-xs flex items-center justify-between animate-fadeIn">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div className="text-xs text-left">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="font-bold text-emerald-950">Referral Code Applied:</span>
+                    <span className="font-mono font-bold bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded text-[11px] tracking-wide">
+                      {appliedReferral}
+                    </span>
+                    <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Instant ₹500 OFF
+                    </span>
+                  </div>
+                  <p className="text-emerald-700 text-[11px] mt-0.5">
+                    Instant ₹500 discount unlocked across all subscription tiers.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveReferral}
+                className="text-xs text-stone-500 hover:text-red-600 font-semibold px-2 py-1 rounded transition cursor-pointer shrink-0"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+          {referralError && (
+            <p className="text-xs text-red-600 text-center mt-1.5 font-medium">{referralError}</p>
+          )}
         </div>
       </div>
 
@@ -555,12 +679,30 @@ export default function PlansClient({ user, pricingConfig }) {
                 </div>
 
                 <div className="pt-2 pb-4 border-b border-[#f1f3f4]">
-                  <div className="flex items-baseline space-x-1">
-                    <span className="text-3xl sm:text-4xl font-extrabold text-[#202124]">
-                      {billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly}
-                    </span>
-                    <span className="text-xs text-[#70757a]">/{plan.period}</span>
-                  </div>
+                  {appliedReferral ? (
+                    <div>
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-lg font-medium text-stone-400 line-through">
+                          {currency}{(billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly).toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-3xl sm:text-4xl font-extrabold text-[#1a73e8]">
+                          {currency}{Math.max(1, (billingCycle === 'yearly' ? plan.rawYearly : plan.rawMonthly) - referralDiscount).toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-xs text-[#70757a]">/{plan.period}</span>
+                      </div>
+                      <div className="mt-1.5 inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <Tag className="w-3 h-3 text-emerald-600" />
+                        <span>Instant ₹500 OFF Applied</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-baseline space-x-1">
+                      <span className="text-3xl sm:text-4xl font-extrabold text-[#202124]">
+                        {billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly}
+                      </span>
+                      <span className="text-xs text-[#70757a]">/{plan.period}</span>
+                    </div>
+                  )}
                   <p className="text-[11px] text-[#70757a] mt-1">
                     {billingCycle === 'yearly' ? 'Billed annually with zero gateway fees' : 'Billed monthly with zero gateway fees'}
                   </p>
@@ -915,6 +1057,15 @@ export default function PlansClient({ user, pricingConfig }) {
                         <span>Base Subscription:</span>
                         <span>₹{Number(activeOrder.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                       </div>
+                      {activeOrder.discountApplied > 0 && (
+                        <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50/80 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                          <span className="flex items-center gap-1.5">
+                            <Tag className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Referral ({activeOrder.referralCode}):</span>
+                          </span>
+                          <span>-₹{Number(activeOrder.discountApplied).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-emerald-700 font-medium">
                         <span>Convenience & Gateway Fee:</span>
                         <span>0% (₹0.00 FREE)</span>
@@ -929,6 +1080,50 @@ export default function PlansClient({ user, pricingConfig }) {
                         </div>
                       </div>
                     </div>
+
+                    {/* Inline Referral Code Box in Modal if not already discounted */}
+                    {!activeOrder.discountApplied && (
+                      <div className="p-3 bg-white rounded-xl border border-dashed border-stone-300 space-y-1.5 shadow-2xs">
+                        <div className="flex items-center space-x-1.5 text-[11px] font-semibold text-stone-700">
+                          <Tag className="w-3.5 h-3.5 text-[#1a73e8]" />
+                          <span>Have a Referral Code?</span>
+                        </div>
+                        <div className="flex items-center space-x-1.5">
+                          <input
+                            type="text"
+                            placeholder="Enter arventaventures360"
+                            value={referralInput}
+                            onChange={(e) => setReferralInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (referralInput.trim().toLowerCase() === 'arventaventures360') {
+                                  handleApplyReferral('arventaventures360');
+                                  handlePlanClick({ id: activeOrder.planId, name: activeOrder.planName }, 'arventaventures360');
+                                } else {
+                                  showToast('Invalid referral code. Please check and try again.', 'error');
+                                }
+                              }
+                            }}
+                            className="w-full text-xs px-2.5 py-1.5 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 uppercase font-mono tracking-wider"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (referralInput.trim().toLowerCase() === 'arventaventures360') {
+                                handleApplyReferral('arventaventures360');
+                                handlePlanClick({ id: activeOrder.planId, name: activeOrder.planName }, 'arventaventures360');
+                              } else {
+                                showToast('Invalid referral code. Please check and try again.', 'error');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-lg text-xs font-semibold shrink-0 cursor-pointer shadow-2xs"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Plan Highlights */}
                     <div className="space-y-2">
