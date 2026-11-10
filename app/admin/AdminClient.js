@@ -1241,7 +1241,7 @@ export default function AdminClient({ currentUser }) {
                             {/* Password Reveal Button for Admin */}
                             <div className="flex items-center space-x-1.5 mt-1.5">
                               <span className="font-mono text-[11px] bg-stone-100 px-2 py-0.5 rounded border border-stone-200 select-all font-semibold text-stone-700">
-                                {visiblePasswords[u._id] ? (u.password || 'Jaydeb@123') : '••••••••'}
+                                {visiblePasswords[u._id] ? (u.password || 'Encrypted') : '••••••••'}
                               </span>
                               <button
                                 type="button"
@@ -1265,7 +1265,7 @@ export default function AdminClient({ currentUser }) {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    navigator.clipboard.writeText(u.password || 'Jaydeb@123');
+                                    navigator.clipboard.writeText(u.password || '');
                                     showToast('User password copied!', 'success');
                                   }}
                                   className="p-1 text-stone-400 hover:text-purple-600 rounded transition cursor-pointer"

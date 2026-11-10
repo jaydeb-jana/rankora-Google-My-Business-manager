@@ -1,12 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, ArrowRight, LayoutDashboard, KeyRound } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, ArrowRight, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/components/Toast';
 
 export default function AdminLoginForm({ currentUser }) {
   const { showToast } = useToast();
-  const [email, setEmail] = useState('ceo@arventaventures.online');
-  const [password, setPassword] = useState('Jaydeb@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -91,7 +91,7 @@ export default function AdminLoginForm({ currentUser }) {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ceo@arventaventures.online"
+                placeholder="admin@example.com"
                 className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-stone-50 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-stone-900"
               />
             </div>
@@ -99,26 +99,17 @@ export default function AdminLoginForm({ currentUser }) {
 
           {/* Password Input */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-stone-700 flex items-center space-x-1.5">
-                <Lock className="w-3.5 h-3.5 text-purple-600" />
-                <span>Password</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => setPassword('Jaydeb@123')}
-                className="text-[10px] text-purple-600 hover:text-purple-800 font-semibold cursor-pointer"
-              >
-                Auto-fill Default
-              </button>
-            </div>
+            <label className="text-xs font-bold text-stone-700 flex items-center space-x-1.5">
+              <Lock className="w-3.5 h-3.5 text-purple-600" />
+              <span>Password</span>
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Jaydeb@123"
+                placeholder="Enter admin password"
                 className="w-full px-3.5 py-2.5 pr-10 text-xs sm:text-sm bg-stone-50 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-stone-900"
               />
               <button
@@ -150,20 +141,6 @@ export default function AdminLoginForm({ currentUser }) {
             )}
           </button>
         </form>
-
-        {/* Quick Credentials Info Box */}
-        <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 text-left space-y-1.5 text-xs text-stone-600">
-          <div className="flex items-center space-x-1.5 font-bold text-stone-800">
-            <KeyRound className="w-3.5 h-3.5 text-purple-600" />
-            <span>Administrator Credentials</span>
-          </div>
-          <p className="text-[11px] font-mono text-stone-600">
-            Email: <strong className="text-purple-700">ceo@arventaventures.online</strong>
-          </p>
-          <p className="text-[11px] font-mono text-stone-600">
-            Password: <strong className="text-purple-700">Jaydeb@123</strong>
-          </p>
-        </div>
 
         {/* Return to Dashboard */}
         {currentUser && (
